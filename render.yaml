@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: todd-generator
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: SUPABASE_URL
+        sync: false        # you paste this in Render dashboard
+      - key: SUPABASE_ANON_KEY
+        sync: false        # you paste this in Render dashboard
+      - key: PORT
+        value: 3000
