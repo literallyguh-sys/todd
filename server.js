@@ -176,4 +176,19 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Todd Generator running on http://localhost:${PORT}`);
+
+  // ── Keep-alive ping ──
+  // Pings the server every 10 minutes so Render's free tier never goes to sleep.
+  const SELF_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+  setInterval(() => {
+    const https = SELF_URL.startsWith('https') ? require('https') : require('http');
+    https.get(SELF_URL + '/ping', (res) => {
+      console.log(`[keep-alive] ping → ${res.statusCode}`);
+    }).on('error', (e) => {
+      console.warn(`[keep-alive] ping failed: ${e.message}`);
+    });
+  }, 10 * 60 * 1000); // every 10 minutes
 });
+
+// Simple ping endpoint for the keep-alive
+app.get('/ping', (req, res) => res.send('pong'));
