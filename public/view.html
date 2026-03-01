@@ -8,126 +8,201 @@
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:#060608;font-family:'VT323',monospace;}
+:root{--accent:#FFD600;--red:#FF3A3A;--green:#00cc66;--pf:#FF6B00;--ps:#9945FF;}
 
-/* CRT scanlines */
 body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
 
 #room{position:fixed;inset:0;z-index:0;
-  background-image:url('room.jpeg');
-  background-size:cover;background-position:center;}
+  background-image:url('room.jpeg');background-size:cover;background-position:center;}
 #room::after{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.2) 0%,rgba(0,0,0,0.75) 100%);}
+  background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.82) 100%);}
 
-/* ── SCANNER PANEL ── */
-#scanner{
-  position:fixed;top:0;left:0;right:0;bottom:0;
-  z-index:10;display:flex;flex-direction:column;
-  padding:16px 20px 12px;overflow:hidden;
+/* ── LAYOUT ── */
+#app{position:fixed;inset:0;z-index:10;display:flex;}
+
+/* ── CHAT PANEL ── */
+#chat-panel{
+  width:260px;flex-shrink:0;display:flex;flex-direction:column;
+  border-right:1px solid rgba(255,255,255,0.07);
 }
+#chat-titlebar{
+  display:flex;align-items:center;gap:6px;padding:8px 10px;
+  border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;
+}
+#chat-titlebar-left{display:flex;align-items:center;gap:6px;flex:1;min-width:0;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);
+  box-shadow:0 0 6px var(--red);animation:pulse 1.2s steps(2) infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+#chat-label{font-size:15px;color:#ccc;letter-spacing:2px;}
+#chat-auth-btn{
+  background:transparent;border:1px solid #333;color:#777;
+  font-family:'VT323',monospace;font-size:12px;letter-spacing:1px;
+  padding:2px 7px;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:all 0.15s;
+}
+#chat-auth-btn:hover{border-color:var(--accent);color:var(--accent);}
+#chat-auth-btn.logged-in{border-color:var(--green);color:var(--green);}
 
-/* Header bar */
+#chat-messages{
+  flex:1;overflow-y:auto;padding:6px 8px;
+  display:flex;flex-direction:column;gap:3px;
+}
+#chat-messages::-webkit-scrollbar{width:3px;}
+#chat-messages::-webkit-scrollbar-track{background:transparent;}
+#chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);}
+.chat-msg{font-size:14px;line-height:1.35;word-break:break-word;}
+.chat-msg-name{font-weight:700;margin-right:3px;}
+.chat-msg-text{color:#bbb;}
+
+#chat-input-area{padding:7px;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;}
+#chat-name-input{
+  width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:#ccc;font-family:'VT323',monospace;font-size:14px;
+  padding:3px 7px;outline:none;margin-bottom:4px;
+}
+#chat-name-input:focus{border-color:var(--accent);}
+#chat-bottom{display:flex;gap:4px;}
+#chat-msg-input{
+  flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:#ddd;font-family:'VT323',monospace;font-size:14px;
+  padding:4px 7px;outline:none;min-width:0;
+}
+#chat-msg-input:focus{border-color:var(--accent);}
+#chat-send-btn{
+  background:var(--accent);color:#000;border:none;
+  padding:4px 10px;font-size:15px;cursor:pointer;font-family:'VT323',monospace;font-weight:700;
+}
+#chat-send-btn:hover{background:#ffe033;}
+
+/* ── AUTH MODAL ── */
+#auth-modal{
+  display:none;position:fixed;inset:0;z-index:500;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.7);
+}
+#auth-modal.open{display:flex;}
+.auth-box{
+  background:#111114;border-top:2px solid #555;border-left:2px solid #555;
+  border-right:2px solid #222;border-bottom:2px solid #222;
+  width:320px;overflow:hidden;
+}
+.auth-titlebar{
+  background:#222;border-bottom:1px solid #111;
+  padding:5px 12px;font-size:14px;color:#bbb;letter-spacing:1px;
+  display:flex;align-items:center;gap:6px;
+}
+.auth-inner{padding:20px 18px;display:flex;flex-direction:column;gap:10px;align-items:center;}
+.auth-title{font-size:20px;color:var(--accent);letter-spacing:3px;}
+.auth-google-btn{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:#fff;border:none;padding:9px 16px;cursor:pointer;
+  font-size:14px;font-weight:500;color:#333;justify-content:center;
+}
+.auth-google-btn:hover{background:#f0f0f0;}
+.auth-or{color:#444;font-size:13px;letter-spacing:2px;}
+.auth-guest-btn{
+  width:100%;background:#1a1a1a;border:1px solid #444;
+  color:#999;font-family:'VT323',monospace;font-size:18px;
+  letter-spacing:2px;padding:7px;cursor:pointer;
+}
+.auth-guest-btn:hover{color:var(--accent);border-color:#666;}
+.auth-cancel{
+  background:transparent;border:none;color:#444;
+  font-family:'VT323',monospace;font-size:13px;cursor:pointer;letter-spacing:1px;
+}
+.auth-cancel:hover{color:#888;}
+
+/* ── SCANNER ── */
+#scanner{flex:1;display:flex;flex-direction:column;padding:12px 14px 10px;overflow:hidden;min-width:0;}
+
 #scanner-header{
-  display:flex;align-items:center;gap:12px;flex-shrink:0;
-  padding-bottom:10px;border-bottom:1px solid rgba(255,214,0,0.25);
-  margin-bottom:10px;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  padding-bottom:8px;border-bottom:1px solid rgba(255,214,0,0.2);margin-bottom:8px;
 }
-#scanner-title{font-size:22px;color:#FFD600;letter-spacing:3px;}
-#scanner-status{font-size:13px;color:#666;letter-spacing:1px;flex:1;}
-#scan-refresh-btn{
-  background:transparent;border:1px solid #FFD600;color:#FFD600;
-  font-family:'VT323',monospace;font-size:14px;letter-spacing:1px;
-  padding:3px 12px;cursor:pointer;
+#scanner-title{font-size:20px;color:var(--accent);letter-spacing:3px;white-space:nowrap;}
+#scanner-status{font-size:13px;color:#555;letter-spacing:1px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hdr-btn{
+  background:transparent;font-family:'VT323',monospace;font-size:13px;
+  letter-spacing:1px;padding:2px 10px;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  text-decoration:none;display:inline-block;
 }
-#scan-refresh-btn:hover{background:#FFD600;color:#000;}
-#scan-refresh-btn:disabled{opacity:0.4;cursor:default;}
-#back-btn{
-  background:transparent;border:1px solid #555;color:#888;
-  font-family:'VT323',monospace;font-size:14px;letter-spacing:1px;
-  padding:3px 12px;cursor:pointer;text-decoration:none;
-}
-#back-btn:hover{border-color:#FFD600;color:#FFD600;}
+#scan-refresh-btn{border:1px solid var(--accent);color:var(--accent);}
+#scan-refresh-btn:hover{background:var(--accent);color:#000;}
+#scan-refresh-btn:disabled{opacity:0.35;cursor:default;}
+#back-btn{border:1px solid #444;color:#777;}
+#back-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-/* Filters row */
 #scanner-filters{
-  display:flex;gap:16px;flex-shrink:0;margin-bottom:10px;
-  font-size:13px;color:#555;letter-spacing:1px;
+  display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0;margin-bottom:8px;
 }
-.filter-tag{
-  border:1px solid #2a2a2a;padding:2px 8px;color:#555;
+.ftag{
+  font-size:12px;letter-spacing:1px;padding:1px 7px;
+  border:1px solid #1e1e1e;color:#444;
 }
-.filter-tag span{color:#FFD600;}
+.ftag span{color:var(--accent);}
 
-/* Two-column results */
-#scanner-body{
-  display:flex;gap:12px;flex:1;overflow:hidden;min-height:0;
-}
+#scanner-body{display:flex;gap:10px;flex:1;overflow:hidden;min-height:0;}
 
-.col{
-  flex:1;display:flex;flex-direction:column;overflow:hidden;
+.col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.col-hdr{
+  display:flex;align-items:center;gap:6px;padding:4px 8px;
+  margin-bottom:6px;font-size:14px;letter-spacing:2px;flex-shrink:0;
 }
-.col-header{
-  display:flex;align-items:center;gap:8px;
-  padding:5px 10px;margin-bottom:6px;flex-shrink:0;
-  letter-spacing:2px;font-size:15px;
-}
-.col-header.pumpfun{border-left:3px solid #FF6B00;color:#FF6B00;}
-.col-header.pumpswap{border-left:3px solid #9945FF;color:#9945FF;}
-.col-count{font-size:12px;opacity:0.6;margin-left:auto;}
+.col-hdr.pf{border-left:3px solid var(--pf);color:var(--pf);}
+.col-hdr.ps{border-left:3px solid var(--ps);color:var(--ps);}
+.col-hdr .sub{font-size:11px;opacity:0.55;margin-left:2px;}
+.col-count{margin-left:auto;font-size:12px;opacity:0.5;}
 
-.col-list{
-  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;
-  padding-right:4px;
-}
-.col-list::-webkit-scrollbar{width:4px;}
+.col-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:5px;padding-right:3px;}
+.col-list::-webkit-scrollbar{width:3px;}
 .col-list::-webkit-scrollbar-track{background:transparent;}
-.col-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);}
+.col-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);}
 
-/* Token card */
+/* ── TOKEN CARD ── */
 .token-card{
-  background:rgba(0,0,0,0.6);
-  border:1px solid rgba(255,255,255,0.07);
-  padding:8px 10px;
-  display:flex;flex-direction:column;gap:4px;
-  transition:border-color 0.15s;
-}
-.token-card:hover{border-color:rgba(255,255,255,0.2);}
-.token-card.pumpfun{border-left:2px solid rgba(255,107,0,0.5);}
-.token-card.pumpswap{border-left:2px solid rgba(153,69,255,0.5);}
-
-.token-top{display:flex;align-items:center;gap:8px;}
-.token-icon{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#1a1a1a;}
-.token-icon-placeholder{width:28px;height:28px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:11px;color:#444;flex-shrink:0;}
-.token-name-block{flex:1;min-width:0;}
-.token-name{font-size:15px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.token-ticker{font-size:13px;color:#888;}
-.token-mcap{font-size:15px;color:#FFD600;white-space:nowrap;margin-left:auto;}
-
-.token-stats{display:flex;gap:10px;font-size:12px;color:#555;}
-.stat{display:flex;gap:3px;}
-.stat-label{color:#444;}
-.stat-val.ok{color:#00cc66;}
-.stat-val.warn{color:#FF6B00;}
-.stat-val.bad{color:#FF3A3A;}
-
-.token-link{
-  display:inline-block;font-size:12px;color:#555;letter-spacing:1px;
+  background:rgba(0,0,0,0.65);
+  border:1px solid rgba(255,255,255,0.08);
+  display:flex;gap:10px;align-items:stretch;
+  transition:border-color 0.15s,background 0.15s;
   text-decoration:none;
-  transition:color 0.15s;
 }
-.token-link:hover{color:#FFD600;}
+.token-card:hover{border-color:rgba(255,255,255,0.22);background:rgba(0,0,0,0.75);}
+.token-card.pf{border-left:2px solid rgba(255,107,0,0.6);}
+.token-card.ps{border-left:2px solid rgba(153,69,255,0.6);}
 
-/* Empty / loading states */
-.col-empty{
-  font-size:14px;color:#333;letter-spacing:1px;padding:16px 10px;
+.token-img{
+  width:56px;height:56px;flex-shrink:0;
+  object-fit:cover;display:block;
+  border-right:1px solid rgba(255,255,255,0.06);
 }
-.loading-row{
-  display:flex;gap:6px;align-items:center;font-size:13px;color:#444;padding:4px 0;
+.token-img-placeholder{
+  width:56px;height:56px;flex-shrink:0;
+  background:#111;display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#333;border-right:1px solid rgba(255,255,255,0.06);
 }
-.spinner{
-  width:10px;height:10px;border:1px solid #333;border-top-color:#FFD600;
-  border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;
+.token-body{flex:1;padding:6px 8px 6px 0;display:flex;flex-direction:column;gap:3px;min-width:0;}
+
+.token-row1{display:flex;align-items:baseline;gap:6px;}
+.token-name{font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;}
+.token-ticker{font-size:13px;color:var(--accent);white-space:nowrap;flex-shrink:0;}
+.token-mcap{font-size:15px;color:var(--accent);white-space:nowrap;margin-left:auto;flex-shrink:0;font-weight:700;}
+
+.token-row2{display:flex;align-items:center;gap:8px;}
+.badge{font-size:12px;letter-spacing:1px;padding:1px 5px;border:1px solid rgba(255,255,255,0.08);color:#666;}
+.badge.ok{color:var(--green);border-color:rgba(0,204,102,0.2);}
+.badge.warn{color:var(--pf);border-color:rgba(255,107,0,0.2);}
+.badge.bad{color:var(--red);border-color:rgba(255,58,58,0.2);}
+.token-dex-link{
+  margin-left:auto;font-size:11px;color:#444;letter-spacing:1px;
+  text-decoration:none;white-space:nowrap;flex-shrink:0;
 }
+.token-card:hover .token-dex-link{color:var(--accent);}
+
+.col-empty{font-size:13px;color:#333;letter-spacing:1px;padding:14px 8px;}
+.loading-row{display:flex;gap:6px;align-items:center;font-size:13px;color:#3a3a3a;padding:6px 0;}
+.spinner{width:9px;height:9px;border:1px solid #2a2a2a;border-top-color:var(--accent);
+  border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 #transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
@@ -137,41 +212,77 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 <div id="room"></div>
 <div id="transition"></div>
 
-<div id="scanner">
-
-  <div id="scanner-header">
-    <div id="scanner-title">⬡ TOKEN SCANNER</div>
-    <div id="scanner-status">Initialising...</div>
-    <button id="scan-refresh-btn" onclick="startScan()" disabled>↺ REFRESH</button>
-    <a id="back-btn" href="index.html">← BACK</a>
+<!-- ── AUTH MODAL ── -->
+<div id="auth-modal">
+  <div class="auth-box">
+    <div class="auth-titlebar">
+      <span style="color:#FFD600">⬡</span> todd's witnesses — sign in
+    </div>
+    <div class="auth-inner">
+      <div class="auth-title">WHO ARE YOU?</div>
+      <button class="auth-google-btn" onclick="authGoogle()">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <div class="auth-or">— or —</div>
+      <button class="auth-guest-btn" onclick="authGuest()">[ ENTER AS GUEST ]</button>
+      <button class="auth-cancel" onclick="closeAuthModal()">cancel</button>
+    </div>
   </div>
+</div>
 
-  <div id="scanner-filters">
-    <div class="filter-tag">MCAP <span>&lt;$100K</span></div>
-    <div class="filter-tag">DEV <span>&lt;10%</span></div>
-    <div class="filter-tag">CREATOR <span>CLEAN</span></div>
-    <div class="filter-tag">PROFILE <span>PAID ✔</span></div>
-    <div class="filter-tag">CHAIN <span>SOLANA</span></div>
-  </div>
+<!-- ── MAIN LAYOUT ── -->
+<div id="app">
 
-  <div id="scanner-body">
-    <div class="col" id="col-pumpfun">
-      <div class="col-header pumpfun">
-        ◈ PUMP.FUN <span style="font-size:11px;margin-left:4px;opacity:0.6">(pre-bond)</span>
-        <span class="col-count" id="count-pumpfun">0</span>
+  <!-- CHAT -->
+  <div id="chat-panel">
+    <div id="chat-titlebar">
+      <div id="chat-titlebar-left">
+        <div class="live-dot"></div>
+        <div id="chat-label">LIVE CHAT</div>
       </div>
-      <div class="col-list" id="list-pumpfun">
-        <div class="col-empty">Waiting for scan...</div>
+      <button id="chat-auth-btn" onclick="openAuthModal()">LOGIN</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div id="chat-input-area">
+      <input type="text" id="chat-name-input" placeholder="Your name" maxlength="20">
+      <div id="chat-bottom">
+        <input type="text" id="chat-msg-input" placeholder="Say something..." maxlength="200">
+        <button id="chat-send-btn" onclick="sendMsg()">➤</button>
       </div>
     </div>
+  </div>
 
-    <div class="col" id="col-pumpswap">
-      <div class="col-header pumpswap">
-        ◈ PUMPSWAP <span style="font-size:11px;margin-left:4px;opacity:0.6">(post-bond)</span>
-        <span class="col-count" id="count-pumpswap">0</span>
+  <!-- SCANNER -->
+  <div id="scanner">
+    <div id="scanner-header">
+      <div id="scanner-title">⬡ SCANNER</div>
+      <div id="scanner-status">Initialising...</div>
+      <button id="scan-refresh-btn" class="hdr-btn" onclick="startScan()" disabled>↺ REFRESH</button>
+      <a id="back-btn" class="hdr-btn" href="index.html">← BACK</a>
+    </div>
+
+    <div id="scanner-filters">
+      <div class="ftag">MCAP <span>&lt;$100K</span></div>
+      <div class="ftag">DEV <span>&lt;10%</span></div>
+      <div class="ftag">CREATOR <span>CLEAN</span></div>
+      <div class="ftag">PROFILE <span>PAID ✔</span></div>
+      <div class="ftag">CHAIN <span>SOLANA</span></div>
+    </div>
+
+    <div id="scanner-body">
+      <div class="col">
+        <div class="col-hdr pf">◈ PUMP.FUN<span class="sub">(pre-bond)</span><span class="col-count" id="count-pf">0</span></div>
+        <div class="col-list" id="list-pf"><div class="col-empty">Waiting for scan...</div></div>
       </div>
-      <div class="col-list" id="list-pumpswap">
-        <div class="col-empty">Waiting for scan...</div>
+      <div class="col">
+        <div class="col-hdr ps">◈ PUMPSWAP<span class="sub">(post-bond)</span><span class="col-count" id="count-ps">0</span></div>
+        <div class="col-list" id="list-ps"><div class="col-empty">Waiting for scan...</div></div>
       </div>
     </div>
   </div>
@@ -179,229 +290,361 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 </div>
 
 <script>
-const DS = 'https://api.dexscreener.com';
-const RC = 'https://api.rugcheck.xyz/v1';
+// ── Constants ────────────────────────────────────────────────────────────────
+const SUPA_URL  = 'https://cfaqadeoxskwhebyirok.supabase.co';
+const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
+const DS        = 'https://api.dexscreener.com';
+const RC        = 'https://api.rugcheck.xyz/v1';
+const CHAT_MAX  = 100;
+const NAME_COLORS = ['#ff7eb3','#7eb3ff','#7effb3','#ffb37e','#d07eff','#ff7e7e','#7effe0','#fff07e','#ff9f7e','#a78bfa'];
 
-let scanning = false;
-let pumpfunResults = [];
-let pumpswapResults = [];
+// ── Auth ─────────────────────────────────────────────────────────────────────
+let _currentUser = null;
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-function fmtMcap(n) {
-  if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
-  return '$' + Math.round(n);
+function getGuestName() {
+  try {
+    let id = localStorage.getItem('todd_guest_id');
+    if (!id) {
+      const fp = [navigator.userAgent.length,screen.width,screen.height,screen.colorDepth,
+        new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,navigator.language.length
+      ].reduce((a,b)=>(a*31+b)&0xffff,0x4d32);
+      id = String(1000+(Math.abs(fp)%9000));
+      localStorage.setItem('todd_guest_id',id);
+    }
+    return 'guest'+id;
+  } catch(e){ return 'guest'+Math.floor(1000+Math.random()*9000); }
 }
 
-function statClass(pct, warn, bad) {
-  if (pct >= bad)  return 'bad';
-  if (pct >= warn) return 'warn';
-  return 'ok';
+function getStoredToken() {
+  try {
+    const k = Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
+    if (k) { const s=JSON.parse(localStorage.getItem(k)); return s?.access_token||''; }
+  } catch(e){}
+  return '';
 }
 
-function getDevPct(report) {
-  if (!report.topHolders || !report.creator) return 0;
-  const entry = report.topHolders.find(h => h.address === report.creator);
-  return entry ? (entry.pct || 0) : 0;
+function openAuthModal()  { document.getElementById('auth-modal').classList.add('open'); }
+function closeAuthModal() { document.getElementById('auth-modal').classList.remove('open'); }
+
+function authGoogle() {
+  const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/,'/');
+  window.location.href = `${SUPA_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(base+'view.html')}`;
 }
 
-function hasCreatorRisk(risks) {
-  return (risks || []).some(r => {
-    const name = (r.name || '').toLowerCase();
-    return name.includes('creator') || name.includes('deployer');
-  });
+function authGuest() {
+  localStorage.setItem('todd_authed','1');
+  closeAuthModal();
+  updateAuthBtn();
+  initChatName();
 }
 
-function setStatus(msg) {
-  document.getElementById('scanner-status').textContent = msg;
+function updateAuthBtn() {
+  const btn = document.getElementById('chat-auth-btn');
+  if (_currentUser && _currentUser.username) {
+    btn.textContent = _currentUser.username + ' ✔';
+    btn.classList.add('logged-in');
+    btn.onclick = null;
+  } else {
+    const token = getStoredToken();
+    if (token || localStorage.getItem('todd_authed')==='1') {
+      btn.textContent = '✔ IN';
+      btn.classList.add('logged-in');
+      btn.onclick = null;
+    } else {
+      btn.textContent = 'LOGIN';
+      btn.classList.remove('logged-in');
+      btn.onclick = openAuthModal;
+    }
+  }
 }
 
-// ── API Calls ─────────────────────────────────────────────────────────────────
-
-async function fetchJSON(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  return r.json();
-}
-
-async function fetchPaidTokens() {
-  const [profiles, boosts] = await Promise.allSettled([
-    fetchJSON(`${DS}/token-profiles/latest/v1`),
-    fetchJSON(`${DS}/token-boosts/latest/v1`)
-  ]);
-  const all = [];
-  const seen = new Set();
-  const add = arr => {
-    if (!Array.isArray(arr)) return;
-    for (const t of arr) {
-      if (t.chainId === 'solana' && t.tokenAddress && !seen.has(t.tokenAddress)) {
-        seen.add(t.tokenAddress);
-        all.push(t);
+async function initChatName() {
+  const el = document.getElementById('chat-name-input');
+  // 1. Cached user
+  try {
+    const raw = localStorage.getItem('todd_user_data');
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u && u.username) {
+        _currentUser = u;
+        el.value = u.username + ' ✔';
+        el.readOnly = true;
+        el.style.color = 'var(--green)';
+        el.style.borderColor = 'var(--green)';
+        updateAuthBtn();
+        return;
       }
     }
-  };
-  if (profiles.status === 'fulfilled') add(profiles.value);
-  if (boosts.status  === 'fulfilled') add(boosts.value);
+  } catch(e){}
+
+  // 2. Live fetch
+  const token = getStoredToken();
+  if (token) {
+    try {
+      const ur = await fetch(`${SUPA_URL}/auth/v1/user`,{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token}});
+      if (ur.ok) {
+        const user = await ur.json();
+        if (user && user.id) {
+          const rr = await fetch(`${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(user.id)}&select=username&limit=1`,
+            {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token}});
+          if (rr.ok) {
+            const rows = await rr.json();
+            const username = rows[0]&&rows[0].username;
+            if (username) {
+              _currentUser = {username,userId:user.id,email:user.email,verified:true};
+              try{localStorage.setItem('todd_user_data',JSON.stringify(_currentUser));}catch(e){}
+              el.value = username + ' ✔';
+              el.readOnly = true;
+              el.style.color = 'var(--green)';
+              el.style.borderColor = 'var(--green)';
+              updateAuthBtn();
+              return;
+            }
+          }
+        }
+      }
+    } catch(e){}
+  }
+
+  // 3. Guest fallback
+  el.value = getGuestName();
+  el.readOnly = false;
+  el.style.color = '';
+  el.style.borderColor = '';
+  updateAuthBtn();
+}
+
+// Handle Google OAuth return
+if (window.location.hash.includes('access_token')) {
+  localStorage.setItem('todd_authed','1');
+  try {
+    const params={};
+    window.location.hash.slice(1).split('&').forEach(p=>{const[k,v]=p.split('=');params[decodeURIComponent(k)]=decodeURIComponent(v||'');});
+    localStorage.setItem('sb-cfaqadeoxskwhebyirok-auth-token',JSON.stringify({
+      access_token:params['access_token'],refresh_token:params['refresh_token'],
+      expires_at:Math.floor(Date.now()/1000)+parseInt(params['expires_in']||'3600'),token_type:'bearer'
+    }));
+  } catch(e){}
+  history.replaceState(null,'',window.location.pathname);
+}
+
+// ── Chat ─────────────────────────────────────────────────────────────────────
+function nameColor(name) {
+  let h=0;
+  for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))&0xffffffff;
+  return NAME_COLORS[Math.abs(h)%NAME_COLORS.length];
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function appendMsg(msg) {
+  const box = document.getElementById('chat-messages');
+  const atBottom = box.scrollHeight-box.scrollTop-box.clientHeight < 80;
+  const el = document.createElement('div');
+  el.className = 'chat-msg';
+  el.innerHTML = `<span class="chat-msg-name" style="color:${nameColor(msg.name)}">${escHtml(msg.name)}:</span> <span class="chat-msg-text">${escHtml(msg.text)}</span>`;
+  box.appendChild(el);
+  while(box.children.length>CHAT_MAX) box.removeChild(box.firstChild);
+  if(atBottom) box.scrollTop=box.scrollHeight;
+}
+
+async function loadChat() {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/chat_messages?select=id,name,text,created_at&order=created_at.asc&limit=80`,
+      {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}});
+    const msgs = await r.json();
+    const box = document.getElementById('chat-messages');
+    box.innerHTML='';
+    if(Array.isArray(msgs)) msgs.forEach(appendMsg);
+    box.scrollTop=box.scrollHeight;
+  } catch(e){}
+}
+
+function subscribeChat() {
+  const wsUrl=SUPA_URL.replace('https://','wss://')+'/realtime/v1/websocket?apikey='+SUPA_KEY+'&vsn=1.0.0';
+  let ws,ping;
+  function connect(){
+    ws=new WebSocket(wsUrl);
+    ws.onopen=()=>{
+      ws.send(JSON.stringify({topic:'realtime:public:chat_messages',event:'phx_join',payload:{},ref:'v1'}));
+      ping=setInterval(()=>{if(ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:'hb'}));},20000);
+    };
+    ws.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.event==='INSERT'&&m.payload?.record)appendMsg(m.payload.record);}catch(err){}};
+    ws.onclose=()=>{clearInterval(ping);setTimeout(connect,3000);};
+    ws.onerror=()=>ws.close();
+  }
+  connect();
+}
+
+async function sendMsg() {
+  const ne=document.getElementById('chat-name-input');
+  const me=document.getElementById('chat-msg-input');
+  const name=(_currentUser?.username)?_currentUser.username+' ✔':(ne.value||'').trim()||getGuestName();
+  const text=(me.value||'').trim();
+  if(!text) return;
+  me.value='';
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/chat_messages`,{
+      method:'POST',
+      headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},
+      body:JSON.stringify({name,text})
+    });
+  } catch(e){}
+}
+
+document.getElementById('chat-msg-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
+
+// ── Scanner Helpers ───────────────────────────────────────────────────────────
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+function fmtMcap(n){
+  if(n>=1000000) return '$'+(n/1000000).toFixed(2)+'M';
+  if(n>=1000)    return '$'+(n/1000).toFixed(1)+'K';
+  return '$'+Math.round(n);
+}
+
+function devClass(pct){ return pct>=10?'bad':pct>=5?'warn':'ok'; }
+
+function getDevPct(report){
+  if(!report.topHolders||!report.creator) return 0;
+  const e=report.topHolders.find(h=>h.address===report.creator);
+  return e?(e.pct||0):0;
+}
+
+function hasCreatorRisk(risks){
+  return (risks||[]).some(r=>{const n=(r.name||'').toLowerCase();return n.includes('creator')||n.includes('deployer');});
+}
+
+function setStatus(msg){document.getElementById('scanner-status').textContent=msg;}
+
+// ── Scanner API ───────────────────────────────────────────────────────────────
+async function fetchJSON(url){const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
+
+async function fetchPaidTokens(){
+  const [a,b]=await Promise.allSettled([fetchJSON(`${DS}/token-profiles/latest/v1`),fetchJSON(`${DS}/token-boosts/latest/v1`)]);
+  const all=[],seen=new Set();
+  const add=arr=>{if(!Array.isArray(arr))return;for(const t of arr)if(t.chainId==='solana'&&t.tokenAddress&&!seen.has(t.tokenAddress)){seen.add(t.tokenAddress);all.push(t);}};
+  if(a.status==='fulfilled') add(a.value);
+  if(b.status==='fulfilled') add(b.value);
   return all;
 }
 
-async function fetchPairs(address) {
-  const data = await fetchJSON(`${DS}/latest/dex/tokens/${address}`);
-  return data.pairs || [];
-}
-
-async function fetchRugcheck(mint) {
-  return fetchJSON(`${RC}/tokens/${mint}/report`);
-}
-
 // ── Render ────────────────────────────────────────────────────────────────────
+let pfResults=[],psResults=[];
 
-function renderCard(result, dex) {
-  const { profile, pair, dev } = result;
-  const mcap = pair.marketCap || pair.fdv || 0;
-  const name   = pair.baseToken?.name   || profile.tokenAddress.slice(0, 8);
-  const ticker = pair.baseToken?.symbol || '???';
-  const icon   = profile.icon || (pair.info && pair.info.imageUrl);
-  const link   = pair.url || profile.url;
+function renderCard(result,dex){
+  const{profile,pair,dev}=result;
+  const mcap=pair.marketCap||pair.fdv||0;
+  const name=pair.baseToken?.name||profile.tokenAddress.slice(0,8);
+  const ticker=pair.baseToken?.symbol||'???';
+  const icon=profile.icon||(pair.info&&pair.info.imageUrl)||'';
+  const link=pair.url||profile.url||'#';
+  const dc=devClass(dev);
 
-  const devClass = statClass(dev, 5, 10);
+  const card=document.createElement('a');
+  card.className=`token-card ${dex==='pumpfun'?'pf':'ps'}`;
+  card.href=link; card.target='_blank'; card.rel='noopener';
 
-  const iconHtml = icon
-    ? `<img class="token-icon" src="${icon}" alt="" onerror="this.style.display='none'">`
-    : `<div class="token-icon-placeholder">${ticker.slice(0,3)}</div>`;
+  const imgHtml=icon
+    ?`<img class="token-img" src="${escHtml(icon)}" alt="" onerror="this.outerHTML='<div class=token-img-placeholder>${escHtml(ticker.slice(0,3))}</div>'">`
+    :`<div class="token-img-placeholder">${escHtml(ticker.slice(0,3))}</div>`;
 
-  const card = document.createElement('div');
-  card.className = `token-card ${dex}`;
-  card.innerHTML = `
-    <div class="token-top">
-      ${iconHtml}
-      <div class="token-name-block">
-        <div class="token-name">${escHtml(name)}</div>
-        <div class="token-ticker">$${escHtml(ticker)}</div>
+  card.innerHTML=`
+    ${imgHtml}
+    <div class="token-body">
+      <div class="token-row1">
+        <span class="token-name">${escHtml(name)}</span>
+        <span class="token-ticker">$${escHtml(ticker)}</span>
+        <span class="token-mcap">${fmtMcap(mcap)}</span>
       </div>
-      <div class="token-mcap">${fmtMcap(mcap)}</div>
-    </div>
-    <div class="token-stats">
-      <div class="stat"><span class="stat-label">DEV</span>&nbsp;<span class="stat-val ${devClass}">${dev.toFixed(1)}%</span></div>
-      <div class="stat"><span class="stat-label">CREATOR</span>&nbsp;<span class="stat-val ok">CLEAN</span></div>
-    </div>
-    <a class="token-link" href="${link}" target="_blank" rel="noopener">[ VIEW ON DEXSCREENER ↗ ]</a>
-  `;
+      <div class="token-row2">
+        <span class="badge ${dc}">DEV ${dev.toFixed(1)}%</span>
+        <span class="badge ok">CREATOR ✔</span>
+        <span class="token-dex-link">VIEW ↗</span>
+      </div>
+    </div>`;
   return card;
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function flushResults() {
-  const listPf = document.getElementById('list-pumpfun');
-  const listPs = document.getElementById('list-pumpswap');
-
-  // Clear placeholder
-  listPf.innerHTML = '';
-  listPs.innerHTML = '';
-
-  if (pumpfunResults.length === 0) listPf.innerHTML = '<div class="col-empty">No tokens match filters</div>';
-  if (pumpswapResults.length === 0) listPs.innerHTML = '<div class="col-empty">No tokens match filters</div>';
-
-  for (const r of pumpfunResults)  listPf.appendChild(renderCard(r, 'pumpfun'));
-  for (const r of pumpswapResults) listPs.appendChild(renderCard(r, 'pumpswap'));
-
-  document.getElementById('count-pumpfun').textContent  = pumpfunResults.length;
-  document.getElementById('count-pumpswap').textContent = pumpswapResults.length;
+function flushResults(){
+  const lp=document.getElementById('list-pf'),ls=document.getElementById('list-ps');
+  lp.innerHTML=''; ls.innerHTML='';
+  if(!pfResults.length) lp.innerHTML='<div class="col-empty">No tokens match filters</div>';
+  if(!psResults.length) ls.innerHTML='<div class="col-empty">No tokens match filters</div>';
+  pfResults.forEach(r=>lp.appendChild(renderCard(r,'pumpfun')));
+  psResults.forEach(r=>ls.appendChild(renderCard(r,'pumpswap')));
+  document.getElementById('count-pf').textContent=pfResults.length;
+  document.getElementById('count-ps').textContent=psResults.length;
 }
 
 // ── Main Scan ─────────────────────────────────────────────────────────────────
+let scanning=false;
 
-async function startScan() {
-  if (scanning) return;
-  scanning = true;
-  pumpfunResults  = [];
-  pumpswapResults = [];
-
-  const btn = document.getElementById('scan-refresh-btn');
-  btn.disabled = true;
-  btn.textContent = '↺ SCANNING...';
-
-  // Reset lists
-  document.getElementById('list-pumpfun').innerHTML  = '<div class="loading-row"><div class="spinner"></div> Fetching tokens...</div>';
-  document.getElementById('list-pumpswap').innerHTML = '<div class="loading-row"><div class="spinner"></div> Fetching tokens...</div>';
-  document.getElementById('count-pumpfun').textContent  = '0';
-  document.getElementById('count-pumpswap').textContent = '0';
+async function startScan(){
+  if(scanning) return;
+  scanning=true; pfResults=[]; psResults=[];
+  const btn=document.getElementById('scan-refresh-btn');
+  btn.disabled=true; btn.textContent='↺ SCANNING...';
+  document.getElementById('list-pf').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
+  document.getElementById('list-ps').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
+  document.getElementById('count-pf').textContent='0';
+  document.getElementById('count-ps').textContent='0';
 
   try {
-    setStatus('Fetching paid profiles from DexScreener...');
-    const tokens = await fetchPaidTokens();
-    setStatus(`Found ${tokens.length} paid tokens. Scanning...`);
+    setStatus('Fetching paid profiles...');
+    const tokens=await fetchPaidTokens();
+    setStatus(`Scanning ${tokens.length} tokens...`);
+    document.getElementById('list-pf').innerHTML='';
+    document.getElementById('list-ps').innerHTML='';
 
-    // Clear lists now that we have real data coming
-    document.getElementById('list-pumpfun').innerHTML  = '';
-    document.getElementById('list-pumpswap').innerHTML = '';
-
-    let checked = 0;
-    for (const profile of tokens) {
+    let checked=0;
+    for(const profile of tokens){
       checked++;
-      setStatus(`Scanning ${checked}/${tokens.length} — ${pumpfunResults.length + pumpswapResults.length} passing`);
-
+      setStatus(`${checked}/${tokens.length} checked · ${pfResults.length+psResults.length} passing`);
       try {
-        await delay(120); // gentle rate limiting
-        const pairs = await fetchPairs(profile.tokenAddress);
-
-        // Find best pair that matches our DEX and market cap criteria
-        const eligible = pairs.filter(p =>
-          p.chainId === 'solana' &&
-          (p.dexId === 'pumpfun' || p.dexId === 'pumpswap') &&
-          ((p.marketCap || p.fdv || 0) > 0) &&
-          ((p.marketCap || p.fdv || 0) < 100000)
-        );
-
-        if (eligible.length === 0) continue;
-
-        // Sort: prefer pumpswap over pumpfun if both somehow exist, highest mcap first
-        eligible.sort((a, b) => (b.marketCap || b.fdv || 0) - (a.marketCap || a.fdv || 0));
-        const pair = eligible[0];
-
         await delay(120);
-        const report = await fetchRugcheck(profile.tokenAddress);
-
-        const dev = getDevPct(report);
-
-        if (dev < 10 && !hasCreatorRisk(report.risks)) {
-          const result = { profile, pair, dev };
-          if (pair.dexId === 'pumpfun')  pumpfunResults.push(result);
-          else                           pumpswapResults.push(result);
+        const data=await fetchJSON(`${DS}/latest/dex/tokens/${profile.tokenAddress}`);
+        const pairs=(data.pairs||[]).filter(p=>
+          p.chainId==='solana'&&
+          (p.dexId==='pumpfun'||p.dexId==='pumpswap')&&
+          (p.marketCap||p.fdv||0)>0&&
+          (p.marketCap||p.fdv||0)<100000
+        );
+        if(!pairs.length) continue;
+        pairs.sort((a,b)=>(b.marketCap||b.fdv||0)-(a.marketCap||a.fdv||0));
+        const pair=pairs[0];
+        await delay(120);
+        const report=await fetchJSON(`${RC}/tokens/${profile.tokenAddress}/report`);
+        const dev=getDevPct(report);
+        if(dev<10&&!hasCreatorRisk(report.risks)){
+          const r={profile,pair,dev};
+          if(pair.dexId==='pumpfun') pfResults.push(r); else psResults.push(r);
           flushResults();
         }
-      } catch(e) {
-        // Skip this token silently
-      }
+      } catch(e){}
     }
 
-    const now = new Date().toLocaleTimeString();
-    setStatus(`Done — ${pumpfunResults.length + pumpswapResults.length} tokens passing · Last scan: ${now}`);
-    if (pumpfunResults.length === 0 && pumpswapResults.length === 0) {
-      document.getElementById('list-pumpfun').innerHTML  = '<div class="col-empty">No tokens match filters</div>';
-      document.getElementById('list-pumpswap').innerHTML = '<div class="col-empty">No tokens match filters</div>';
+    const now=new Date().toLocaleTimeString();
+    setStatus(`${pfResults.length+psResults.length} passing · ${now}`);
+    if(!pfResults.length&&!psResults.length){
+      document.getElementById('list-pf').innerHTML='<div class="col-empty">No tokens match filters</div>';
+      document.getElementById('list-ps').innerHTML='<div class="col-empty">No tokens match filters</div>';
     }
-
-  } catch(e) {
-    setStatus('Scan error: ' + e.message);
-    document.getElementById('list-pumpfun').innerHTML  = '<div class="col-empty">Scan failed</div>';
-    document.getElementById('list-pumpswap').innerHTML = '<div class="col-empty">Scan failed</div>';
+  } catch(e){
+    setStatus('Error: '+e.message);
   }
 
-  scanning = false;
-  btn.disabled = false;
-  btn.textContent = '↺ REFRESH';
+  scanning=false;
+  btn.disabled=false; btn.textContent='↺ REFRESH';
 }
 
-// Auto-start on load
+// ── Init ──────────────────────────────────────────────────────────────────────
+initChatName();
+updateAuthBtn();
+loadChat();
+subscribeChat();
 startScan();
-// Auto-refresh every 3 minutes
-setInterval(() => { if (!scanning) startScan(); }, 180000);
+setInterval(()=>{if(!scanning)startScan();},180000);
 </script>
 </body>
 </html>
