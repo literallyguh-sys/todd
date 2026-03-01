@@ -534,8 +534,9 @@ let pfResults=[],psResults=[];
 
 // ── New-token ticker ───────────────────────────────────────────────────────────
 let prevAddresses=new Set();
-let tickerEntries=[]; // [{address,ticker,seenAt}]
+let tickerEntries=[]; // [{address,ticker,icon,url,seenAt}]
 const TICKER_TTL=10*60*1000;
+const TICKER_KEY='todd_dexpaid_ticker';
 
 function fmtAgo(ms){
   const m=Math.floor(ms/60000);
@@ -543,11 +544,27 @@ function fmtAgo(ms){
   return m+'m ago';
 }
 
+function saveTickerToStorage(){
+  try{localStorage.setItem(TICKER_KEY,JSON.stringify(tickerEntries));}catch(e){}
+}
+
+function loadTickerFromStorage(){
+  try{
+    const raw=localStorage.getItem(TICKER_KEY);
+    if(!raw) return;
+    const entries=JSON.parse(raw);
+    const now=Date.now();
+    tickerEntries=entries.filter(e=>now-e.seenAt<TICKER_TTL);
+    // Seed prevAddresses so restored tokens don't re-fire as new
+    tickerEntries.forEach(e=>prevAddresses.add(e.address));
+    renderTicker();
+  }catch(e){}
+}
+
 function renderTicker(){
   const now=Date.now();
   tickerEntries=tickerEntries.filter(e=>now-e.seenAt<TICKER_TTL);
   const strip=document.getElementById('new-ticker');
-  // Keep the label, replace entries after it
   while(strip.children.length>1) strip.removeChild(strip.lastChild);
   for(const e of tickerEntries){
     const a=document.createElement('a');
@@ -559,14 +576,11 @@ function renderTicker(){
     a.innerHTML=`${iconHtml}$${escHtml(e.ticker)}<span class="te-ago">${fmtAgo(now-e.seenAt)}</span>`;
     strip.appendChild(a);
   }
+  saveTickerToStorage();
 }
 
 function checkNewTokens(newPf,newPs){
   const allNew=[...newPf,...newPs];
-  if(prevAddresses.size===0){
-    allNew.forEach(r=>prevAddresses.add(r.profile.tokenAddress));
-    return;
-  }
   const added=[];
   for(const r of allNew){
     const addr=r.profile.tokenAddress;
@@ -574,7 +588,7 @@ function checkNewTokens(newPf,newPs){
       added.push({
         address:addr,
         ticker:r.pair.baseToken?.symbol||addr.slice(0,6),
-        icon:r.profile.icon||(r.pair.info?.imageUrl)||'',
+        icon:r.profile.icon||r.pair.info?.imageUrl||r.pair.baseToken?.imageUrl||'',
         url:r.pair.url||r.profile.url||'#',
         seenAt:Date.now()
       });
@@ -585,7 +599,6 @@ function checkNewTokens(newPf,newPs){
     tickerEntries=[...added,...tickerEntries];
     renderTicker();
     const strip=document.getElementById('new-ticker');
-    // skip index 0 (label span), flash indices 1..N
     for(let i=1;i<=Math.min(added.length,strip.children.length-1);i++){
       strip.children[i].classList.add('new-flash');
       setTimeout(()=>strip.children[i]?.classList.remove('new-flash'),1500);
