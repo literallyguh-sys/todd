@@ -204,8 +204,13 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 .badge.dn{color:var(--red);border-color:rgba(255,58,58,0.25);}
 .badge.nt{color:#666;border-color:rgba(255,255,255,0.07);}
 .badge.ok{color:var(--green);border-color:rgba(0,204,102,0.25);}
+.mcap-bar-wrap{
+  flex:1;height:6px;background:rgba(0,204,102,0.1);
+  border:1px solid rgba(0,204,102,0.18);overflow:hidden;align-self:center;
+}
+.mcap-bar{height:100%;background:var(--green);}
 .token-link-label{
-  margin-left:auto;font-size:11px;color:#444;letter-spacing:1px;flex-shrink:0;
+  font-size:11px;color:#444;letter-spacing:1px;flex-shrink:0;
 }
 .token-card:hover .token-link-label{color:var(--accent);}
 
