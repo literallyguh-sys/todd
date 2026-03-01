@@ -119,28 +119,28 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 
 /* ── PROFILE STRIP (replaces header) ── */
 #new-ticker{
-  flex-shrink:0;height:38px;overflow:hidden;
+  flex-shrink:0;height:54px;overflow:hidden;
   display:flex;align-items:center;flex-direction:row;gap:0;
   border-bottom:1px solid rgba(255,214,0,0.18);margin-bottom:8px;
 }
 #ticker-label{
-  font-size:12px;color:rgba(255,214,0,0.35);letter-spacing:2px;
-  padding:0 10px 0 2px;white-space:nowrap;flex-shrink:0;
-  border-right:1px solid rgba(255,214,0,0.12);
+  font-size:18px;color:rgba(255,214,0,0.5);letter-spacing:3px;
+  padding:0 14px 0 2px;white-space:nowrap;flex-shrink:0;
+  border-right:1px solid rgba(255,214,0,0.15);
 }
 .ticker-entry{
-  font-family:'VT323',monospace;font-size:15px;color:var(--accent);
-  white-space:nowrap;padding:0 12px;flex-shrink:0;letter-spacing:1px;
+  font-family:'VT323',monospace;font-size:17px;color:var(--accent);
+  white-space:nowrap;padding:0 14px;flex-shrink:0;letter-spacing:1px;
   border-right:1px solid rgba(255,214,0,0.12);line-height:1;
   animation:tickerfadein 0.35s ease;text-decoration:none;
-  display:flex;align-items:center;gap:5px;height:100%;
+  display:flex;align-items:center;gap:7px;height:100%;
 }
 .ticker-entry:hover{color:#fff;background:rgba(255,214,0,0.05);}
 .ticker-entry:last-child{border-right:none;}
 .ticker-entry.new-flash{color:#fff;}
-.te-ago{font-size:11px;color:rgba(255,214,0,0.45);letter-spacing:0;}
-.te-icon{width:20px;height:20px;object-fit:cover;border-radius:2px;flex-shrink:0;}
-.te-icon-ph{width:20px;height:20px;background:#1e1e1e;border-radius:2px;flex-shrink:0;display:inline-block;}
+.te-ago{font-size:12px;color:rgba(255,214,0,0.4);letter-spacing:0;}
+.te-icon{width:30px;height:30px;object-fit:cover;border-radius:3px;flex-shrink:0;}
+.te-icon-ph{width:30px;height:30px;background:#1e1e1e;border-radius:3px;flex-shrink:0;display:inline-block;}
 @keyframes tickerfadein{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 #scanner-controls{
   display:flex;align-items:center;gap:6px;flex-shrink:0;
