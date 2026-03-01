@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TODD'S WITNESSES — VIEW</title>
+<title>TODD'S WITNESSES — SCANNER</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:#060608;font-family:'VT323',monospace;}
+
+/* CRT scanlines */
 body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
 
@@ -15,22 +17,410 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   background-image:url('room.jpeg');
   background-size:cover;background-position:center;}
 #room::after{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.65) 100%);}
+  background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.2) 0%,rgba(0,0,0,0.75) 100%);}
 
-#back-btn{position:fixed;left:24px;bottom:24px;z-index:200;background:transparent;
-  color:#FFD600;border:2px solid #FFD600;font-family:'VT323',monospace;font-size:18px;
-  letter-spacing:2px;padding:8px 20px;cursor:pointer;text-decoration:none;display:inline-block;}
-#back-btn:hover{background:#FFD600;color:#000;}
+/* ── SCANNER PANEL ── */
+#scanner{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  z-index:10;display:flex;flex-direction:column;
+  padding:16px 20px 12px;overflow:hidden;
+}
+
+/* Header bar */
+#scanner-header{
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+  padding-bottom:10px;border-bottom:1px solid rgba(255,214,0,0.25);
+  margin-bottom:10px;
+}
+#scanner-title{font-size:22px;color:#FFD600;letter-spacing:3px;}
+#scanner-status{font-size:13px;color:#666;letter-spacing:1px;flex:1;}
+#scan-refresh-btn{
+  background:transparent;border:1px solid #FFD600;color:#FFD600;
+  font-family:'VT323',monospace;font-size:14px;letter-spacing:1px;
+  padding:3px 12px;cursor:pointer;
+}
+#scan-refresh-btn:hover{background:#FFD600;color:#000;}
+#scan-refresh-btn:disabled{opacity:0.4;cursor:default;}
+#back-btn{
+  background:transparent;border:1px solid #555;color:#888;
+  font-family:'VT323',monospace;font-size:14px;letter-spacing:1px;
+  padding:3px 12px;cursor:pointer;text-decoration:none;
+}
+#back-btn:hover{border-color:#FFD600;color:#FFD600;}
+
+/* Filters row */
+#scanner-filters{
+  display:flex;gap:16px;flex-shrink:0;margin-bottom:10px;
+  font-size:13px;color:#555;letter-spacing:1px;
+}
+.filter-tag{
+  border:1px solid #2a2a2a;padding:2px 8px;color:#555;
+}
+.filter-tag span{color:#FFD600;}
+
+/* Two-column results */
+#scanner-body{
+  display:flex;gap:12px;flex:1;overflow:hidden;min-height:0;
+}
+
+.col{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+}
+.col-header{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 10px;margin-bottom:6px;flex-shrink:0;
+  letter-spacing:2px;font-size:15px;
+}
+.col-header.pumpfun{border-left:3px solid #FF6B00;color:#FF6B00;}
+.col-header.pumpswap{border-left:3px solid #9945FF;color:#9945FF;}
+.col-count{font-size:12px;opacity:0.6;margin-left:auto;}
+
+.col-list{
+  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;
+  padding-right:4px;
+}
+.col-list::-webkit-scrollbar{width:4px;}
+.col-list::-webkit-scrollbar-track{background:transparent;}
+.col-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);}
+
+/* Token card */
+.token-card{
+  background:rgba(0,0,0,0.6);
+  border:1px solid rgba(255,255,255,0.07);
+  padding:8px 10px;
+  display:flex;flex-direction:column;gap:4px;
+  transition:border-color 0.15s;
+}
+.token-card:hover{border-color:rgba(255,255,255,0.2);}
+.token-card.pumpfun{border-left:2px solid rgba(255,107,0,0.5);}
+.token-card.pumpswap{border-left:2px solid rgba(153,69,255,0.5);}
+
+.token-top{display:flex;align-items:center;gap:8px;}
+.token-icon{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#1a1a1a;}
+.token-icon-placeholder{width:28px;height:28px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:11px;color:#444;flex-shrink:0;}
+.token-name-block{flex:1;min-width:0;}
+.token-name{font-size:15px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.token-ticker{font-size:13px;color:#888;}
+.token-mcap{font-size:15px;color:#FFD600;white-space:nowrap;margin-left:auto;}
+
+.token-stats{display:flex;gap:10px;font-size:12px;color:#555;}
+.stat{display:flex;gap:3px;}
+.stat-label{color:#444;}
+.stat-val.ok{color:#00cc66;}
+.stat-val.warn{color:#FF6B00;}
+.stat-val.bad{color:#FF3A3A;}
+
+.token-link{
+  display:inline-block;font-size:12px;color:#555;letter-spacing:1px;
+  text-decoration:none;
+  transition:color 0.15s;
+}
+.token-link:hover{color:#FFD600;}
+
+/* Empty / loading states */
+.col-empty{
+  font-size:14px;color:#333;letter-spacing:1px;padding:16px 10px;
+}
+.loading-row{
+  display:flex;gap:6px;align-items:center;font-size:13px;color:#444;padding:4px 0;
+}
+.spinner{
+  width:10px;height:10px;border:1px solid #333;border-top-color:#FFD600;
+  border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 #transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
-#transition.fade-out{opacity:1;pointer-events:all;}
 </style>
 </head>
 <body>
 <div id="room"></div>
 <div id="transition"></div>
 
-<a id="back-btn" href="index.html">[ ← BACK ]</a>
+<div id="scanner">
 
+  <div id="scanner-header">
+    <div id="scanner-title">⬡ TOKEN SCANNER</div>
+    <div id="scanner-status">Initialising...</div>
+    <button id="scan-refresh-btn" onclick="startScan()" disabled>↺ REFRESH</button>
+    <a id="back-btn" href="index.html">← BACK</a>
+  </div>
+
+  <div id="scanner-filters">
+    <div class="filter-tag">MCAP <span>&lt;$100K</span></div>
+    <div class="filter-tag">BUNDLE <span>&lt;10%</span></div>
+    <div class="filter-tag">DEV <span>&lt;10%</span></div>
+    <div class="filter-tag">INSIDERS <span>&lt;15%</span></div>
+    <div class="filter-tag">PROFILE <span>PAID ✔</span></div>
+    <div class="filter-tag">CHAIN <span>SOLANA</span></div>
+  </div>
+
+  <div id="scanner-body">
+    <div class="col" id="col-pumpfun">
+      <div class="col-header pumpfun">
+        ◈ PUMP.FUN <span style="font-size:11px;margin-left:4px;opacity:0.6">(pre-bond)</span>
+        <span class="col-count" id="count-pumpfun">0</span>
+      </div>
+      <div class="col-list" id="list-pumpfun">
+        <div class="col-empty">Waiting for scan...</div>
+      </div>
+    </div>
+
+    <div class="col" id="col-pumpswap">
+      <div class="col-header pumpswap">
+        ◈ PUMPSWAP <span style="font-size:11px;margin-left:4px;opacity:0.6">(post-bond)</span>
+        <span class="col-count" id="count-pumpswap">0</span>
+      </div>
+      <div class="col-list" id="list-pumpswap">
+        <div class="col-empty">Waiting for scan...</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DS = 'https://api.dexscreener.com';
+const RC = 'https://api.rugcheck.xyz/v1';
+
+let scanning = false;
+let pumpfunResults = [];
+let pumpswapResults = [];
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function fmtMcap(n) {
+  if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
+  return '$' + Math.round(n);
+}
+
+function statClass(pct, warn, bad) {
+  if (pct >= bad)  return 'bad';
+  if (pct >= warn) return 'warn';
+  return 'ok';
+}
+
+function getBundlePct(risks) {
+  for (const r of (risks || [])) {
+    const name = (r.name || '').toLowerCase();
+    if (name.includes('bundle')) {
+      const raw = r.value || r.description || '';
+      const m = raw.match(/([\d.]+)\s*%/);
+      if (m) return parseFloat(m[1]);
+      // If risk exists but no % found, treat as present — flag conservatively
+      return 10;
+    }
+  }
+  return 0;
+}
+
+function getDevPct(report) {
+  if (!report.topHolders || !report.creator) return 0;
+  const entry = report.topHolders.find(h => h.address === report.creator);
+  return entry ? (entry.pct || 0) : 0;
+}
+
+function getInsiderPct(report) {
+  return (report.topHolders || [])
+    .filter(h => h.insider === true)
+    .reduce((s, h) => s + (h.pct || 0), 0);
+}
+
+function setStatus(msg) {
+  document.getElementById('scanner-status').textContent = msg;
+}
+
+// ── API Calls ─────────────────────────────────────────────────────────────────
+
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+async function fetchPaidTokens() {
+  const [profiles, boosts] = await Promise.allSettled([
+    fetchJSON(`${DS}/token-profiles/latest/v1`),
+    fetchJSON(`${DS}/token-boosts/latest/v1`)
+  ]);
+  const all = [];
+  const seen = new Set();
+  const add = arr => {
+    if (!Array.isArray(arr)) return;
+    for (const t of arr) {
+      if (t.chainId === 'solana' && t.tokenAddress && !seen.has(t.tokenAddress)) {
+        seen.add(t.tokenAddress);
+        all.push(t);
+      }
+    }
+  };
+  if (profiles.status === 'fulfilled') add(profiles.value);
+  if (boosts.status  === 'fulfilled') add(boosts.value);
+  return all;
+}
+
+async function fetchPairs(address) {
+  const data = await fetchJSON(`${DS}/latest/dex/tokens/${address}`);
+  return data.pairs || [];
+}
+
+async function fetchRugcheck(mint) {
+  return fetchJSON(`${RC}/tokens/${mint}/report`);
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function renderCard(result, dex) {
+  const { profile, pair, bundle, dev, insiders } = result;
+  const mcap = pair.marketCap || pair.fdv || 0;
+  const name   = pair.baseToken?.name   || profile.tokenAddress.slice(0, 8);
+  const ticker = pair.baseToken?.symbol || '???';
+  const icon   = profile.icon || (pair.info && pair.info.imageUrl);
+  const link   = pair.url || profile.url;
+
+  const bundleClass   = statClass(bundle,   5, 10);
+  const devClass      = statClass(dev,      5, 10);
+  const insiderClass  = statClass(insiders, 8, 15);
+
+  const iconHtml = icon
+    ? `<img class="token-icon" src="${icon}" alt="" onerror="this.style.display='none'">`
+    : `<div class="token-icon-placeholder">${ticker.slice(0,3)}</div>`;
+
+  const card = document.createElement('div');
+  card.className = `token-card ${dex}`;
+  card.innerHTML = `
+    <div class="token-top">
+      ${iconHtml}
+      <div class="token-name-block">
+        <div class="token-name">${escHtml(name)}</div>
+        <div class="token-ticker">$${escHtml(ticker)}</div>
+      </div>
+      <div class="token-mcap">${fmtMcap(mcap)}</div>
+    </div>
+    <div class="token-stats">
+      <div class="stat"><span class="stat-label">BUNDLE</span>&nbsp;<span class="stat-val ${bundleClass}">${bundle.toFixed(1)}%</span></div>
+      <div class="stat"><span class="stat-label">DEV</span>&nbsp;<span class="stat-val ${devClass}">${dev.toFixed(1)}%</span></div>
+      <div class="stat"><span class="stat-label">INSIDERS</span>&nbsp;<span class="stat-val ${insiderClass}">${insiders.toFixed(1)}%</span></div>
+    </div>
+    <a class="token-link" href="${link}" target="_blank" rel="noopener">[ VIEW ON DEXSCREENER ↗ ]</a>
+  `;
+  return card;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function flushResults() {
+  const listPf = document.getElementById('list-pumpfun');
+  const listPs = document.getElementById('list-pumpswap');
+
+  // Clear placeholder
+  listPf.innerHTML = '';
+  listPs.innerHTML = '';
+
+  if (pumpfunResults.length === 0) listPf.innerHTML = '<div class="col-empty">No tokens match filters</div>';
+  if (pumpswapResults.length === 0) listPs.innerHTML = '<div class="col-empty">No tokens match filters</div>';
+
+  for (const r of pumpfunResults)  listPf.appendChild(renderCard(r, 'pumpfun'));
+  for (const r of pumpswapResults) listPs.appendChild(renderCard(r, 'pumpswap'));
+
+  document.getElementById('count-pumpfun').textContent  = pumpfunResults.length;
+  document.getElementById('count-pumpswap').textContent = pumpswapResults.length;
+}
+
+// ── Main Scan ─────────────────────────────────────────────────────────────────
+
+async function startScan() {
+  if (scanning) return;
+  scanning = true;
+  pumpfunResults  = [];
+  pumpswapResults = [];
+
+  const btn = document.getElementById('scan-refresh-btn');
+  btn.disabled = true;
+  btn.textContent = '↺ SCANNING...';
+
+  // Reset lists
+  document.getElementById('list-pumpfun').innerHTML  = '<div class="loading-row"><div class="spinner"></div> Fetching tokens...</div>';
+  document.getElementById('list-pumpswap').innerHTML = '<div class="loading-row"><div class="spinner"></div> Fetching tokens...</div>';
+  document.getElementById('count-pumpfun').textContent  = '0';
+  document.getElementById('count-pumpswap').textContent = '0';
+
+  try {
+    setStatus('Fetching paid profiles from DexScreener...');
+    const tokens = await fetchPaidTokens();
+    setStatus(`Found ${tokens.length} paid tokens. Scanning...`);
+
+    // Clear lists now that we have real data coming
+    document.getElementById('list-pumpfun').innerHTML  = '';
+    document.getElementById('list-pumpswap').innerHTML = '';
+
+    let checked = 0;
+    for (const profile of tokens) {
+      checked++;
+      setStatus(`Scanning ${checked}/${tokens.length} — ${pumpfunResults.length + pumpswapResults.length} passing`);
+
+      try {
+        await delay(120); // gentle rate limiting
+        const pairs = await fetchPairs(profile.tokenAddress);
+
+        // Find best pair that matches our DEX and market cap criteria
+        const eligible = pairs.filter(p =>
+          p.chainId === 'solana' &&
+          (p.dexId === 'pumpfun' || p.dexId === 'pumpswap') &&
+          ((p.marketCap || p.fdv || 0) > 0) &&
+          ((p.marketCap || p.fdv || 0) < 100000)
+        );
+
+        if (eligible.length === 0) continue;
+
+        // Sort: prefer pumpswap over pumpfun if both somehow exist, highest mcap first
+        eligible.sort((a, b) => (b.marketCap || b.fdv || 0) - (a.marketCap || a.fdv || 0));
+        const pair = eligible[0];
+
+        await delay(120);
+        const report = await fetchRugcheck(profile.tokenAddress);
+
+        const bundle  = getBundlePct(report.risks);
+        const dev     = getDevPct(report);
+        const insiders = getInsiderPct(report);
+
+        if (bundle < 10 && dev < 10 && insiders < 15) {
+          const result = { profile, pair, bundle, dev, insiders };
+          if (pair.dexId === 'pumpfun')  pumpfunResults.push(result);
+          else                           pumpswapResults.push(result);
+          flushResults();
+        }
+      } catch(e) {
+        // Skip this token silently
+      }
+    }
+
+    const now = new Date().toLocaleTimeString();
+    setStatus(`Done — ${pumpfunResults.length + pumpswapResults.length} tokens passing · Last scan: ${now}`);
+    if (pumpfunResults.length === 0 && pumpswapResults.length === 0) {
+      document.getElementById('list-pumpfun').innerHTML  = '<div class="col-empty">No tokens match filters</div>';
+      document.getElementById('list-pumpswap').innerHTML = '<div class="col-empty">No tokens match filters</div>';
+    }
+
+  } catch(e) {
+    setStatus('Scan error: ' + e.message);
+    document.getElementById('list-pumpfun').innerHTML  = '<div class="col-empty">Scan failed</div>';
+    document.getElementById('list-pumpswap').innerHTML = '<div class="col-empty">Scan failed</div>';
+  }
+
+  scanning = false;
+  btn.disabled = false;
+  btn.textContent = '↺ REFRESH';
+}
+
+// Auto-start on load
+startScan();
+// Auto-refresh every 3 minutes
+setInterval(() => { if (!scanning) startScan(); }, 180000);
+</script>
 </body>
 </html>
