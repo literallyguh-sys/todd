@@ -543,33 +543,40 @@ function flushResults(){
 let scanning=false;
 async function startScan(){
   if(scanning) return;
-  scanning=true; pfResults=[]; psResults=[];
+  scanning=true;
   const btn=document.getElementById('scan-btn');
-  btn.disabled=true; btn.textContent='↺ SCANNING...';
-  document.getElementById('list-pf').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
-  document.getElementById('list-ps').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
-  document.getElementById('count-pf').textContent='0';
-  document.getElementById('count-ps').textContent='0';
+  btn.disabled=true;
 
+  const hasExisting = pfResults.length+psResults.length > 0;
+  if(!hasExisting){
+    btn.textContent='↺ SCANNING...';
+    document.getElementById('list-pf').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
+    document.getElementById('list-ps').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
+    document.getElementById('count-pf').textContent='0';
+    document.getElementById('count-ps').textContent='0';
+  } else {
+    btn.textContent='↺ REFRESHING...';
+  }
+
+  const newPf=[], newPs=[];
   try {
     setStatus('Fetching paid profiles...');
     const tokens=await fetchPaidTokens();
     setStatus(`Scanning ${tokens.length} tokens...`);
-    document.getElementById('list-pf').innerHTML='';
-    document.getElementById('list-ps').innerHTML='';
 
     let checked=0;
     for(const profile of tokens){
       checked++;
-      setStatus(`${checked}/${tokens.length} checked · ${pfResults.length+psResults.length} passing`);
+      setStatus(`${checked}/${tokens.length} checked · ${newPf.length+newPs.length} passing`);
       try {
         await delay(120);
         const data=await fetchJSON(`${DS}/latest/dex/tokens/${profile.tokenAddress}`);
         const pairs=(data.pairs||[]).filter(p=>
           p.chainId==='solana'&&
           (p.dexId==='pumpfun'||p.dexId==='pumpswap')&&
-          (p.marketCap||p.fdv||0)>0&&
-          (p.marketCap||p.fdv||0)<100000
+          (p.marketCap||p.fdv||0)<100000&&
+          ((p.dexId==='pumpfun'&&(p.marketCap||p.fdv||0)>=5000)||
+           (p.dexId==='pumpswap'&&(p.marketCap||p.fdv||0)>=10000))
         );
         if(!pairs.length) continue;
         pairs.sort((a,b)=>(b.marketCap||b.fdv||0)-(a.marketCap||a.fdv||0));
@@ -577,19 +584,15 @@ async function startScan(){
         await delay(120);
         const report=await fetchJSON(`${RC}/tokens/${profile.tokenAddress}/report`);
         if(!hasCreatorRisk(report.risks)){
-          const r={profile,pair};
-          if(pair.dexId==='pumpfun') pfResults.push(r); else psResults.push(r);
-          flushResults();
+          if(pair.dexId==='pumpfun') newPf.push({profile,pair}); else newPs.push({profile,pair});
         }
       } catch(e){}
     }
 
+    pfResults=newPf; psResults=newPs;
+    flushResults();
     const now=new Date().toLocaleTimeString();
     setStatus(`${pfResults.length+psResults.length} passing · ${now}`);
-    if(!pfResults.length&&!psResults.length){
-      document.getElementById('list-pf').innerHTML='<div class="col-empty">No tokens match filters</div>';
-      document.getElementById('list-ps').innerHTML='<div class="col-empty">No tokens match filters</div>';
-    }
   } catch(e){
     setStatus('Error: '+e.message);
   }
