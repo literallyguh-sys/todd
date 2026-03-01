@@ -527,19 +527,20 @@ function renderTicker(){
   const now=Date.now();
   tickerEntries=tickerEntries.filter(e=>now-e.seenAt<TICKER_TTL);
   const strip=document.getElementById('new-ticker');
-  strip.innerHTML='';
+  // Keep the label, replace entries after it
+  while(strip.children.length>1) strip.removeChild(strip.lastChild);
   for(const e of tickerEntries){
-    const span=document.createElement('span');
-    span.className='ticker-entry';
-    span.textContent='$'+e.ticker+' · '+fmtAgo(now-e.seenAt);
-    strip.appendChild(span);
+    const a=document.createElement('a');
+    a.className='ticker-entry';
+    a.href=e.url||'#'; a.target='_blank'; a.rel='noopener';
+    a.innerHTML=`$${escHtml(e.ticker)}<span class="te-ago">${fmtAgo(now-e.seenAt)}</span>`;
+    strip.appendChild(a);
   }
 }
 
 function checkNewTokens(newPf,newPs){
   const allNew=[...newPf,...newPs];
   if(prevAddresses.size===0){
-    // First scan — just seed addresses, don't fire ticker
     allNew.forEach(r=>prevAddresses.add(r.profile.tokenAddress));
     return;
   }
@@ -547,17 +548,21 @@ function checkNewTokens(newPf,newPs){
   for(const r of allNew){
     const addr=r.profile.tokenAddress;
     if(!prevAddresses.has(addr)){
-      added.push({address:addr,ticker:r.pair.baseToken?.symbol||addr.slice(0,6),seenAt:Date.now()});
+      added.push({
+        address:addr,
+        ticker:r.pair.baseToken?.symbol||addr.slice(0,6),
+        url:r.pair.url||r.profile.url||'#',
+        seenAt:Date.now()
+      });
     }
   }
   prevAddresses=new Set(allNew.map(r=>r.profile.tokenAddress));
   if(added.length){
-    // Prepend newest on the left
     tickerEntries=[...added,...tickerEntries];
     renderTicker();
-    // Flash newest entries white briefly
     const strip=document.getElementById('new-ticker');
-    for(let i=0;i<Math.min(added.length,strip.children.length);i++){
+    // skip index 0 (label span), flash indices 1..N
+    for(let i=1;i<=Math.min(added.length,strip.children.length-1);i++){
       strip.children[i].classList.add('new-flash');
       setTimeout(()=>strip.children[i]?.classList.remove('new-flash'),1500);
     }
