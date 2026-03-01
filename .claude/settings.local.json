@@ -8,7 +8,8 @@
       "Bash(awk NR>=75 && NR<=220:*)",
       "Bash(awk NR>=160 && NR<=220:*)",
       "Bash(awk NR>=185 && NR<=270:*)",
-      "Bash(awk NR>=185 && NR<=245:*)"
+      "Bash(awk NR>=185 && NR<=245:*)",
+      "Bash(awk NR>=240 && NR<=270:*)"
     ]
   }
 }

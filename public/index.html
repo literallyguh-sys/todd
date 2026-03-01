@@ -234,6 +234,7 @@ function enterAsGuest() {
     document.getElementById('room').classList.remove('blurred');
     document.getElementById('login-modal').classList.remove('show');
     updateLobbyLoginBtn();
+    initLobbyName();
     return;
   }
   enterApp();
@@ -265,6 +266,7 @@ if (window.location.hash.includes('access_token')) {
     localStorage.removeItem('lobby_origin');
     history.replaceState(null, '', window.location.pathname);
     updateLobbyLoginBtn();
+    initLobbyName();
   } else {
     window.location.replace('app.html' + window.location.hash);
   }
