@@ -18,142 +18,137 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 #room::after{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.82) 100%);}
 
-/* ── LAYOUT ── */
-#app{position:fixed;inset:0;z-index:10;display:flex;}
-
-/* ── CHAT PANEL ── */
+/* ── CHAT — exact lobby match ── */
 #chat-panel{
-  width:260px;flex-shrink:0;display:flex;flex-direction:column;
-  border-right:1px solid rgba(255,255,255,0.07);
+  position:fixed;right:0;top:0;width:33.333%;height:100%;z-index:100;
+  display:flex;flex-direction:column;background:transparent;
+  border-left:1px solid rgba(255,255,255,0.07);font-family:'VT323',monospace;
 }
 #chat-titlebar{
-  display:flex;align-items:center;gap:6px;padding:8px 10px;
-  border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;
+  display:flex;align-items:center;gap:6px;padding:8px 12px;
+  background:transparent;border-bottom:1px solid rgba(255,255,255,0.08);
+  font-size:16px;color:#ddd;letter-spacing:2px;flex-shrink:0;
 }
-#chat-titlebar-left{display:flex;align-items:center;gap:6px;flex:1;min-width:0;}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);
-  box-shadow:0 0 6px var(--red);animation:pulse 1.2s steps(2) infinite;flex-shrink:0;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-#chat-label{font-size:15px;color:#ccc;letter-spacing:2px;}
-#chat-auth-btn{
-  background:transparent;border:1px solid #333;color:#777;
-  font-family:'VT323',monospace;font-size:12px;letter-spacing:1px;
-  padding:2px 7px;cursor:pointer;white-space:nowrap;flex-shrink:0;
-  transition:all 0.15s;
-}
-#chat-auth-btn:hover{border-color:var(--accent);color:var(--accent);}
-#chat-auth-btn.logged-in{border-color:var(--green);color:var(--green);}
-
+.live-dot{width:7px;height:7px;background:var(--red);border-radius:50%;
+  box-shadow:0 0 5px var(--red);animation:lbpulse 1.2s steps(2) infinite;flex-shrink:0;}
+@keyframes lbpulse{0%,100%{opacity:1}50%{opacity:0.3}}
 #chat-messages{
-  flex:1;overflow-y:auto;padding:6px 8px;
-  display:flex;flex-direction:column;gap:3px;
+  flex:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:2px;
 }
-#chat-messages::-webkit-scrollbar{width:3px;}
+#chat-messages::-webkit-scrollbar{width:4px;}
 #chat-messages::-webkit-scrollbar-track{background:transparent;}
-#chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);}
-.chat-msg{font-size:14px;line-height:1.35;word-break:break-word;}
-.chat-msg-name{font-weight:700;margin-right:3px;}
-.chat-msg-text{color:#bbb;}
-
-#chat-input-area{padding:7px;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;}
+#chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);}
+.chat-msg{font-size:14px;line-height:1.3;word-break:break-word;}
+.chat-msg-name{font-size:15px;font-weight:700;margin-right:3px;}
+.chat-msg-text{color:#ccc;}
+#chat-input-area{
+  padding:8px;border-top:1px solid rgba(255,255,255,0.08);
+  display:flex;flex-direction:column;gap:4px;background:transparent;flex-shrink:0;
+}
 #chat-name-input{
-  width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  color:#ccc;font-family:'VT323',monospace;font-size:14px;
-  padding:3px 7px;outline:none;margin-bottom:4px;
+  width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);
+  color:#ddd;font-family:'VT323',monospace;font-size:14px;padding:3px 7px;outline:none;
 }
 #chat-name-input:focus{border-color:var(--accent);}
 #chat-bottom{display:flex;gap:4px;}
 #chat-msg-input{
-  flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  color:#ddd;font-family:'VT323',monospace;font-size:14px;
-  padding:4px 7px;outline:none;min-width:0;
+  flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);
+  color:#ddd;font-family:'VT323',monospace;font-size:14px;padding:4px 7px;outline:none;min-width:0;
 }
 #chat-msg-input:focus{border-color:var(--accent);}
 #chat-send-btn{
-  background:var(--accent);color:#000;border:none;
-  padding:4px 10px;font-size:15px;cursor:pointer;font-family:'VT323',monospace;font-weight:700;
+  background:var(--accent);color:#000;border:1px solid var(--accent);
+  padding:4px 10px;font-size:15px;cursor:pointer;flex-shrink:0;
+  font-weight:700;font-family:'VT323',monospace;
 }
 #chat-send-btn:hover{background:#ffe033;}
+@media(max-width:700px){#chat-panel{display:none;}}
+
+/* ── LOGIN BUTTON (bottom-left, same as lobby) ── */
+#login-btn{
+  position:fixed;left:24px;bottom:24px;z-index:200;
+  background:transparent;color:var(--accent);border:2px solid var(--accent);
+  font-family:'VT323',monospace;font-size:18px;letter-spacing:2px;
+  padding:8px 20px;cursor:pointer;
+}
+#login-btn:hover{background:var(--accent);color:#000;}
 
 /* ── AUTH MODAL ── */
 #auth-modal{
   display:none;position:fixed;inset:0;z-index:500;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.7);
+  align-items:center;justify-content:center;background:rgba(0,0,0,0.75);
 }
 #auth-modal.open{display:flex;}
 .auth-box{
   background:#111114;border-top:2px solid #555;border-left:2px solid #555;
-  border-right:2px solid #222;border-bottom:2px solid #222;
-  width:320px;overflow:hidden;
+  border-right:2px solid #222;border-bottom:2px solid #222;width:340px;overflow:hidden;
 }
 .auth-titlebar{
-  background:#222;border-bottom:1px solid #111;
-  padding:5px 12px;font-size:14px;color:#bbb;letter-spacing:1px;
-  display:flex;align-items:center;gap:6px;
+  background:#2a2a2a;border-bottom:1px solid #111;padding:5px 12px;
+  display:flex;align-items:center;gap:8px;font-size:14px;color:#bbb;letter-spacing:1px;
 }
-.auth-inner{padding:20px 18px;display:flex;flex-direction:column;gap:10px;align-items:center;}
-.auth-title{font-size:20px;color:var(--accent);letter-spacing:3px;}
-.auth-google-btn{
-  display:flex;align-items:center;gap:10px;width:100%;
-  background:#fff;border:none;padding:9px 16px;cursor:pointer;
-  font-size:14px;font-weight:500;color:#333;justify-content:center;
+.auth-dot{width:10px;height:10px;border-radius:50%;}
+.auth-inner{padding:22px 20px;display:flex;flex-direction:column;gap:12px;align-items:center;}
+.auth-logo{font-size:22px;color:var(--accent);letter-spacing:3px;text-align:center;}
+.auth-sub{font-size:14px;color:#555;letter-spacing:1px;}
+.auth-google{
+  display:flex;align-items:center;gap:10px;width:100%;background:#fff;
+  border:none;padding:10px 16px;cursor:pointer;font-size:14px;font-weight:500;
+  color:#333;justify-content:center;
 }
-.auth-google-btn:hover{background:#f0f0f0;}
+.auth-google:hover{background:#f0f0f0;}
 .auth-or{color:#444;font-size:13px;letter-spacing:2px;}
-.auth-guest-btn{
-  width:100%;background:#1a1a1a;border:1px solid #444;
-  color:#999;font-family:'VT323',monospace;font-size:18px;
-  letter-spacing:2px;padding:7px;cursor:pointer;
+.auth-guest{
+  width:100%;background:#1a1a1a;border-top:1px solid #444;border-left:1px solid #444;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  color:#999;font-family:'VT323',monospace;font-size:20px;
+  letter-spacing:2px;padding:8px;cursor:pointer;
 }
-.auth-guest-btn:hover{color:var(--accent);border-color:#666;}
+.auth-guest:hover{color:var(--accent);border-color:#666;}
 .auth-cancel{
   background:transparent;border:none;color:#444;
   font-family:'VT323',monospace;font-size:13px;cursor:pointer;letter-spacing:1px;
 }
-.auth-cancel:hover{color:#888;}
+.auth-cancel:hover{color:#777;}
 
 /* ── SCANNER ── */
-#scanner{flex:1;display:flex;flex-direction:column;padding:12px 14px 10px;overflow:hidden;min-width:0;}
-
+#scanner{
+  position:fixed;left:0;top:0;right:33.333%;bottom:0;z-index:10;
+  display:flex;flex-direction:column;padding:14px 16px 10px;overflow:hidden;
+}
 #scanner-header{
   display:flex;align-items:center;gap:10px;flex-shrink:0;
   padding-bottom:8px;border-bottom:1px solid rgba(255,214,0,0.2);margin-bottom:8px;
 }
 #scanner-title{font-size:20px;color:var(--accent);letter-spacing:3px;white-space:nowrap;}
 #scanner-status{font-size:13px;color:#555;letter-spacing:1px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.hdr-btn{
+.hbtn{
   background:transparent;font-family:'VT323',monospace;font-size:13px;
-  letter-spacing:1px;padding:2px 10px;cursor:pointer;white-space:nowrap;flex-shrink:0;
-  text-decoration:none;display:inline-block;
+  letter-spacing:1px;padding:2px 10px;cursor:pointer;white-space:nowrap;
+  flex-shrink:0;text-decoration:none;display:inline-block;
 }
-#scan-refresh-btn{border:1px solid var(--accent);color:var(--accent);}
-#scan-refresh-btn:hover{background:var(--accent);color:#000;}
-#scan-refresh-btn:disabled{opacity:0.35;cursor:default;}
+#scan-btn{border:1px solid var(--accent);color:var(--accent);}
+#scan-btn:hover{background:var(--accent);color:#000;}
+#scan-btn:disabled{opacity:0.35;cursor:default;}
 #back-btn{border:1px solid #444;color:#777;}
 #back-btn:hover{border-color:var(--accent);color:var(--accent);}
 
 #scanner-filters{
   display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0;margin-bottom:8px;
 }
-.ftag{
-  font-size:12px;letter-spacing:1px;padding:1px 7px;
-  border:1px solid #1e1e1e;color:#444;
-}
+.ftag{font-size:12px;letter-spacing:1px;padding:1px 7px;border:1px solid #1e1e1e;color:#444;}
 .ftag span{color:var(--accent);}
 
 #scanner-body{display:flex;gap:10px;flex:1;overflow:hidden;min-height:0;}
-
 .col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 .col-hdr{
-  display:flex;align-items:center;gap:6px;padding:4px 8px;
+  display:flex;align-items:center;padding:4px 8px;
   margin-bottom:6px;font-size:14px;letter-spacing:2px;flex-shrink:0;
 }
 .col-hdr.pf{border-left:3px solid var(--pf);color:var(--pf);}
 .col-hdr.ps{border-left:3px solid var(--ps);color:var(--ps);}
-.col-hdr .sub{font-size:11px;opacity:0.55;margin-left:2px;}
+.col-hdr .sub{font-size:11px;opacity:0.55;margin-left:5px;}
 .col-count{margin-left:auto;font-size:12px;opacity:0.5;}
-
 .col-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:5px;padding-right:3px;}
 .col-list::-webkit-scrollbar{width:3px;}
 .col-list::-webkit-scrollbar-track{background:transparent;}
@@ -161,46 +156,40 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 
 /* ── TOKEN CARD ── */
 .token-card{
-  background:rgba(0,0,0,0.65);
-  border:1px solid rgba(255,255,255,0.08);
-  display:flex;gap:10px;align-items:stretch;
-  transition:border-color 0.15s,background 0.15s;
-  text-decoration:none;
+  background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.08);
+  display:flex;gap:0;align-items:stretch;
+  text-decoration:none;transition:border-color 0.15s,background 0.15s;
 }
-.token-card:hover{border-color:rgba(255,255,255,0.22);background:rgba(0,0,0,0.75);}
+.token-card:hover{border-color:rgba(255,255,255,0.22);background:rgba(0,0,0,0.78);}
 .token-card.pf{border-left:2px solid rgba(255,107,0,0.6);}
 .token-card.ps{border-left:2px solid rgba(153,69,255,0.6);}
 
-.token-img{
-  width:56px;height:56px;flex-shrink:0;
-  object-fit:cover;display:block;
-  border-right:1px solid rgba(255,255,255,0.06);
-}
+.token-img{width:56px;height:56px;flex-shrink:0;object-fit:cover;display:block;}
 .token-img-placeholder{
-  width:56px;height:56px;flex-shrink:0;
-  background:#111;display:flex;align-items:center;justify-content:center;
-  font-size:14px;color:#333;border-right:1px solid rgba(255,255,255,0.06);
+  width:56px;height:56px;flex-shrink:0;background:#111;
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:#333;
 }
-.token-body{flex:1;padding:6px 8px 6px 0;display:flex;flex-direction:column;gap:3px;min-width:0;}
+.token-divider{width:1px;background:rgba(255,255,255,0.06);flex-shrink:0;}
+.token-body{flex:1;padding:7px 10px;display:flex;flex-direction:column;gap:4px;min-width:0;}
 
-.token-row1{display:flex;align-items:baseline;gap:6px;}
-.token-name{font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;}
-.token-ticker{font-size:13px;color:var(--accent);white-space:nowrap;flex-shrink:0;}
-.token-mcap{font-size:15px;color:var(--accent);white-space:nowrap;margin-left:auto;flex-shrink:0;font-weight:700;}
+.token-row1{display:flex;align-items:baseline;gap:6px;min-width:0;}
+.token-name{font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.token-ticker{font-size:13px;color:var(--accent);flex-shrink:0;}
+.token-mcap{font-size:16px;color:#fff;white-space:nowrap;margin-left:auto;flex-shrink:0;}
 
-.token-row2{display:flex;align-items:center;gap:8px;}
-.badge{font-size:12px;letter-spacing:1px;padding:1px 5px;border:1px solid rgba(255,255,255,0.08);color:#666;}
-.badge.ok{color:var(--green);border-color:rgba(0,204,102,0.2);}
-.badge.warn{color:var(--pf);border-color:rgba(255,107,0,0.2);}
-.badge.bad{color:var(--red);border-color:rgba(255,58,58,0.2);}
-.token-dex-link{
-  margin-left:auto;font-size:11px;color:#444;letter-spacing:1px;
-  text-decoration:none;white-space:nowrap;flex-shrink:0;
+.token-row2{display:flex;align-items:center;gap:6px;}
+.badge{font-size:12px;letter-spacing:1px;padding:1px 6px;border:1px solid rgba(255,255,255,0.07);color:#555;}
+.badge.up{color:var(--green);border-color:rgba(0,204,102,0.25);}
+.badge.dn{color:var(--red);border-color:rgba(255,58,58,0.25);}
+.badge.nt{color:#666;border-color:rgba(255,255,255,0.07);}
+.badge.ok{color:var(--green);border-color:rgba(0,204,102,0.25);}
+.token-link-label{
+  margin-left:auto;font-size:11px;color:#444;letter-spacing:1px;flex-shrink:0;
 }
-.token-card:hover .token-dex-link{color:var(--accent);}
+.token-card:hover .token-link-label{color:var(--accent);}
 
-.col-empty{font-size:13px;color:#333;letter-spacing:1px;padding:14px 8px;}
-.loading-row{display:flex;gap:6px;align-items:center;font-size:13px;color:#3a3a3a;padding:6px 0;}
+.col-empty{font-size:13px;color:#2e2e2e;letter-spacing:1px;padding:14px 8px;}
+.loading-row{display:flex;gap:6px;align-items:center;font-size:13px;color:#333;padding:6px 0;}
 .spinner{width:9px;height:9px;border:1px solid #2a2a2a;border-top-color:var(--accent);
   border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -212,16 +201,39 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 <div id="room"></div>
 <div id="transition"></div>
 
+<!-- ── CHAT (right side, exact lobby style) ── -->
+<div id="chat-panel">
+  <div id="chat-titlebar">
+    <div class="live-dot"></div>
+    <span>LIVE CHAT</span>
+  </div>
+  <div id="chat-messages"></div>
+  <div id="chat-input-area">
+    <input type="text" id="chat-name-input" placeholder="Your name" maxlength="20">
+    <div id="chat-bottom">
+      <input type="text" id="chat-msg-input" placeholder="Say something..." maxlength="200">
+      <button id="chat-send-btn" onclick="sendMsg()">&#x27A4;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOGIN BUTTON ── -->
+<button id="login-btn" onclick="openAuthModal()">[ LOGIN ]</button>
+
 <!-- ── AUTH MODAL ── -->
 <div id="auth-modal">
   <div class="auth-box">
     <div class="auth-titlebar">
-      <span style="color:#FFD600">⬡</span> todd's witnesses — sign in
+      <div class="auth-dot" style="background:#ff5f56"></div>
+      <div class="auth-dot" style="background:#ffbd2e"></div>
+      <div class="auth-dot" style="background:#27c93f"></div>
+      <span style="margin-left:4px;">todd's witnesses — access</span>
     </div>
     <div class="auth-inner">
-      <div class="auth-title">WHO ARE YOU?</div>
-      <button class="auth-google-btn" onclick="authGoogle()">
-        <svg width="16" height="16" viewBox="0 0 24 24">
+      <div class="auth-logo">TODD'S<br>WITNESSES</div>
+      <div class="auth-sub">who are you?</div>
+      <button class="auth-google" onclick="authGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
@@ -229,76 +241,52 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
         </svg>
         Sign in with Google
       </button>
-      <div class="auth-or">— or —</div>
-      <button class="auth-guest-btn" onclick="authGuest()">[ ENTER AS GUEST ]</button>
+      <div class="auth-or">or</div>
+      <button class="auth-guest" onclick="authGuest()">[ ENTER AS GUEST ]</button>
       <button class="auth-cancel" onclick="closeAuthModal()">cancel</button>
     </div>
   </div>
 </div>
 
-<!-- ── MAIN LAYOUT ── -->
-<div id="app">
-
-  <!-- CHAT -->
-  <div id="chat-panel">
-    <div id="chat-titlebar">
-      <div id="chat-titlebar-left">
-        <div class="live-dot"></div>
-        <div id="chat-label">LIVE CHAT</div>
-      </div>
-      <button id="chat-auth-btn" onclick="openAuthModal()">LOGIN</button>
-    </div>
-    <div id="chat-messages"></div>
-    <div id="chat-input-area">
-      <input type="text" id="chat-name-input" placeholder="Your name" maxlength="20">
-      <div id="chat-bottom">
-        <input type="text" id="chat-msg-input" placeholder="Say something..." maxlength="200">
-        <button id="chat-send-btn" onclick="sendMsg()">➤</button>
-      </div>
-    </div>
+<!-- ── SCANNER ── -->
+<div id="scanner">
+  <div id="scanner-header">
+    <div id="scanner-title">⬡ SCANNER</div>
+    <div id="scanner-status">Initialising...</div>
+    <button id="scan-btn" class="hbtn" onclick="startScan()" disabled>↺ REFRESH</button>
+    <a id="back-btn" class="hbtn" href="index.html">← BACK</a>
   </div>
 
-  <!-- SCANNER -->
-  <div id="scanner">
-    <div id="scanner-header">
-      <div id="scanner-title">⬡ SCANNER</div>
-      <div id="scanner-status">Initialising...</div>
-      <button id="scan-refresh-btn" class="hdr-btn" onclick="startScan()" disabled>↺ REFRESH</button>
-      <a id="back-btn" class="hdr-btn" href="index.html">← BACK</a>
-    </div>
-
-    <div id="scanner-filters">
-      <div class="ftag">MCAP <span>&lt;$100K</span></div>
-      <div class="ftag">DEV <span>&lt;10%</span></div>
-      <div class="ftag">CREATOR <span>CLEAN</span></div>
-      <div class="ftag">PROFILE <span>PAID ✔</span></div>
-      <div class="ftag">CHAIN <span>SOLANA</span></div>
-    </div>
-
-    <div id="scanner-body">
-      <div class="col">
-        <div class="col-hdr pf">◈ PUMP.FUN<span class="sub">(pre-bond)</span><span class="col-count" id="count-pf">0</span></div>
-        <div class="col-list" id="list-pf"><div class="col-empty">Waiting for scan...</div></div>
-      </div>
-      <div class="col">
-        <div class="col-hdr ps">◈ PUMPSWAP<span class="sub">(post-bond)</span><span class="col-count" id="count-ps">0</span></div>
-        <div class="col-list" id="list-ps"><div class="col-empty">Waiting for scan...</div></div>
-      </div>
-    </div>
+  <div id="scanner-filters">
+    <div class="ftag">MCAP <span>&lt;$100K</span></div>
+    <div class="ftag">1H <span>PRICE CHG</span></div>
+    <div class="ftag">CREATOR <span>CLEAN</span></div>
+    <div class="ftag">PROFILE <span>PAID ✔</span></div>
+    <div class="ftag">CHAIN <span>SOLANA</span></div>
   </div>
 
+  <div id="scanner-body">
+    <div class="col">
+      <div class="col-hdr pf">◈ PUMP.FUN<span class="sub">(pre-bond)</span><span class="col-count" id="count-pf">0</span></div>
+      <div class="col-list" id="list-pf"><div class="col-empty">Waiting for scan...</div></div>
+    </div>
+    <div class="col">
+      <div class="col-hdr ps">◈ PUMPSWAP<span class="sub">(post-bond)</span><span class="col-count" id="count-ps">0</span></div>
+      <div class="col-list" id="list-ps"><div class="col-empty">Waiting for scan...</div></div>
+    </div>
+  </div>
 </div>
 
 <script>
-// ── Constants ────────────────────────────────────────────────────────────────
-const SUPA_URL  = 'https://cfaqadeoxskwhebyirok.supabase.co';
-const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
-const DS        = 'https://api.dexscreener.com';
-const RC        = 'https://api.rugcheck.xyz/v1';
-const CHAT_MAX  = 100;
+// ── Constants ─────────────────────────────────────────────────────────────────
+const SUPA_URL = 'https://cfaqadeoxskwhebyirok.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
+const DS       = 'https://api.dexscreener.com';
+const RC       = 'https://api.rugcheck.xyz/v1';
+const CHAT_MAX = 100;
 const NAME_COLORS = ['#ff7eb3','#7eb3ff','#7effb3','#ffb37e','#d07eff','#ff7e7e','#7effe0','#fff07e','#ff9f7e','#a78bfa'];
 
-// ── Auth ─────────────────────────────────────────────────────────────────────
+// ── Auth ──────────────────────────────────────────────────────────────────────
 let _currentUser = null;
 
 function getGuestName() {
@@ -334,28 +322,32 @@ function authGoogle() {
 function authGuest() {
   localStorage.setItem('todd_authed','1');
   closeAuthModal();
-  updateAuthBtn();
   initChatName();
+  updateLoginBtn();
 }
 
-function updateAuthBtn() {
-  const btn = document.getElementById('chat-auth-btn');
-  if (_currentUser && _currentUser.username) {
-    btn.textContent = _currentUser.username + ' ✔';
-    btn.classList.add('logged-in');
-    btn.onclick = null;
+function updateLoginBtn() {
+  const btn = document.getElementById('login-btn');
+  if (_currentUser?.username) {
+    btn.textContent = '[ ' + _currentUser.username + ' ✔ ]';
+    btn.onclick = doLogout;
+  } else if (getStoredToken() || localStorage.getItem('todd_authed')==='1') {
+    btn.textContent = '[ LOGGED IN ]';
+    btn.onclick = doLogout;
   } else {
-    const token = getStoredToken();
-    if (token || localStorage.getItem('todd_authed')==='1') {
-      btn.textContent = '✔ IN';
-      btn.classList.add('logged-in');
-      btn.onclick = null;
-    } else {
-      btn.textContent = 'LOGIN';
-      btn.classList.remove('logged-in');
-      btn.onclick = openAuthModal;
-    }
+    btn.textContent = '[ LOGIN ]';
+    btn.onclick = openAuthModal;
   }
+}
+
+function doLogout() {
+  localStorage.removeItem('todd_authed');
+  localStorage.removeItem('todd_user_data');
+  const k = Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
+  if (k) localStorage.removeItem(k);
+  _currentUser = null;
+  initChatName();
+  updateLoginBtn();
 }
 
 async function initChatName() {
@@ -368,15 +360,11 @@ async function initChatName() {
       if (u && u.username) {
         _currentUser = u;
         el.value = u.username + ' ✔';
-        el.readOnly = true;
-        el.style.color = 'var(--green)';
-        el.style.borderColor = 'var(--green)';
-        updateAuthBtn();
-        return;
+        el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
+        updateLoginBtn(); return;
       }
     }
   } catch(e){}
-
   // 2. Live fetch
   const token = getStoredToken();
   if (token) {
@@ -384,65 +372,58 @@ async function initChatName() {
       const ur = await fetch(`${SUPA_URL}/auth/v1/user`,{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token}});
       if (ur.ok) {
         const user = await ur.json();
-        if (user && user.id) {
+        if (user?.id) {
           const rr = await fetch(`${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(user.id)}&select=username&limit=1`,
             {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token}});
           if (rr.ok) {
             const rows = await rr.json();
-            const username = rows[0]&&rows[0].username;
+            const username = rows[0]?.username;
             if (username) {
               _currentUser = {username,userId:user.id,email:user.email,verified:true};
               try{localStorage.setItem('todd_user_data',JSON.stringify(_currentUser));}catch(e){}
               el.value = username + ' ✔';
-              el.readOnly = true;
-              el.style.color = 'var(--green)';
-              el.style.borderColor = 'var(--green)';
-              updateAuthBtn();
-              return;
+              el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
+              updateLoginBtn(); return;
             }
           }
         }
       }
     } catch(e){}
   }
-
-  // 3. Guest fallback
+  // 3. Guest
   el.value = getGuestName();
-  el.readOnly = false;
-  el.style.color = '';
-  el.style.borderColor = '';
-  updateAuthBtn();
+  el.readOnly = false; el.style.color = ''; el.style.borderColor = '';
+  updateLoginBtn();
 }
 
-// Handle Google OAuth return
+// Handle Google OAuth return to this page
 if (window.location.hash.includes('access_token')) {
   localStorage.setItem('todd_authed','1');
   try {
     const params={};
     window.location.hash.slice(1).split('&').forEach(p=>{const[k,v]=p.split('=');params[decodeURIComponent(k)]=decodeURIComponent(v||'');});
-    localStorage.setItem('sb-cfaqadeoxskwhebyirok-auth-token',JSON.stringify({
-      access_token:params['access_token'],refresh_token:params['refresh_token'],
-      expires_at:Math.floor(Date.now()/1000)+parseInt(params['expires_in']||'3600'),token_type:'bearer'
+    localStorage.setItem('sb-cfaqadeoxskwhebyirok-auth-token', JSON.stringify({
+      access_token:params['access_token'], refresh_token:params['refresh_token'],
+      expires_at:Math.floor(Date.now()/1000)+parseInt(params['expires_in']||'3600'), token_type:'bearer'
     }));
   } catch(e){}
   history.replaceState(null,'',window.location.pathname);
 }
 
-// ── Chat ─────────────────────────────────────────────────────────────────────
+// ── Chat ──────────────────────────────────────────────────────────────────────
 function nameColor(name) {
   let h=0;
   for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))&0xffffffff;
   return NAME_COLORS[Math.abs(h)%NAME_COLORS.length];
 }
-
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function appendMsg(msg) {
-  const box = document.getElementById('chat-messages');
-  const atBottom = box.scrollHeight-box.scrollTop-box.clientHeight < 80;
-  const el = document.createElement('div');
-  el.className = 'chat-msg';
-  el.innerHTML = `<span class="chat-msg-name" style="color:${nameColor(msg.name)}">${escHtml(msg.name)}:</span> <span class="chat-msg-text">${escHtml(msg.text)}</span>`;
+  const box=document.getElementById('chat-messages');
+  const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
+  const el=document.createElement('div');
+  el.className='chat-msg';
+  el.innerHTML=`<span class="chat-msg-name" style="color:${nameColor(msg.name)}">${escHtml(msg.name)}:</span> <span class="chat-msg-text">${escHtml(msg.text)}</span>`;
   box.appendChild(el);
   while(box.children.length>CHAT_MAX) box.removeChild(box.firstChild);
   if(atBottom) box.scrollTop=box.scrollHeight;
@@ -450,10 +431,10 @@ function appendMsg(msg) {
 
 async function loadChat() {
   try {
-    const r = await fetch(`${SUPA_URL}/rest/v1/chat_messages?select=id,name,text,created_at&order=created_at.asc&limit=80`,
+    const r=await fetch(`${SUPA_URL}/rest/v1/chat_messages?select=id,name,text,created_at&order=created_at.asc&limit=80`,
       {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}});
-    const msgs = await r.json();
-    const box = document.getElementById('chat-messages');
+    const msgs=await r.json();
+    const box=document.getElementById('chat-messages');
     box.innerHTML='';
     if(Array.isArray(msgs)) msgs.forEach(appendMsg);
     box.scrollTop=box.scrollHeight;
@@ -491,10 +472,9 @@ async function sendMsg() {
     });
   } catch(e){}
 }
-
 document.getElementById('chat-msg-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
 
-// ── Scanner Helpers ───────────────────────────────────────────────────────────
+// ── Scanner ───────────────────────────────────────────────────────────────────
 function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
 function fmtMcap(n){
@@ -503,21 +483,16 @@ function fmtMcap(n){
   return '$'+Math.round(n);
 }
 
-function devClass(pct){ return pct>=10?'bad':pct>=5?'warn':'ok'; }
-
-function getDevPct(report){
-  if(!report.topHolders||!report.creator) return 0;
-  const e=report.topHolders.find(h=>h.address===report.creator);
-  return e?(e.pct||0):0;
+function fmt1h(pct){
+  if(pct==null||isNaN(pct)) return {label:'—', cls:'nt'};
+  const sign=pct>=0?'+':'';
+  return {label:`1H ${sign}${pct.toFixed(1)}%`, cls: pct>0?'up':pct<0?'dn':'nt'};
 }
 
 function hasCreatorRisk(risks){
   return (risks||[]).some(r=>{const n=(r.name||'').toLowerCase();return n.includes('creator')||n.includes('deployer');});
 }
-
 function setStatus(msg){document.getElementById('scanner-status').textContent=msg;}
-
-// ── Scanner API ───────────────────────────────────────────────────────────────
 async function fetchJSON(url){const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
 
 async function fetchPaidTokens(){
@@ -529,17 +504,16 @@ async function fetchPaidTokens(){
   return all;
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
 let pfResults=[],psResults=[];
 
 function renderCard(result,dex){
-  const{profile,pair,dev}=result;
+  const{profile,pair}=result;
   const mcap=pair.marketCap||pair.fdv||0;
   const name=pair.baseToken?.name||profile.tokenAddress.slice(0,8);
   const ticker=pair.baseToken?.symbol||'???';
   const icon=profile.icon||(pair.info&&pair.info.imageUrl)||'';
   const link=pair.url||profile.url||'#';
-  const dc=devClass(dev);
+  const h1=fmt1h(pair.priceChange?.h1);
 
   const card=document.createElement('a');
   card.className=`token-card ${dex==='pumpfun'?'pf':'ps'}`;
@@ -551,6 +525,7 @@ function renderCard(result,dex){
 
   card.innerHTML=`
     ${imgHtml}
+    <div class="token-divider"></div>
     <div class="token-body">
       <div class="token-row1">
         <span class="token-name">${escHtml(name)}</span>
@@ -558,9 +533,9 @@ function renderCard(result,dex){
         <span class="token-mcap">${fmtMcap(mcap)}</span>
       </div>
       <div class="token-row2">
-        <span class="badge ${dc}">DEV ${dev.toFixed(1)}%</span>
+        <span class="badge ${h1.cls}">${h1.label}</span>
         <span class="badge ok">CREATOR ✔</span>
-        <span class="token-dex-link">VIEW ↗</span>
+        <span class="token-link-label">VIEW ↗</span>
       </div>
     </div>`;
   return card;
@@ -577,13 +552,11 @@ function flushResults(){
   document.getElementById('count-ps').textContent=psResults.length;
 }
 
-// ── Main Scan ─────────────────────────────────────────────────────────────────
 let scanning=false;
-
 async function startScan(){
   if(scanning) return;
   scanning=true; pfResults=[]; psResults=[];
-  const btn=document.getElementById('scan-refresh-btn');
+  const btn=document.getElementById('scan-btn');
   btn.disabled=true; btn.textContent='↺ SCANNING...';
   document.getElementById('list-pf').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
   document.getElementById('list-ps').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
@@ -615,9 +588,8 @@ async function startScan(){
         const pair=pairs[0];
         await delay(120);
         const report=await fetchJSON(`${RC}/tokens/${profile.tokenAddress}/report`);
-        const dev=getDevPct(report);
-        if(dev<10&&!hasCreatorRisk(report.risks)){
-          const r={profile,pair,dev};
+        if(!hasCreatorRisk(report.risks)){
+          const r={profile,pair};
           if(pair.dexId==='pumpfun') pfResults.push(r); else psResults.push(r);
           flushResults();
         }
@@ -634,13 +606,12 @@ async function startScan(){
     setStatus('Error: '+e.message);
   }
 
-  scanning=false;
-  btn.disabled=false; btn.textContent='↺ REFRESH';
+  scanning=false; btn.disabled=false; btn.textContent='↺ REFRESH';
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 initChatName();
-updateAuthBtn();
+updateLoginBtn();
 loadChat();
 subscribeChat();
 startScan();
