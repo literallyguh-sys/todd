@@ -139,6 +139,8 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 .ticker-entry:last-child{border-right:none;}
 .ticker-entry.new-flash{color:#fff;}
 .te-ago{font-size:11px;color:rgba(255,214,0,0.45);letter-spacing:0;}
+.te-icon{width:20px;height:20px;object-fit:cover;border-radius:2px;flex-shrink:0;}
+.te-icon-ph{width:20px;height:20px;background:#1e1e1e;border-radius:2px;flex-shrink:0;display:inline-block;}
 @keyframes tickerfadein{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 #scanner-controls{
   display:flex;align-items:center;gap:6px;flex-shrink:0;
@@ -280,7 +282,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 
 <!-- ── SCANNER ── -->
 <div id="scanner">
-  <div id="new-ticker"><span id="ticker-label">NEW PROFILES</span></div>
+  <div id="new-ticker"><span id="ticker-label">DEX PAID</span></div>
   <div id="scanner-controls">
     <button id="scan-btn" class="hbtn" onclick="startScan()" disabled>↺ REFRESH</button>
     <a id="back-btn" class="hbtn" href="index.html">← BACK</a>
