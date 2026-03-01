@@ -659,6 +659,7 @@ async function startScan(){
       } catch(e){}
     }
 
+    checkNewTokens(newPf,newPs);
     pfResults=newPf; psResults=newPs;
     flushResults();
     const now=new Date().toLocaleTimeString();
@@ -677,6 +678,7 @@ loadChat();
 subscribeChat();
 startScan();
 setInterval(()=>{if(!scanning)startScan();},180000);
+setInterval(renderTicker,30000);
 </script>
 </body>
 </html>
