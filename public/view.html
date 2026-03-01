@@ -162,6 +162,14 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 .col-hdr .sub{font-size:11px;opacity:0.55;margin-left:2px;}
 .col-hdr-logo{width:18px;height:18px;border-radius:3px;flex-shrink:0;object-fit:contain;}
 .col-count{margin-left:auto;font-size:12px;opacity:0.5;}
+.col-progress{
+  display:none;align-items:center;gap:7px;flex-shrink:0;
+  font-family:'VT323',monospace;font-size:14px;color:#bbb;letter-spacing:1px;
+  padding:3px 8px 5px;border-bottom:1px solid rgba(255,255,255,0.05);margin-bottom:4px;
+}
+.col-progress.active{display:flex;}
+.cp-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,0.08);overflow:hidden;border-radius:1px;}
+.cp-bar{height:100%;background:var(--accent);width:0%;transition:width 0.3s ease;}
 .col-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:5px;padding-right:3px;}
 .col-list::-webkit-scrollbar{width:3px;}
 .col-list::-webkit-scrollbar-track{background:transparent;}
