@@ -512,6 +512,58 @@ async function fetchPaidTokens(){
 
 let pfResults=[],psResults=[];
 
+// ── New-token ticker ───────────────────────────────────────────────────────────
+let prevAddresses=new Set();
+let tickerEntries=[]; // [{address,ticker,seenAt}]
+const TICKER_TTL=10*60*1000;
+
+function fmtAgo(ms){
+  const m=Math.floor(ms/60000);
+  if(m<1) return 'just now';
+  return m+'m ago';
+}
+
+function renderTicker(){
+  const now=Date.now();
+  tickerEntries=tickerEntries.filter(e=>now-e.seenAt<TICKER_TTL);
+  const strip=document.getElementById('new-ticker');
+  strip.innerHTML='';
+  for(const e of tickerEntries){
+    const span=document.createElement('span');
+    span.className='ticker-entry';
+    span.textContent='$'+e.ticker+' · '+fmtAgo(now-e.seenAt);
+    strip.appendChild(span);
+  }
+}
+
+function checkNewTokens(newPf,newPs){
+  const allNew=[...newPf,...newPs];
+  if(prevAddresses.size===0){
+    // First scan — just seed addresses, don't fire ticker
+    allNew.forEach(r=>prevAddresses.add(r.profile.tokenAddress));
+    return;
+  }
+  const added=[];
+  for(const r of allNew){
+    const addr=r.profile.tokenAddress;
+    if(!prevAddresses.has(addr)){
+      added.push({address:addr,ticker:r.pair.baseToken?.symbol||addr.slice(0,6),seenAt:Date.now()});
+    }
+  }
+  prevAddresses=new Set(allNew.map(r=>r.profile.tokenAddress));
+  if(added.length){
+    // Prepend newest on the left
+    tickerEntries=[...added,...tickerEntries];
+    renderTicker();
+    // Flash newest entries white briefly
+    const strip=document.getElementById('new-ticker');
+    for(let i=0;i<Math.min(added.length,strip.children.length);i++){
+      strip.children[i].classList.add('new-flash');
+      setTimeout(()=>strip.children[i]?.classList.remove('new-flash'),1500);
+    }
+  }
+}
+
 function renderCard(result,dex){
   const{profile,pair}=result;
   const mcap=pair.marketCap||pair.fdv||0;
