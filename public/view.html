@@ -730,6 +730,7 @@ initChatName();
 updateLoginBtn();
 loadChat();
 subscribeChat();
+loadTickerFromStorage();
 startScan();
 setInterval(()=>{if(!scanning)startScan();},180000);
 setInterval(renderTicker,30000);
