@@ -190,6 +190,7 @@ function lobbyLogout() {
   const sbKey = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
   if (sbKey) localStorage.removeItem(sbKey);
   updateLobbyLoginBtn();
+  initLobbyName();
 }
 
 function updateLobbyLoginBtn() {
@@ -284,6 +285,68 @@ function lbSubscribeChat(){var wsUrl=SUPA_URL.replace("https://","wss://")+"/rea
 var lobbyChat={send:async function(){var ne=document.getElementById("lobby-name-input");var me=document.getElementById("lobby-msg-input");var name=(ne.value||"").trim()||getGuestName();var text=(me.value||"").trim();if(!text)return;me.value="";try{await fetch(SUPA_URL+"/rest/v1/chat_messages",{method:"POST",headers:{apikey:SUPA_KEY,Authorization:"Bearer "+SUPA_KEY,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({name:name,text:text})});}catch(e){}}};
 document.getElementById("lobby-msg-input").addEventListener("keydown",function(e){if(e.key==="Enter")lobbyChat.send();});
 lbLoadChat();lbSubscribeChat();
+
+function lbGetStoredToken() {
+  try {
+    const k = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+    if (k) { const s = JSON.parse(localStorage.getItem(k)); return s?.access_token || ''; }
+  } catch(e) {}
+  return '';
+}
+
+function lbSetNameField(value, isUser) {
+  const el = document.getElementById('lobby-name-input');
+  if (!el) return;
+  el.value = value;
+  el.readOnly = isUser;
+  el.style.color = isUser ? '#00cc66' : '#aaa';
+  el.style.borderColor = isUser ? '#00cc66' : '';
+  el.title = isUser ? value : '';
+}
+
+async function initLobbyName() {
+  // 1. Cached user data (written by app.html or a previous lobby fetch)
+  try {
+    const raw = localStorage.getItem('todd_user_data');
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u && u.username) { lbSetNameField(u.username + ' ✔', true); return; }
+    }
+  } catch(e) {}
+
+  // 2. Live fetch from Supabase if there is a valid token
+  const token = lbGetStoredToken();
+  if (token) {
+    try {
+      const uRes = await fetch(SUPA_URL + '/auth/v1/user', {
+        headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + token }
+      });
+      if (uRes.ok) {
+        const user = await uRes.json();
+        if (user && user.id) {
+          const rRes = await fetch(
+            SUPA_URL + '/rest/v1/usernames?user_id=eq.' + encodeURIComponent(user.id) + '&select=username&limit=1',
+            { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + token } }
+          );
+          if (rRes.ok) {
+            const rows = await rRes.json();
+            const username = rows[0] && rows[0].username;
+            if (username) {
+              try { localStorage.setItem('todd_user_data', JSON.stringify({ username, userId: user.id, email: user.email, verified: true })); } catch(e) {}
+              lbSetNameField(username + ' ✔', true);
+              return;
+            }
+          }
+        }
+      }
+    } catch(e) {}
+  }
+
+  // 3. Fall back to fingerprint guest name
+  lbSetNameField(getGuestName(), false);
+}
+
+initLobbyName();
 </script>
 </body>
 </html>
