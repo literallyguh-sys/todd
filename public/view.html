@@ -367,12 +367,10 @@ async function startScan() {
         await delay(120);
         const report = await fetchRugcheck(profile.tokenAddress);
 
-        const bundle  = getBundlePct(report.risks);
-        const dev     = getDevPct(report);
-        const insiders = getInsiderPct(report);
+        const dev = getDevPct(report);
 
-        if (bundle < 10 && dev < 10 && insiders < 15 && !hasCreatorRisk(report.risks)) {
-          const result = { profile, pair, bundle, dev, insiders };
+        if (dev < 10 && !hasCreatorRisk(report.risks)) {
+          const result = { profile, pair, dev };
           if (pair.dexId === 'pumpfun')  pumpfunResults.push(result);
           else                           pumpswapResults.push(result);
           flushResults();
