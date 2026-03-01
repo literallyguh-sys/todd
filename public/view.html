@@ -572,6 +572,7 @@ function checkNewTokens(newPf,newPs){
       added.push({
         address:addr,
         ticker:r.pair.baseToken?.symbol||addr.slice(0,6),
+        icon:r.profile.icon||(r.pair.info?.imageUrl)||'',
         url:r.pair.url||r.profile.url||'#',
         seenAt:Date.now()
       });
