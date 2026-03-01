@@ -676,11 +676,8 @@ async function startScan(){
     pfResults=newPf; psResults=newPs;
     hideColProgress();
     flushResults();
-    const now=new Date().toLocaleTimeString();
-    setStatus(`${pfResults.length+psResults.length} passing · ${now}`);
   } catch(e){
     hideColProgress();
-    setStatus('error');
   }
 
   scanning=false; btn.disabled=false; btn.textContent='↺ REFRESH';
