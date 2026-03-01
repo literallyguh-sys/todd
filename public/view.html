@@ -207,12 +207,6 @@ function getDevPct(report) {
   return entry ? (entry.pct || 0) : 0;
 }
 
-function getInsiderPct(report) {
-  return (report.topHolders || [])
-    .filter(h => h.insider === true)
-    .reduce((s, h) => s + (h.pct || 0), 0);
-}
-
 function hasCreatorRisk(risks) {
   return (risks || []).some(r => {
     const name = (r.name || '').toLowerCase();
