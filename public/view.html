@@ -671,13 +671,13 @@ async function startScan(){
       try {
         await delay(120);
         const data=await fetchJSON(`${DS}/latest/dex/tokens/${profile.tokenAddress}`);
-        const pairs=(data.pairs||[]).filter(p=>
-          p.chainId==='solana'&&
-          (p.dexId==='pumpfun'||p.dexId==='pumpswap')&&
-          (p.marketCap||p.fdv||0)<100000&&
-          ((p.dexId==='pumpfun'&&(p.marketCap||p.fdv||0)>=5000)||
-           (p.dexId==='pumpswap'&&(p.marketCap||p.fdv||0)>=10000))
-        );
+        const pairs=(data.pairs||[]).filter(p=>{
+          const mc=p.marketCap||p.fdv||0;
+          if(p.chainId!=='solana') return false;
+          if(p.dexId==='pumpfun')  return mc>=5000  && mc<33000;
+          if(p.dexId==='pumpswap') return mc>=10000 && mc<100000;
+          return false;
+        });
         if(!pairs.length) continue;
         pairs.sort((a,b)=>(b.marketCap||b.fdv||0)-(a.marketCap||a.fdv||0));
         const pair=pairs[0];
