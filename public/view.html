@@ -228,6 +228,13 @@ function getInsiderPct(report) {
     .reduce((s, h) => s + (h.pct || 0), 0);
 }
 
+function hasCreatorRisk(risks) {
+  return (risks || []).some(r => {
+    const name = (r.name || '').toLowerCase();
+    return name.includes('creator') || name.includes('deployer');
+  });
+}
+
 function setStatus(msg) {
   document.getElementById('scanner-status').textContent = msg;
 }
@@ -388,7 +395,7 @@ async function startScan() {
         const dev     = getDevPct(report);
         const insiders = getInsiderPct(report);
 
-        if (bundle < 10 && dev < 10 && insiders < 15) {
+        if (bundle < 10 && dev < 10 && insiders < 15 && !hasCreatorRisk(report.risks)) {
           const result = { profile, pair, bundle, dev, insiders };
           if (pair.dexId === 'pumpfun')  pumpfunResults.push(result);
           else                           pumpswapResults.push(result);
