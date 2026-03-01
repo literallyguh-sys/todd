@@ -498,7 +498,6 @@ function fmt1h(pct){
 function hasCreatorRisk(risks){
   return (risks||[]).some(r=>{const n=(r.name||'').toLowerCase();return n.includes('creator')||n.includes('deployer');});
 }
-function setStatus(msg){document.getElementById('scanner-status').textContent=msg;}
 async function fetchJSON(url){const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
 
 async function fetchPaidTokens(){
