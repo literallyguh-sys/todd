@@ -201,20 +201,6 @@ function statClass(pct, warn, bad) {
   return 'ok';
 }
 
-function getBundlePct(risks) {
-  for (const r of (risks || [])) {
-    const name = (r.name || '').toLowerCase();
-    if (name.includes('bundle')) {
-      const raw = r.value || r.description || '';
-      const m = raw.match(/([\d.]+)\s*%/);
-      if (m) return parseFloat(m[1]);
-      // If risk exists but no % found, treat as present — flag conservatively
-      return 10;
-    }
-  }
-  return 0;
-}
-
 function getDevPct(report) {
   if (!report.topHolders || !report.creator) return 0;
   const entry = report.topHolders.find(h => h.address === report.creator);
