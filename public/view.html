@@ -281,6 +281,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 <!-- ── SCANNER ── -->
 <div id="scanner">
   <div id="new-ticker"><span id="ticker-label">NEW PROFILES</span></div>
+  <div id="scanner-controls">
+    <button id="scan-btn" class="hbtn" onclick="startScan()" disabled>↺ REFRESH</button>
+    <a id="back-btn" class="hbtn" href="index.html">← BACK</a>
+  </div>
 
   <div id="scanner-body">
     <div class="col">
