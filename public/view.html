@@ -620,34 +620,41 @@ function flushResults(){
   document.getElementById('count-ps').textContent=psResults.length;
 }
 
+function showColProgress(checked, total, pfCount, psCount) {
+  const pct = total ? Math.round(checked/total*100) : 0;
+  ['pf','ps'].forEach(id=>{
+    const el=document.getElementById('prog-'+id);
+    el.classList.add('active');
+    document.getElementById('prog-'+id+'-bar').style.width=pct+'%';
+  });
+  document.getElementById('prog-pf-txt').textContent=`${checked}/${total} · ${pfCount} found`;
+  document.getElementById('prog-ps-txt').textContent=`${checked}/${total} · ${psCount} found`;
+}
+function hideColProgress() {
+  ['pf','ps'].forEach(id=>{
+    const el=document.getElementById('prog-'+id);
+    el.classList.remove('active');
+    document.getElementById('prog-'+id+'-bar').style.width='0%';
+  });
+}
+
 let scanning=false;
 async function startScan(){
   if(scanning) return;
   scanning=true;
   const btn=document.getElementById('scan-btn');
-  btn.disabled=true;
-
-  const hasExisting = pfResults.length+psResults.length > 0;
-  if(!hasExisting){
-    btn.textContent='↺ SCANNING...';
-    document.getElementById('list-pf').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
-    document.getElementById('list-ps').innerHTML='<div class="loading-row"><div class="spinner"></div> Fetching...</div>';
-    document.getElementById('count-pf').textContent='0';
-    document.getElementById('count-ps').textContent='0';
-  } else {
-    btn.textContent='↺ REFRESHING...';
-  }
+  btn.disabled=true; btn.textContent='↺ ...';
 
   const newPf=[], newPs=[];
   try {
-    setStatus('Fetching paid profiles...');
+    setStatus('fetching...');
+    showColProgress(0, 0, 0, 0);
     const tokens=await fetchPaidTokens();
-    setStatus(`Scanning ${tokens.length} tokens...`);
 
     let checked=0;
     for(const profile of tokens){
       checked++;
-      setStatus(`${checked}/${tokens.length} checked · ${newPf.length+newPs.length} passing`);
+      showColProgress(checked, tokens.length, newPf.length, newPs.length);
       try {
         await delay(120);
         const data=await fetchJSON(`${DS}/latest/dex/tokens/${profile.tokenAddress}`);
@@ -671,11 +678,13 @@ async function startScan(){
 
     checkNewTokens(newPf,newPs);
     pfResults=newPf; psResults=newPs;
+    hideColProgress();
     flushResults();
     const now=new Date().toLocaleTimeString();
     setStatus(`${pfResults.length+psResults.length} passing · ${now}`);
   } catch(e){
-    setStatus('Error: '+e.message);
+    hideColProgress();
+    setStatus('error');
   }
 
   scanning=false; btn.disabled=false; btn.textContent='↺ REFRESH';
