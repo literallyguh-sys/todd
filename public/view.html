@@ -259,16 +259,14 @@ async function fetchRugcheck(mint) {
 // ── Render ────────────────────────────────────────────────────────────────────
 
 function renderCard(result, dex) {
-  const { profile, pair, bundle, dev, insiders } = result;
+  const { profile, pair, dev } = result;
   const mcap = pair.marketCap || pair.fdv || 0;
   const name   = pair.baseToken?.name   || profile.tokenAddress.slice(0, 8);
   const ticker = pair.baseToken?.symbol || '???';
   const icon   = profile.icon || (pair.info && pair.info.imageUrl);
   const link   = pair.url || profile.url;
 
-  const bundleClass   = statClass(bundle,   5, 10);
-  const devClass      = statClass(dev,      5, 10);
-  const insiderClass  = statClass(insiders, 8, 15);
+  const devClass = statClass(dev, 5, 10);
 
   const iconHtml = icon
     ? `<img class="token-icon" src="${icon}" alt="" onerror="this.style.display='none'">`
@@ -286,9 +284,8 @@ function renderCard(result, dex) {
       <div class="token-mcap">${fmtMcap(mcap)}</div>
     </div>
     <div class="token-stats">
-      <div class="stat"><span class="stat-label">BUNDLE</span>&nbsp;<span class="stat-val ${bundleClass}">${bundle.toFixed(1)}%</span></div>
       <div class="stat"><span class="stat-label">DEV</span>&nbsp;<span class="stat-val ${devClass}">${dev.toFixed(1)}%</span></div>
-      <div class="stat"><span class="stat-label">INSIDERS</span>&nbsp;<span class="stat-val ${insiderClass}">${insiders.toFixed(1)}%</span></div>
+      <div class="stat"><span class="stat-label">CREATOR</span>&nbsp;<span class="stat-val ok">CLEAN</span></div>
     </div>
     <a class="token-link" href="${link}" target="_blank" rel="noopener">[ VIEW ON DEXSCREENER ↗ ]</a>
   `;
