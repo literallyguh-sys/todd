@@ -551,7 +551,10 @@ function renderTicker(){
     const a=document.createElement('a');
     a.className='ticker-entry';
     a.href=e.url||'#'; a.target='_blank'; a.rel='noopener';
-    a.innerHTML=`$${escHtml(e.ticker)}<span class="te-ago">${fmtAgo(now-e.seenAt)}</span>`;
+    const iconHtml=e.icon
+      ?`<img class="te-icon" src="${escHtml(e.icon)}" alt="" onerror="this.outerHTML='<span class=te-icon-ph></span>'">`
+      :`<span class="te-icon-ph"></span>`;
+    a.innerHTML=`${iconHtml}$${escHtml(e.ticker)}<span class="te-ago">${fmtAgo(now-e.seenAt)}</span>`;
     strip.appendChild(a);
   }
 }
