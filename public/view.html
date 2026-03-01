@@ -602,7 +602,8 @@ function renderCard(result,dex){
     ?`<img class="token-img" src="${escHtml(icon)}" alt="" onerror="this.outerHTML='<div class=token-img-placeholder>${escHtml(ticker.slice(0,3))}</div>'">`
     :`<div class="token-img-placeholder">${escHtml(ticker.slice(0,3))}</div>`;
 
-  const barPct=Math.max(0,Math.min(100,Math.round((mcap-2000)/(34000-2000)*100)));
+  const barMax=dex==='pumpfun'?33000:100000;
+  const barPct=Math.max(0,Math.min(100,Math.round((mcap-2000)/(barMax-2000)*100)));
 
   card.innerHTML=`
     ${imgHtml}
