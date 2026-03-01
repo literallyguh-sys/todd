@@ -137,12 +137,13 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 #scanner-body{display:flex;gap:10px;flex:1;overflow:hidden;min-height:0;}
 .col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 .col-hdr{
-  display:flex;align-items:center;padding:4px 8px;
+  display:flex;align-items:center;gap:7px;padding:4px 8px;
   margin-bottom:6px;font-size:14px;letter-spacing:2px;flex-shrink:0;
 }
 .col-hdr.pf{border-left:3px solid var(--pf);color:var(--pf);}
 .col-hdr.ps{border-left:3px solid var(--ps);color:var(--ps);}
-.col-hdr .sub{font-size:11px;opacity:0.55;margin-left:5px;}
+.col-hdr .sub{font-size:11px;opacity:0.55;margin-left:2px;}
+.col-hdr-logo{width:18px;height:18px;border-radius:3px;flex-shrink:0;object-fit:contain;}
 .col-count{margin-left:auto;font-size:12px;opacity:0.5;}
 .col-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:5px;padding-right:3px;}
 .col-list::-webkit-scrollbar{width:3px;}
