@@ -664,6 +664,9 @@ async function startScan(){
 
   const newPf=[], newPs=[];
   try {
+    // Clear placeholder text so progress bars are immediately visible
+    if(!pfResults.length) document.getElementById('list-pf').innerHTML='';
+    if(!psResults.length) document.getElementById('list-ps').innerHTML='';
     showColProgress(0, 0, 0, 0);
     const tokens=await fetchPaidTokens();
 
