@@ -170,6 +170,85 @@ app.post('/api/vote', async (req, res) => {
   }
 });
 
+// ────────────────────────────────────────────────────────────────────────────
+// POST /api/admin/login
+// Validates the admin password. Returns a signed session token.
+// ────────────────────────────────────────────────────────────────────────────
+const crypto = require('crypto');
+const ADMIN_SESSIONS = new Set(); // in-memory session tokens
+
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Wrong password' });
+  }
+  const token = crypto.randomBytes(32).toString('hex');
+  ADMIN_SESSIONS.add(token);
+  res.json({ ok: true, token });
+});
+
+// Middleware to protect admin routes
+function requireAdmin(req, res, next) {
+  const token = req.headers['x-admin-token'];
+  if (!token || !ADMIN_SESSIONS.has(token)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/admin/posts
+// Returns ALL posts (approved and pending) for admin review
+// ────────────────────────────────────────────────────────────────────────────
+app.get('/api/admin/posts', requireAdmin, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('gallery_posts')
+      .select('id, name, message, image, created_at, votes_up, votes_down, approved')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// POST /api/admin/approve/:id
+// Approves a post
+// ────────────────────────────────────────────────────────────────────────────
+app.post('/api/admin/approve/:id', requireAdmin, async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('gallery_posts')
+      .update({ approved: true })
+      .eq('id', req.params.id);
+    if (error) throw error;
+    console.log(`[ADMIN] Approved post ${req.params.id}`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// DELETE /api/admin/posts/:id
+// Permanently deletes a post
+// ────────────────────────────────────────────────────────────────────────────
+app.delete('/api/admin/posts/:id', requireAdmin, async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('gallery_posts')
+      .delete()
+      .eq('id', req.params.id);
+    if (error) throw error;
+    console.log(`[ADMIN] Deleted post ${req.params.id}`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Catch-all: serve the app ──
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

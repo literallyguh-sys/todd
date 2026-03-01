@@ -1,0 +1,2643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TODD'S WITNESSES</title>
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0f0f0f;
+  --surf:    #1a1a1a;
+  --surf2:   #222222;
+  --border:  #444;
+  --hi:      #777;     /* bevel highlight edge */
+  --lo:      #111;     /* bevel shadow edge    */
+  --accent:  #FFD600;
+  --red:     #FF3A3A;
+  --green:   #00cc66;
+  --text:    #e0e0e0;
+  --muted:   #777;
+  --sidebar: 220px;
+}
+
+/* ── RESET ── */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+
+body {
+  background: var(--bg);
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 3px,
+      rgba(255,255,255,.013) 3px,rgba(255,255,255,.013) 4px);
+  color: var(--text);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  display: flex; flex-direction: column;
+  height: 100vh; overflow: hidden;
+}
+
+/* ── BEVEL MIXIN (used everywhere instead of border-radius) ── */
+.bevel {
+  border-top:  1px solid var(--hi);
+  border-left: 1px solid var(--hi);
+  border-right:  1px solid var(--lo);
+  border-bottom: 1px solid var(--lo);
+}
+.bevel-in {
+  border-top:  1px solid var(--lo);
+  border-left: 1px solid var(--lo);
+  border-right:  1px solid var(--hi);
+  border-bottom: 1px solid var(--hi);
+}
+
+/* ── HEADER ── */
+header {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 14px;
+  padding: 7px 14px;
+  background: var(--surf);
+  border-bottom: 2px solid #555;
+  position: relative; overflow: hidden;
+}
+header::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(0deg,transparent,transparent 3px,
+    rgba(255,255,255,.016) 3px,rgba(255,255,255,.016) 4px);
+}
+.header-title-wrap { cursor:pointer; position:relative; }
+
+header h1 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 36px; letter-spacing: 4px;
+  color: var(--accent); line-height:1;
+  position:relative; display:inline-block;
+  animation: glitch-base 6s infinite;
+  text-shadow: 2px 0 #ff003c,-2px 0 #00f5ff;
+}
+header h1::before,header h1::after {
+  content:attr(data-text);
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  font-family:inherit;font-size:inherit;letter-spacing:inherit;
+}
+header h1::before { color:#ff003c; animation:glitch-r 6s infinite;
+  clip-path:polygon(0 15%,100% 15%,100% 38%,0 38%); }
+header h1::after  { color:#00f5ff; animation:glitch-b 6s infinite;
+  clip-path:polygon(0 62%,100% 62%,100% 82%,0 82%); }
+
+@keyframes glitch-base {
+  0%,89%,100%{transform:none;opacity:1}
+  90%{transform:skewX(-3deg) translateX(2px);opacity:.9}
+  91%{transform:skewX(2deg) translateX(-2px)}
+  92%{transform:none}
+  93%{transform:translateX(3px) skewX(-1deg);opacity:.95}
+  94%,95%{transform:none}
+}
+@keyframes glitch-r {
+  0%,89%,100%{transform:none;opacity:0}
+  90%{transform:translateX(-4px);opacity:.8}
+  91%{transform:translateX(3px);opacity:.5}
+  92%,95%{opacity:0}
+  93%{transform:translateX(-5px);opacity:.6}
+}
+@keyframes glitch-b {
+  0%,91%,100%{transform:none;opacity:0}
+  92%{transform:translateX(5px);opacity:.8}
+  93%{transform:translateX(-3px);opacity:.4}
+  94%,97%{opacity:0}
+  95%{transform:translateX(4px);opacity:.5}
+}
+
+header .subtitle {
+  font-size:13px; color:#555; letter-spacing:3px; text-transform:uppercase;
+}
+
+/* ── TOKEN WIDGET ── */
+.token-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin: 0 auto;
+  font-family: 'VT323', monospace;
+}
+.token-price-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.token-price {
+  font-size: 26px;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+.token-change {
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.token-change.up { color: #00cc66; }
+.token-change.down { color: var(--red); }
+.token-ca-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 1px;
+}
+.token-ca-label {
+  color: #555;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.token-address {
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border: 1px solid #333;
+  padding: 2px 8px;
+  background: #111;
+  transition: color .1s;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.token-address:hover { color: var(--accent); border-color: #555; }
+.win-buttons{display:flex;gap:2px;align-items:center;}
+
+/* ── BACK TO LOBBY ── */
+.back-to-lobby {
+  display: flex; align-items: center; gap: 5px;
+  background: #1a1a1a;
+  border-top: 1px solid #444; border-left: 1px solid #444;
+  border-right: 1px solid #111; border-bottom: 1px solid #111;
+  color: #666; font-family: 'VT323', monospace; font-size: 14px;
+  padding: 3px 10px; cursor: pointer; letter-spacing: 1px;
+  white-space: nowrap; transition: all .1s; text-decoration: none;
+}
+.back-to-lobby:hover { background: #222; color: #aaa; border-color: #555; }
+
+/* ── SOCIAL LINKS ── */
+.header-links {
+  display: flex; align-items: center; gap: 6px; margin-left: 8px;
+}
+.header-link {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 26px;
+  background: #1e1e1e;
+  border-top: 1px solid #555; border-left: 1px solid #555;
+  border-right: 1px solid #111; border-bottom: 1px solid #111;
+  cursor: pointer; text-decoration: none;
+  transition: background .1s, outline .1s;
+  flex-shrink: 0;
+}
+.header-link:hover { background: #2a2a2a; outline: 1px solid var(--accent); }
+.header-link svg { display: block; }
+
+/* ── AUTH BUTTON ── */
+.auth-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: #1e1e1e;
+  border-top: 1px solid #555; border-left: 1px solid #555;
+  border-right: 1px solid #111; border-bottom: 1px solid #111;
+  color: #aaa; font-family: 'VT323', monospace; font-size: 14px;
+  padding: 3px 10px; cursor: pointer; letter-spacing: 1px;
+  white-space: nowrap; transition: all .1s;
+}
+.auth-btn:hover { background: #2a2a2a; color: var(--accent); outline: 1px solid var(--accent); }
+.auth-btn.logged-in { color: #00cc66; border-color: #00cc66; }
+.auth-btn .auth-avatar {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid #555; object-fit: cover;
+}
+
+/* ── AUTH MODAL ── */
+.auth-modal-inner { padding: 20px 18px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.auth-modal-title { font-family: 'VT323', monospace; font-size: 22px; color: var(--accent); letter-spacing: 3px; text-align: center; }
+.auth-modal-sub { font-family: 'VT323', monospace; font-size: 14px; color: #666; letter-spacing: 1px; text-align: center; line-height: 1.5; }
+.google-btn {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; color: #222;
+  border: none; border-radius: 2px;
+  padding: 8px 20px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  width: 100%; justify-content: center;
+  transition: background .1s;
+}
+.google-btn:hover { background: #f0f0f0; }
+.auth-divider { color: #444; font-size: 12px; font-family: 'VT323', monospace; letter-spacing: 2px; }
+.auth-anon-note { font-family: 'VT323', monospace; font-size: 13px; color: #555; text-align: center; letter-spacing: 1px; }
+.verified-badge { color: #00cc66; font-size: 11px; margin-left: 2px; }
+
+/* ── DOWNLOAD CONFIRM ── */
+.dl-confirm-inner { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.dl-confirm-path {
+  background: #111; border: 1px solid #333;
+  color: #00cc66; font-family: 'VT323', monospace; font-size: 14px;
+  padding: 8px 12px; letter-spacing: 1px; word-break: break-all;
+}
+.dl-confirm-note { font-family: 'VT323', monospace; font-size: 13px; color: #666; letter-spacing: 1px; }
+.win-btn-sm {
+  width:18px;height:16px; background:#2a2a2a;
+  border-top:1px solid #666;border-left:1px solid #666;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;cursor:pointer;color:#aaa;font-family:'VT323',monospace;
+}
+.win-btn-sm:hover{background:#333;color:#fff;}
+.win-btn-sm.red:hover{background:#880000;color:#fff;}
+
+/* ── TICKER ── */
+.brainrot-ticker {
+  background:#0a0a0a;
+  border-bottom:2px solid #444;
+  color:var(--accent);
+  font-family:'VT323',monospace; font-size:15px;
+  padding:3px 0; overflow:hidden; white-space:nowrap;
+  flex-shrink:0; letter-spacing:2px;
+  text-shadow:0 0 6px var(--accent),1px 1px 0 #000;
+}
+.brainrot-ticker span{display:inline-block;animation:ticker 55s linear infinite;padding-left:100%;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;margin-left:auto;}
+.tab {
+  background:#222;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  color:#999; font-family:'VT323',monospace;
+  font-size:16px;letter-spacing:1px;padding:3px 18px;cursor:pointer;
+}
+.tab:hover{background:#2e2e2e;color:#ccc;}
+.tab.active{
+  background:var(--accent);color:#000;
+  border-top:1px solid #ffe066;border-left:1px solid #ffe066;
+  border-right:1px solid #997700;border-bottom:1px solid #997700;
+}
+
+/* ── LAYOUT ── */
+.app{display:flex;flex:1;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width:var(--sidebar); flex-shrink:0;
+  background:#181818;
+  border-right:2px solid #444;
+  display:flex;flex-direction:column;gap:7px;
+  overflow-y:auto; padding:8px 7px;
+}
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-track{background:#111;}
+.sidebar::-webkit-scrollbar-thumb{
+  background:#444;
+  border-top:1px solid #666;border-left:1px solid #666;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+}
+
+/* panel */
+.panel {
+  background:var(--surf2);
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  padding:7px 8px 9px;
+}
+.panel-title {
+  font-family:'VT323',monospace; font-size:15px;
+  letter-spacing:2px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:6px;
+  border-bottom:1px solid #333; padding-bottom:3px;
+}
+.panel-title::before{content:'> ';}
+
+/* todd thumbs */
+.todd-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.todd-thumb {
+  aspect-ratio:1; background:#000;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  overflow:hidden;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.todd-thumb:hover{outline:2px solid var(--accent);}
+.todd-thumb img{width:100%;height:100%;object-fit:cover;}
+.todd-thumb .add-icon {
+  position:absolute;inset:0;background:rgba(255,214,0,.85);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;opacity:0;transition:opacity .08s;color:#000;
+}
+.todd-thumb:hover .add-icon{opacity:1;}
+
+/* "See more Todds" / "Upload" buttons */
+.add-todd-btn {
+  grid-column:1/-1;
+  background:#1a1a1a;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  padding:6px 8px;text-align:center;cursor:pointer;
+  font-size:15px;color:#ccc;
+  font-family:'VT323',monospace;letter-spacing:1px;
+}
+.add-todd-btn:hover{background:#282828;color:var(--accent);outline:1px solid var(--accent);}
+
+.control-group{display:flex;flex-direction:column;gap:4px;}
+
+/* ── BUTTONS ── */
+.btn {
+  display:flex;align-items:center;gap:7px;
+  padding:5px 10px;
+  border-top:1px solid #666;border-left:1px solid #666;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  background:#262626; color:#ddd;
+  font-family:'VT323',monospace; font-size:16px;letter-spacing:.5px;
+  cursor:pointer;text-align:left;width:100%;min-height:28px;
+}
+.btn:hover{background:#2e2e2e;color:#fff;}
+.btn:active{
+  border-top:1px solid #111;border-left:1px solid #111;
+  border-right:1px solid #666;border-bottom:1px solid #666;
+}
+.btn.active{
+  border-top:1px solid #111;border-left:1px solid #111;
+  border-right:1px solid #666;border-bottom:1px solid #666;
+  background:#111;color:var(--accent);
+}
+.btn.danger{color:#ff7777;}
+.btn.danger:hover{background:#200f0f;color:var(--red);}
+.btn.primary {
+  background:var(--accent);color:#000;
+  border-top:1px solid #ffe066;border-left:1px solid #ffe066;
+  border-right:1px solid #997700;border-bottom:1px solid #997700;
+  justify-content:center;letter-spacing:2px;font-size:17px;
+}
+.btn.primary:hover{background:#ffe033;}
+.btn-icon{font-size:14px;line-height:1;}
+
+.slider-row{display:flex;align-items:center;gap:6px;font-size:14px;color:#aaa;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);}
+
+.upload-area {
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  background:#111; padding:12px 8px;text-align:center;cursor:pointer;
+  font-size:15px;color:#aaa;font-family:'VT323',monospace;letter-spacing:1px;
+}
+.upload-area:hover{background:#1a1a1a;color:var(--accent);}
+.upload-area .upload-icon{font-size:22px;display:block;margin-bottom:3px;}
+#bgUpload,#toddUpload{display:none;}
+
+/* ── CANVAS AREA ── */
+.canvas-wrap {
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:14px;overflow:hidden;gap:8px;
+  background:#0f0f0f;
+}
+#container {
+  border-top:2px solid #666;border-left:2px solid #666;
+  border-right:2px solid #111;border-bottom:2px solid #111;
+  background:#000;overflow:hidden;
+}
+#container.eraser-active{outline:2px solid var(--red);}
+
+.statusbar{
+  display:flex;align-items:center;gap:8px;
+  font-size:14px;color:#666;font-family:'VT323',monospace;letter-spacing:1px;
+}
+.status-dot{width:7px;height:7px;background:#00cc66;flex-shrink:0;}
+.status-dot.erasing{background:var(--red);animation:blink .5s steps(2) infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── TOAST ── */
+.toast {
+  position:fixed;bottom:16px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:#222;
+  border-top:1px solid #666;border-left:1px solid #666;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  color:var(--accent);font-family:'VT323',monospace;
+  font-size:16px;letter-spacing:1px;padding:6px 20px;
+  z-index:9999;transition:transform .15s steps(3);pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── GALLERY ── */
+.gallery-view{flex:1;overflow-y:auto;padding:12px 14px;position:relative;background:#0f0f0f;}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;}
+.gallery-loading,.gallery-empty{color:#555;font-size:16px;font-family:'VT323',monospace;letter-spacing:1px;padding:24px;}
+
+.gallery-card {
+  background:#1a1a1a;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  overflow:hidden;cursor:pointer;
+  display:flex;flex-direction:column;
+}
+.gallery-card:hover{outline:1px solid #666;}
+.gallery-card-titlebar {
+  background:#333;border-bottom:1px solid #111;
+  color:#ddd;font-family:'VT323',monospace;font-size:14px;
+  padding:3px 8px;display:flex;align-items:center;letter-spacing:.5px;
+  flex-shrink:0;
+}
+.gallery-card img{width:100%;display:block;object-fit:contain;background:#000;max-height:300px;flex-shrink:0;}
+.gallery-card-body{
+  padding:6px 8px 8px;
+  display:flex;flex-direction:column;flex:1;
+}
+.gallery-card-msg{
+  font-size:14px;color:#bbb;margin-top:3px;font-family:'VT323',monospace;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;line-height:1.4;
+  min-height:2.8em; /* always reserve space for 2 lines */
+  flex:1;
+}
+.gallery-card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:6px;padding-top:6px;border-top:1px solid #2a2a2a;gap:8px;
+  flex-shrink:0;
+}
+
+/* vote buttons */
+.vote-btns{display:flex;gap:4px;align-items:center;}
+.vote-btn {
+  display:flex;align-items:center;gap:4px;
+  background:#222;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  padding:3px 10px; font-size:14px;font-family:'VT323',monospace;
+  color:#aaa;cursor:pointer;white-space:nowrap;min-width:50px;justify-content:center;
+}
+.vote-btn:hover{background:#2e2e2e;color:#fff;}
+.vote-btn:active{
+  border-top:1px solid #111;border-left:1px solid #111;
+  border-right:1px solid #555;border-bottom:1px solid #555;
+}
+.vote-btn.voted-up{color:#00cc66;border-color:#00cc66;background:#0a1a0f;}
+.vote-btn.voted-down{color:var(--red);border-color:var(--red);background:#1a0a0a;}
+.gallery-card-date{font-size:12px;color:#555;font-family:'VT323',monospace;}
+
+/* ── LIGHTBOX ── */
+.lightbox{
+  position:absolute;inset:0;background:rgba(0,0,0,.9);
+  display:flex;align-items:center;justify-content:center;z-index:100;padding:14px;
+}
+.lightbox-box {
+  background:#1a1a1a;
+  border-top:2px solid #666;border-left:2px solid #666;
+  border-right:2px solid #111;border-bottom:2px solid #111;
+  width:96%;max-width:1400px;max-height:96%;
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:lb-in .12s ease-out;
+}
+@keyframes lb-in{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.lightbox-titlebar {
+  background:#333;border-bottom:1px solid #111;
+  color:#ddd;font-family:'VT323',monospace;font-size:15px;
+  padding:4px 10px;display:flex;align-items:center;letter-spacing:1px;flex-shrink:0;
+}
+.lightbox-close {
+  margin-left:auto;background:#3a3a3a;color:#ccc;font-size:12px;
+  padding:1px 7px;cursor:pointer;
+  border-top:1px solid #666;border-left:1px solid #666;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  font-family:'VT323',monospace;letter-spacing:1px;
+}
+.lightbox-close:hover{background:#880000;color:#fff;}
+.lightbox-img-wrap{
+  background:#000;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;flex:1;min-height:0;
+}
+.lightbox-img-wrap img{max-width:100%;max-height:82vh;object-fit:contain;display:block;}
+.lightbox-footer{
+  padding:10px 14px;border-top:1px solid #333;
+  overflow-y:auto;flex-shrink:0;max-height:160px;background:#1e1e1e;
+}
+.lightbox-msg{
+  font-size:15px;color:#ccc;line-height:1.5;
+  white-space:pre-wrap;word-break:break-word;
+  font-family:'VT323',monospace;margin-bottom:8px;
+}
+.lightbox-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid #2a2a2a;padding-top:6px;margin-top:2px;
+}
+
+/* ── PUBLISH MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.82);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+}
+.modal {
+  background:#1c1c1c;
+  border-top:2px solid #666;border-left:2px solid #666;
+  border-right:2px solid #111;border-bottom:2px solid #111;
+  width:380px;max-width:90vw;overflow:hidden;
+}
+.modal-titlebar {
+  background:#333;border-bottom:1px solid #111;
+  color:#ddd;font-family:'VT323',monospace;font-size:15px;
+  padding:4px 10px;display:flex;align-items:center;gap:6px;letter-spacing:1px;
+}
+.modal-titlebar-close {
+  margin-left:auto;background:#3a3a3a;color:#ccc;font-size:11px;
+  padding:1px 6px;cursor:pointer;
+  border-top:1px solid #666;border-left:1px solid #666;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  font-family:'VT323',monospace;
+}
+.modal-titlebar-close:hover{background:#880000;color:#fff;}
+.modal > h3{display:none;}
+.modal-inner{padding:14px;}
+.modal-sub{font-family:'VT323',monospace;font-size:14px;color:#888;margin-bottom:10px;letter-spacing:.5px;}
+.modal-preview{
+  width:100%;aspect-ratio:16/9;background:#000;
+  border:1px solid #333;overflow:hidden;margin-bottom:10px;
+}
+.modal-preview img{width:100%;height:100%;object-fit:contain;}
+.modal-input,.modal-textarea {
+  width:100%;background:#111;
+  border-top:1px solid #333;border-left:1px solid #333;
+  border-right:1px solid #555;border-bottom:1px solid #555;
+  color:#ddd;font-family:'VT323',monospace;font-size:16px;
+  padding:6px 10px;margin-bottom:8px;resize:none;outline:none;
+}
+.modal-input:focus,.modal-textarea:focus{border-color:var(--accent);}
+.modal-textarea{height:64px;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
+
+/* ── TODD PICKER ── */
+.todd-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.todd-picker {
+  background:#1c1c1c;
+  border-top:2px solid #666;border-left:2px solid #666;
+  border-right:2px solid #111;border-bottom:2px solid #111;
+  width:440px;max-width:92vw;overflow:hidden;
+}
+.todd-picker-titlebar {
+  background:#333;border-bottom:1px solid #111;
+  color:var(--accent);font-family:'VT323',monospace;font-size:18px;
+  padding:4px 10px;letter-spacing:2px;display:flex;align-items:center;
+}
+.todd-picker-titlebar-close {
+  margin-left:auto;background:#3a3a3a;color:#ccc;font-size:11px;
+  padding:1px 6px;cursor:pointer;
+  border-top:1px solid #666;border-left:1px solid #666;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  font-family:'VT323',monospace;
+}
+.todd-picker-titlebar-close:hover{background:#880000;color:#fff;}
+.todd-picker h3{display:none;}
+.todd-picker-inner{padding:10px;overflow-y:auto;max-height:70vh;}
+.todd-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px;}
+.todd-picker-thumb {
+  aspect-ratio:1;background:#000;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  overflow:hidden;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.todd-picker-thumb:hover{outline:2px solid var(--accent);}
+.todd-picker-thumb img{width:100%;height:100%;object-fit:cover;}
+.todd-picker-close {
+  width:100%;background:#222;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  color:#ccc;font-family:'VT323',monospace;font-size:15px;
+  padding:5px;cursor:pointer;letter-spacing:1px;
+}
+.todd-picker-close:hover{background:#2e2e2e;color:#fff;}
+
+/* ── CHAT PANEL ── */
+.chat-panel {
+  width:240px;flex-shrink:0;background:#181818;
+  border-left:2px solid #444;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.chat-titlebar {
+  display:flex;align-items:center;gap:6px;
+  padding:5px 10px;
+  background:#333;
+  border-bottom:2px solid #111;
+  font-family:'VT323',monospace;font-size:15px;
+  color:#ddd;letter-spacing:1px;flex-shrink:0;
+}
+.chat-live-dot {
+  width:7px;height:7px;background:var(--red);
+  box-shadow:0 0 5px var(--red);
+  animation:pulse 1.2s steps(2) infinite;flex-shrink:0;
+}
+.chat-viewer-count{font-size:12px;color:#777;margin-left:auto;font-family:'VT323',monospace;}
+.chat-messages{
+  flex:1;overflow-y:auto;padding:5px 7px 4px;
+  display:flex;flex-direction:column;gap:2px;
+}
+.chat-messages::-webkit-scrollbar{width:6px;}
+.chat-messages::-webkit-scrollbar-track{background:#111;}
+.chat-messages::-webkit-scrollbar-thumb{background:#444;}
+
+.chat-msg{font-size:14px;line-height:1.3;word-break:break-word;font-family:'VT323',monospace;}
+.chat-msg .chat-msg-name{font-size:15px;font-weight:700;margin-right:3px;}
+.chat-msg .chat-msg-text{color:#ddd;font-size:14px;}
+.chat-msg-system{font-family:'VT323',monospace;font-size:13px;color:var(--accent);padding:2px 0;opacity:0.85;}
+.chat-msg-system.price-up{color:#00cc66;}
+.chat-msg-system.price-down{color:var(--red);}
+
+@keyframes msg-in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+@keyframes successPop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+.chat-input-area{
+  padding:6px;border-top:2px solid #2a2a2a;
+  display:flex;flex-direction:column;gap:4px;
+  background:#111;flex-shrink:0;
+}
+.chat-name-input {
+  width:100%;background:#1c1c1c;
+  border-top:1px solid #333;border-left:1px solid #333;
+  border-right:1px solid #555;border-bottom:1px solid #555;
+  color:#ddd;font-family:'VT323',monospace;font-size:14px;
+  padding:3px 7px;outline:none;
+}
+.chat-name-input:focus{border-color:var(--accent);}
+.chat-bottom{display:flex;gap:4px;}
+.chat-msg-input {
+  flex:1;background:#1c1c1c;
+  border-top:1px solid #333;border-left:1px solid #333;
+  border-right:1px solid #555;border-bottom:1px solid #555;
+  color:#ddd;font-family:'VT323',monospace;font-size:14px;
+  padding:4px 7px;outline:none;min-width:0;
+}
+.chat-msg-input:focus{border-color:var(--accent);}
+.chat-send-btn {
+  background:var(--accent);color:#000;
+  border-top:1px solid #ffe066;border-left:1px solid #ffe066;
+  border-right:1px solid #997700;border-bottom:1px solid #997700;
+  padding:4px 10px;font-size:15px;cursor:pointer;
+  flex-shrink:0;font-weight:700;font-family:'VT323',monospace;
+}
+.chat-send-btn:hover{background:#ffe033;}
+.chat-send-btn:active{
+  border-top:1px solid #997700;border-left:1px solid #997700;
+  border-right:1px solid #ffe066;border-bottom:1px solid #ffe066;
+}
+
+/* ── ADMIN CARDS ── */
+.admin-card {
+  background:#1a1a1a;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.admin-card-titlebar {
+  background:#2a2a2a;border-bottom:1px solid #111;
+  color:#aaa;font-family:'VT323',monospace;font-size:12px;
+  padding:2px 7px;display:flex;align-items:center;gap:6px;flex-shrink:0;
+}
+.admin-card-titlebar .pending-badge {
+  background:#7a5800;color:#FFD600;
+  font-size:10px;padding:0 5px;margin-left:auto;letter-spacing:1px;
+}
+.admin-card-titlebar .approved-badge {
+  background:#0a3a1a;color:#00cc66;
+  font-size:10px;padding:0 5px;margin-left:auto;letter-spacing:1px;
+}
+.admin-card img{width:100%;display:block;object-fit:contain;background:#000;max-height:160px;flex-shrink:0;}
+.admin-card-body{padding:5px 7px;display:flex;flex-direction:column;gap:4px;flex:1;}
+.admin-card-name{font-family:'VT323',monospace;font-size:14px;color:#ddd;}
+.admin-card-msg{font-family:'VT323',monospace;font-size:12px;color:#888;line-height:1.3;}
+.admin-card-btns{display:flex;gap:4px;margin-top:auto;padding-top:5px;border-top:1px solid #2a2a2a;}
+.admin-btn {
+  flex:1;padding:4px 6px;font-family:'VT323',monospace;font-size:14px;
+  cursor:pointer;text-align:center;letter-spacing:1px;
+  border-top:1px solid #555;border-left:1px solid #555;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+}
+.admin-btn.approve{background:#0a2a0f;color:#00cc66;}
+.admin-btn.approve:hover{background:#0f3a18;outline:1px solid #00cc66;}
+.admin-btn.delete{background:#2a0a0a;color:#ff5555;}
+.admin-btn.delete:hover{background:#3a0f0f;outline:1px solid #ff5555;}
+
+@media(max-width:900px){.chat-panel{display:none;}}
+@media(max-width:600px){
+  body{overflow:auto;}
+  .app{flex-direction:column;overflow:auto;}
+  .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;overflow-x:auto;padding:6px;gap:6px;}
+  .panel{flex:1;min-width:140px;}
+  .canvas-wrap{padding:8px;justify-content:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <!-- Back to lobby -->
+  <a class="back-to-lobby" href="index.html" title="Back to lobby">◀ LOBBY</a>
+
+  <div class="header-title-wrap" onclick="switchTab('editor')">
+    <h1 data-text="TODD'S WITNESSES">TODD'S WITNESSES</h1>
+    <p class="subtitle">drag · resize · erase · publish · sigma</p>
+  </div>
+
+  <!-- Token widget -->
+  <div class="token-widget">
+    <div class="token-price-row">
+      <span class="token-price" id="tokenPrice">$-.----</span>
+      <span class="token-change" id="tokenChange"></span>
+    </div>
+    <div class="token-ca-row">
+      <span class="token-ca-label">CA</span>
+      <div class="token-address" onclick="copyTokenAddress()" title="Click to copy">BzyKa1FGjs2EUpu3GGDibY4xdygn5evAiRboKmETpump</div>
+    </div>
+  </div>
+
+  <!-- Social links -->
+  <div class="header-links">
+    <!-- DexScreener -->
+    <a class="header-link" href="https://dexscreener.com/solana/rt3p5zwosnnzdsuezbdialfazd2wgsoqvmnrlqtpljd" target="_blank" title="DexScreener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#00cc66"/>
+        <path d="M8 12l2.5 2.5L16 9" stroke="#00cc66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="3" fill="none" stroke="#00cc66" stroke-width="1.5"/>
+        <path d="M12 5v2M12 17v2M5 12h2M17 12h2" stroke="#00cc66" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <!-- X / Twitter -->
+    <a class="header-link" href="https://x.com/i/communities/2024490509096407318" target="_blank" title="X Community">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="#e0e0e0">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.261 5.636 5.903-5.636zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </svg>
+    </a>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" id="tabEditor" onclick="switchTab('editor')">✏️ Editor</button>
+    <button class="tab" id="tabGallery" onclick="switchTab('gallery')">🖼 Gallery</button>
+  </nav>
+
+  <!-- Auth button -->
+  <button class="auth-btn" id="authBtn" onclick="openAuthModal()">
+    <span id="authBtnLabel">⬡ LOGIN</span>
+  </button>
+
+  <div class="win-buttons">
+    <div class="win-btn-sm">_</div>
+    <div class="win-btn-sm">□</div>
+    <div class="win-btn-sm red" onclick="openAdmin()" title="Admin">✕</div>
+  </div>
+</header>
+<div class="brainrot-ticker"><span>Do you want to face life? If yes, close this page. If no, create the most dogshit meme you can think of.</span></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+
+    <div class="panel">
+      <p class="panel-title">Add Todd</p>
+      <div class="todd-grid">
+        <div class="todd-thumb" onclick="addTodd('todd1.png')" title="Todd 1">
+          <img src="todd1.png" onerror="this.parentNode.innerHTML='<span style=\'font-size:28px\'>🧑</span><div class=\'add-icon\'>➕</div>'">
+          <div class="add-icon">➕</div>
+        </div>
+        <div class="todd-thumb" onclick="addTodd('todd2.png')" title="Todd 2">
+          <img src="todd2.png" onerror="this.parentNode.innerHTML='<span style=\'font-size:28px\'>😄</span><div class=\'add-icon\'>➕</div>'">
+          <div class="add-icon">➕</div>
+        </div>
+        <div class="todd-thumb" onclick="addTodd('todd3.png')" title="Todd 3">
+          <img src="todd3.png" onerror="this.parentNode.innerHTML='<span style=\'font-size:28px\'>😎</span><div class=\'add-icon\'>➕</div>'">
+          <div class="add-icon">➕</div>
+        </div>
+        <div class="todd-thumb" onclick="addTodd('confidence.png')" title="Confidence">
+          <img src="confidence.png" onerror="this.parentNode.innerHTML='<span style=\'font-size:28px\'>💪</span><div class=\'add-icon\'>➕</div>'">
+          <div class="add-icon">➕</div>
+        </div>
+        <div class="add-todd-btn" onclick="openToddPicker()" style="grid-column:1/-1">👁 See more Todds</div>
+        <div class="add-todd-btn" onclick="document.getElementById('toddUpload').click()" style="grid-column:1/-1">＋ Upload your own</div>
+        <input type="file" id="toddUpload" accept="image/*">
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Background</p>
+      <div class="upload-area" onclick="document.getElementById('bgUpload').click()">
+        <span class="upload-icon">🖼️</span>Click to upload
+      </div>
+      <input type="file" id="bgUpload" accept="image/*">
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Tools</p>
+      <div class="control-group">
+        <button class="btn" id="eraserBtn" onclick="toggleEraser()">
+          <span class="btn-icon">🧹</span> Eraser Mode
+        </button>
+        <div class="slider-row" id="eraserSizeRow" style="display:none">
+          <span>Size</span>
+          <input type="range" id="eraserSize" min="4" max="60" value="18">
+          <span id="eraserSizeVal">18</span>
+        </div>
+
+        <button class="btn" id="mirrorBtn" onclick="flipSelected()" style="display:none">
+          <span class="btn-icon">↔️</span> Mirror Todd
+        </button>
+        <button class="btn danger" id="deleteToddBtn" onclick="deleteSelected()" style="display:none">
+          <span class="btn-icon">🗑️</span> Delete Todd
+        </button>
+        <div id="layerBtns" style="display:none;flex-direction:row;gap:6px">
+          <button class="btn" onclick="moveLayer('up')" style="flex:1;width:auto;justify-content:center;padding:8px 4px" title="Bring forward">
+            <span class="btn-icon">⬆️</span> Forward
+          </button>
+          <button class="btn" onclick="moveLayer('down')" style="flex:1;width:auto;justify-content:center;padding:8px 4px" title="Send backward">
+            <span class="btn-icon">⬇️</span> Back
+          </button>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="undoBtn" onclick="undo()" style="flex:1;width:auto;justify-content:center" title="Undo (Ctrl+Z)">
+            <span class="btn-icon">↩</span> Undo
+          </button>
+          <button class="btn" id="redoBtn" onclick="redo()" style="flex:1;width:auto;justify-content:center" title="Redo (Ctrl+Y)">
+            Redo <span class="btn-icon">↪</span>
+          </button>
+        </div>
+        <button class="btn danger" onclick="clearAll()">
+          <span class="btn-icon">🗑️</span> Clear All
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Export</p>
+      <button class="btn primary" onclick="exportImage()" style="margin-bottom:6px">Download PNG</button>
+      <button class="btn" onclick="openPublishModal()" style="border-color:#7c4dff;color:#b39ddb">Publish to Gallery</button>
+    </div>
+
+  </aside>
+
+  <div class="canvas-wrap" id="editorView">
+    <div id="container"></div>
+    <div class="statusbar">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Upload a background, then add a Todd</span>
+    </div>
+  </div>
+
+  <!-- Gallery view -->
+  <div class="gallery-view" id="galleryView" style="display:none">
+    <div class="gallery-grid" id="galleryGrid">
+      <div class="gallery-loading">Loading masterpieces...</div>
+    </div>
+
+    <!-- Lightbox — sits inside gallery-view so chat stays visible -->
+    <div class="lightbox" id="lightbox" style="display:none" onclick="closeLightbox(event)">
+      <div class="lightbox-box">
+        <div class="lightbox-titlebar">
+          <span id="lightboxTitle">📁</span>
+          <div class="lightbox-close" onclick="closeLightbox()">✕</div>
+        </div>
+        <div class="lightbox-img-wrap">
+          <img id="lightboxImg" src="" alt="">
+        </div>
+        <div class="lightbox-footer">
+          <div class="lightbox-msg" id="lightboxMsg"></div>
+          <div class="lightbox-meta">
+            <div class="vote-btns" id="lightboxVotes"></div>
+            <span class="gallery-card-date" id="lightboxDate"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat panel — always visible -->
+  <aside class="chat-panel" id="chatPanel">
+    <div class="chat-titlebar">
+      <span>💬 TODD CHAT</span>
+      <span class="chat-live-dot"></span>
+      <span class="chat-viewer-count" id="chatViewerCount">— viewers</span>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <!-- messages rendered here -->
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatNameInput" class="chat-name-input" placeholder="Your name" maxlength="20">
+      <div class="chat-bottom">
+        <input type="text" id="chatMsgInput" class="chat-msg-input" placeholder="Say something..." maxlength="200">
+        <button class="chat-send-btn" onclick="sendChatMsg()">➤</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Publish modal -->
+<div class="modal-overlay" id="publishModal" style="display:none" onclick="closePublishModal(event)">
+  <div class="modal">
+    <div class="modal-titlebar">
+      <span>Publish to Gallery</span>
+      <div class="modal-titlebar-close" onclick="closePublishModal()">✕</div>
+    </div>
+    <h3>Publish to Gallery</h3>
+
+    <!-- Form view -->
+    <div class="modal-inner" id="modalFormView">
+      <p class="modal-sub">Share your Todd masterpiece with the world. No cap.</p>
+      <div class="modal-preview" id="modalPreview"></div>
+      <input type="text" id="publishName" placeholder="Your name / signature" maxlength="40" class="modal-input">
+      <textarea id="publishMsg" placeholder="Add a message or caption... (optional)" maxlength="120" class="modal-textarea"></textarea>
+      <div class="modal-btns">
+        <button class="btn" onclick="closePublishModal()">Cancel</button>
+        <button class="btn primary" onclick="publishToGallery()">PUBLISH</button>
+      </div>
+    </div>
+
+    <!-- Success view -->
+    <div class="modal-inner" id="modalSuccessView" style="display:none;flex-direction:column;align-items:center;gap:14px;padding:28px 24px;text-align:center">
+      <div style="font-family:'VT323',monospace;font-size:72px;line-height:1;color:var(--accent);animation:successPop .3s ease-out;">TODD</div>
+      <div style="font-family:'VT323',monospace;font-size:13px;letter-spacing:4px;color:#666;text-transform:uppercase">[ submission received ]</div>
+      <div style="font-family:'VT323',monospace;font-size:16px;color:#aaa;line-height:1.6;border:1px solid #333;padding:10px 16px;background:#111;width:100%">
+        &gt; upload complete<br>
+        &gt; awaiting moderator approval<br>
+        &gt; your masterpiece will appear once approved<br>
+        &gt; username: <span id="modalSuccessName" style="color:var(--accent)">???</span>
+      </div>
+      <button class="btn" onclick="closePublishModal()" style="width:100%;justify-content:center;font-size:17px;letter-spacing:2px;">[ CLOSE ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin modal -->
+<div class="modal-overlay" id="adminModal" style="display:none">
+  <div class="modal" style="width:860px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;">
+    <div class="modal-titlebar">
+      <span>⚙ ADMIN PANEL</span>
+      <div class="modal-titlebar-close" onclick="closeAdmin()">✕</div>
+    </div>
+
+    <!-- Login screen -->
+    <div id="adminLoginScreen" class="modal-inner" style="display:flex;flex-direction:column;gap:10px;">
+      <p class="modal-sub">ENTER ADMIN PASSWORD</p>
+      <input type="password" id="adminPasswordInput" class="modal-input" placeholder="Password..." style="margin-bottom:0">
+      <div id="adminLoginError" style="color:#ff5555;font-family:'VT323',monospace;font-size:14px;display:none">Wrong password.</div>
+      <div class="modal-btns">
+        <button class="btn" onclick="closeAdmin()">Cancel</button>
+        <button class="btn primary" onclick="adminLogin()">LOGIN</button>
+      </div>
+    </div>
+
+    <!-- Admin panel screen -->
+    <div id="adminPanelScreen" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid #333;flex-shrink:0;">
+        <span style="font-family:'VT323',monospace;color:#888;font-size:14px;">
+          PENDING: <span id="adminPendingCount" style="color:var(--accent)">0</span> &nbsp;|&nbsp;
+          APPROVED: <span id="adminApprovedCount" style="color:#00cc66">0</span>
+        </span>
+        <div style="display:flex;gap:6px;margin-left:auto;">
+          <button class="btn" onclick="adminFilter('pending')" id="filterPending" style="width:auto;padding:3px 12px;font-size:14px;">PENDING</button>
+          <button class="btn" onclick="adminFilter('approved')" id="filterApproved" style="width:auto;padding:3px 12px;font-size:14px;">APPROVED</button>
+          <button class="btn" onclick="adminFilter('all')" id="filterAll" style="width:auto;padding:3px 12px;font-size:14px;">ALL</button>
+          <button class="btn" onclick="loadAdminPosts()" style="width:auto;padding:3px 12px;font-size:14px;">↻ REFRESH</button>
+        </div>
+      </div>
+      <div id="adminPostsGrid" style="flex:1;overflow-y:auto;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;background:#111;">
+        <div style="color:#555;font-family:'VT323',monospace;">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Todd picker modal -->
+<div class="todd-picker-overlay" id="toddPickerModal" style="display:none" onclick="closeToddPicker(event)">
+  <div class="todd-picker">
+    <div class="todd-picker-titlebar">
+      <span>Choose a Todd</span>
+      <div class="todd-picker-titlebar-close" onclick="closeToddPicker()">✕</div>
+    </div>
+    <h3>Choose a Todd</h3>
+    <div class="todd-picker-inner">
+      <div class="todd-picker-grid" id="toddPickerGrid">
+        <!-- populated by JS -->
+      </div>
+      <button class="todd-picker-close" onclick="closeToddPicker()">[ Close Window ]</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Auth modal -->
+<div class="modal-overlay" id="authModal" style="display:none" onclick="closeAuthModal(event)">
+  <div class="modal" style="width:340px">
+    <div class="modal-titlebar">
+      <span>⬡ ACCOUNT</span>
+      <div class="modal-titlebar-close" onclick="closeAuthModal()">✕</div>
+    </div>
+    <div class="auth-modal-inner" id="authModalInner"></div>
+  </div>
+</div>
+
+<!-- Username pick modal — shown after first Google login -->
+<div class="modal-overlay" id="usernameModal" style="display:none">
+  <div class="modal" style="width:360px">
+    <div class="modal-titlebar">
+      <span>⬡ PICK YOUR USERNAME</span>
+    </div>
+    <div class="modal-inner" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="modal-sub">You're signed in. Pick a username — this is what everyone sees. Your email stays private.</div>
+      <div>
+        <input type="text" id="usernamePickInput" class="modal-input" placeholder="e.g. toddlord420" maxlength="24" style="margin-bottom:4px;" oninput="onUsernameInput()">
+        <div id="usernamePickStatus" style="font-family:'VT323',monospace;font-size:14px;height:18px;"></div>
+      </div>
+      <div class="modal-sub" style="font-size:12px;color:#444;">3–24 characters. Letters, numbers, underscores only. Cannot be changed later.</div>
+      <div class="modal-btns">
+        <button class="btn primary" id="usernamePickBtn" onclick="submitUsername()" disabled style="opacity:0.4;width:100%;justify-content:center;font-size:18px;letter-spacing:2px;">CLAIM USERNAME</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Download confirm modal -->
+<div class="modal-overlay" id="dlConfirmModal" style="display:none">
+  <div class="modal" style="width:360px">
+    <div class="modal-titlebar">
+      <span>💾 DOWNLOAD</span>
+      <div class="modal-titlebar-close" onclick="document.getElementById('dlConfirmModal').style.display='none'">✕</div>
+    </div>
+    <div class="dl-confirm-inner">
+      <div style="font-family:'VT323',monospace;font-size:15px;color:#aaa;">Your image will be saved to:</div>
+      <div class="dl-confirm-path" id="dlConfirmPath">~/Downloads/todd-masterpiece.png</div>
+      <div class="dl-confirm-note">↳ Check your browser's default download folder. You can change this in your browser settings.</div>
+      <div class="modal-btns">
+        <button class="btn" onclick="document.getElementById('dlConfirmModal').style.display='none'">Cancel</button>
+        <button class="btn primary" onclick="confirmDownload()">DOWNLOAD ↓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Canvas sizing ──
+function computeCanvasSize() {
+  const isMobile = window.innerWidth <= 600;
+  const headerH  = document.querySelector('header').offsetHeight || 57;
+  const pad = 32;
+  const w = isMobile ? window.innerWidth - pad : window.innerWidth - 220 - pad;
+  const h = isMobile ? window.innerHeight * 0.55 : window.innerHeight - headerH - pad;
+  return { w: Math.max(200, Math.floor(w)), h: Math.max(200, Math.floor(h)) };
+}
+
+const sz = computeCanvasSize();
+let CANVAS_W = sz.w, CANVAS_H = sz.h;
+
+const containerEl = document.getElementById('container');
+containerEl.style.width  = CANVAS_W + 'px';
+containerEl.style.height = CANVAS_H + 'px';
+
+const stage = new Konva.Stage({ container:'container', width:CANVAS_W, height:CANVAS_H });
+
+const bgLayer   = new Konva.Layer();
+const toddLayer = new Konva.Layer();
+stage.add(bgLayer);
+stage.add(toddLayer);
+
+const canvasBg = new Konva.Rect({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, fill:'#222', listening:false });
+bgLayer.add(canvasBg);
+bgLayer.draw();
+
+const transformer = new Konva.Transformer({
+  rotateEnabled: true,
+  anchorSize: 10,
+  borderStroke: '#FFD600',
+  borderStrokeWidth: 1.5,
+  anchorFill: '#FFD600',
+  anchorStroke: '#000',
+  anchorStrokeWidth: 1,
+  keepRatio: true,
+  centeredScaling: false,
+  boundBoxFunc: (oldBox, newBox) => {
+    // Never smaller than 20px, never larger than canvas
+    if (newBox.width < 20 || newBox.height < 20) return oldBox;
+    if (newBox.width > CANVAS_W || newBox.height > CANVAS_H) return oldBox;
+    return newBox;
+  }
+});
+toddLayer.add(transformer);
+
+let background    = null;
+let bgBounds      = null;
+let selectedGroup = null;
+let eraserMode    = false;
+let isErasing     = false;
+let toddCount     = 0;
+
+// ── Undo / Redo history ──
+// Each entry is { todds: [...], bgSrc, bgBounds }
+// todds[i] = { src, x, y, w, h, eraseCircles:[{x,y,r},...] }
+let history = [];
+let historyIndex = -1;
+const MAX_HISTORY = 40;
+
+// Store image src by group id so we can restore images
+const srcCache = {};  // groupId -> dataURL
+
+function snapshotState() {
+  const todds = [];
+  toddLayer.find('Group').forEach(g => {
+    if (!g._toddId) return;
+    todds.push({
+      id:    g._toddId,
+      src:   srcCache[g._toddId],
+      x:     g.x(),
+      y:     g.y(),
+      w:     g._currentW,
+      h:     g._currentH,
+      rotation: g.rotation(),
+      mirrored: g._mirrored || false,
+      eraseCircles: g.eraseLayer.getChildren().map(c => ({ x:c.x(), y:c.y(), r:c.radius() }))
+    });
+  });
+  return {
+    todds,
+    bgSrc:    background ? background.image().src : null,
+    bgBounds: bgBounds ? {...bgBounds} : null
+  };
+}
+
+function pushHistory() {
+  // Discard any redo states ahead of current index
+  history = history.slice(0, historyIndex + 1);
+  history.push(snapshotState());
+  if (history.length > MAX_HISTORY) history.shift();
+  historyIndex = history.length - 1;
+  updateUndoRedoBtns();
+}
+
+function updateUndoRedoBtns() {
+  document.getElementById('undoBtn').disabled = historyIndex <= 0;
+  document.getElementById('redoBtn').disabled = historyIndex >= history.length - 1;
+  document.getElementById('undoBtn').style.opacity = historyIndex <= 0 ? '0.4' : '1';
+  document.getElementById('redoBtn').style.opacity = historyIndex >= history.length - 1 ? '0.4' : '1';
+}
+
+function restoreState(snap) {
+  // Clear current todds and ui
+  toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
+  
+  transformer.nodes([]);
+  toddCount = 0;
+
+  // Restore background
+  if (snap.bgSrc && snap.bgBounds) {
+    if (!background || background.image().src !== snap.bgSrc) {
+      if (background) background.destroy();
+      const img = new Image();
+      img.onload = () => {
+        const b = snap.bgBounds;
+        bgBounds = {...b};
+        background = new Konva.Image({ image:img, x:b.x, y:b.y, width:b.w, height:b.h, listening:false });
+        bgLayer.add(background);
+        canvasBg.moveToBottom();
+        bgLayer.draw();
+      };
+      img.src = snap.bgSrc;
+    } else {
+      bgBounds = {...snap.bgBounds};
+    }
+  } else if (!snap.bgSrc) {
+    if (background) { background.destroy(); background = null; bgBounds = null; }
+    bgLayer.draw();
+  }
+
+  // Restore todds
+  snap.todds.forEach(td => {
+    const img = new Image();
+    img.onload = () => {
+      toddCount++;
+      const group = makeToddGroup(img, td.w, td.h, td.x, td.y, td.id);
+      // Restore rotation
+      if (td.rotation) group.rotation(td.rotation);
+      // Restore mirror
+      if (td.mirrored) {
+        group._mirrored = true;
+        const todd = group.findOne('Image');
+        todd.scaleX(-1);
+        todd.x(td.w);
+      }
+      // Restore erase circles
+      td.eraseCircles.forEach(c => {
+        group.eraseLayer.add(new Konva.Circle({
+          x:c.x, y:c.y, radius:c.r,
+          fill:'#000', listening:false,
+          globalCompositeOperation:'destination-out'
+        }));
+      });
+      group.eraseLayer.clip({ x:0, y:0, width:td.w, height:td.h });
+      toddLayer.draw();
+    };
+    img.src = td.src;
+  });
+
+  updateUndoRedoBtns();
+  setStatus('Ready');
+}
+
+function undo() {
+  if (historyIndex <= 0) return;
+  historyIndex--;
+  restoreState(history[historyIndex]);
+}
+
+function redo() {
+  if (historyIndex >= history.length - 1) return;
+  historyIndex++;
+  restoreState(history[historyIndex]);
+}
+
+// ── Helpers ──
+function setStatus(msg, erasing=false) {
+  document.getElementById('statusText').textContent = msg;
+  document.getElementById('statusDot').className = 'status-dot' + (erasing ? ' erasing' : '');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Clamp: Todd can go anywhere as long as a portion stays visible on canvas ──
+function clampToBg(group, w, h) {
+  const margin = 20; // minimum pixels that must remain visible
+  group.x(Math.min(CANVAS_W - margin, Math.max(margin - w, group.x())));
+  group.y(Math.min(CANVAS_H - margin, Math.max(margin - h, group.y())));
+}
+
+// ── Core function to build a Todd group (used by addTodd and restoreState) ──
+let _toddIdCounter = 0;
+function makeToddGroup(img, initW, initH, startX, startY, reuseId) {
+  let currentW = initW;
+  let currentH = initH;
+  const id = reuseId || ('todd_' + (++_toddIdCounter));
+
+  const group = new Konva.Group({ x:startX, y:startY, draggable:true });
+  group._toddId  = id;
+  group._currentW = currentW;
+  group._currentH = currentH;
+
+  srcCache[id] = img.src;
+
+  const todd = new Konva.Image({ image:img, width:currentW, height:currentH });
+
+  const eraseLayer = new Konva.Group({ listening:false });
+  eraseLayer.clip({ x:0, y:0, width:currentW, height:currentH });
+
+  function refreshDelete() {
+    const sel = transformer.nodes().includes(group);
+    const show = sel && !eraserMode ? 'flex' : 'none';
+    document.getElementById('mirrorBtn').style.display = show;
+    document.getElementById('layerBtns').style.display = show;
+    document.getElementById('deleteToddBtn').style.display = show;
+  }
+
+  group.on('transform', () => {
+    eraseLayer.clip({ x:0, y:0, width:currentW*Math.abs(group.scaleX()), height:currentH*Math.abs(group.scaleY()) });
+  });
+
+  group.on('transformend', () => {
+    const sx = Math.abs(group.scaleX()), sy = Math.abs(group.scaleY());
+    const newW = Math.max(20, currentW * sx);
+    const newH = Math.max(20, currentH * sy);
+    todd.width(newW); todd.height(newH);
+    eraseLayer.getChildren().forEach(c => {
+      c.x(c.x() * sx); c.y(c.y() * sy);
+      if (typeof c.radius === 'function') c.radius(c.radius() * Math.max(sx, sy));
+    });
+    eraseLayer.clip({ x:0, y:0, width:newW, height:newH });
+    currentW = newW; currentH = newH;
+    group._currentW = currentW; group._currentH = currentH;
+    group.scaleX(1); group.scaleY(1);
+    // Re-apply mirror on the image node (group scale reset would clear it if on group)
+    if (group._mirrored) { todd.scaleX(-1); todd.x(currentW); }
+    else { todd.scaleX(1); todd.x(0); }
+    clampToBg(group, currentW, currentH);
+    refreshDelete();
+    toddLayer.draw();
+    pushHistory();
+  });
+
+  group.on('dragend', () => {
+    clampToBg(group, currentW, currentH);
+    pushHistory();
+  });
+
+  group.on('dragmove', () => {
+    clampToBg(group, currentW, currentH);
+  });
+
+  group.on('click tap', ev => {
+    if (eraserMode) return;
+    ev.cancelBubble = true;
+    transformer.nodes([group]);
+    refreshDelete();
+    toddLayer.draw();
+    setStatus('Todd selected — Del to delete, drag handles to resize/rotate');
+  });
+
+  function removeTodd() {
+    transformer.nodes([]);
+    group.destroy();
+    toddLayer.draw();
+    toddCount--;
+    document.getElementById('mirrorBtn').style.display = 'none';
+    document.getElementById('layerBtns').style.display = 'none';
+    document.getElementById('deleteToddBtn').style.display = 'none';
+    setStatus(toddCount === 0 ? 'Add a Todd!' : `${toddCount} Todd${toddCount>1?'s':''} on canvas`);
+    pushHistory();
+  }
+
+  group.add(todd, eraseLayer);
+  group.eraseLayer       = eraseLayer;
+  group._refreshDelete   = refreshDelete;
+  group._removeTodd      = removeTodd;
+  group._currentW        = currentW;
+  group._currentH        = currentH;
+
+  toddLayer.add(group);
+  transformer.nodes([group]);
+  clampToBg(group, currentW, currentH);
+  refreshDelete();
+  toddLayer.draw();
+
+  return group;
+}
+
+// ── Background upload ──
+document.getElementById('bgUpload').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  e.target.value = '';
+  const reader = new FileReader();
+  reader.onload = evt => {
+    const img = new Image();
+    img.onload = () => {
+      if (background) background.destroy();
+
+      // Resize the canvas to match the image's aspect ratio exactly,
+      // fitting within the available space. Image fills 100% — no grey bars.
+      const canvasWrap = containerEl.parentElement;
+      const maxW = canvasWrap.clientWidth  - 40;
+      const maxH = canvasWrap.clientHeight - 40;
+      const scale = Math.min(maxW / img.width, maxH / img.height);
+      const newW = Math.round(img.width  * scale);
+      const newH = Math.round(img.height * scale);
+
+      CANVAS_W = newW;
+      CANVAS_H = newH;
+      containerEl.style.width  = CANVAS_W + 'px';
+      containerEl.style.height = CANVAS_H + 'px';
+      stage.width(CANVAS_W);
+      stage.height(CANVAS_H);
+      canvasBg.width(CANVAS_W);
+      canvasBg.height(CANVAS_H);
+
+      // Image fills entire canvas — no offset needed
+      bgBounds = { x:0, y:0, w:CANVAS_W, h:CANVAS_H };
+      background = new Konva.Image({ image:img, x:0, y:0, width:CANVAS_W, height:CANVAS_H, listening:false });
+      bgLayer.add(background);
+      canvasBg.moveToBottom();
+      bgLayer.draw();
+      pushHistory();
+      setStatus('Background loaded — add a Todd!');
+      showToast('Background set!');
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── Todd upload ──
+document.getElementById('toddUpload').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  e.target.value = '';
+  const reader = new FileReader();
+  reader.onload = evt => addTodd(evt.target.result);
+  reader.readAsDataURL(file);
+});
+
+// ── Add Todd ──
+function addTodd(src) {
+  const img = new Image();
+  img.onload = () => {
+    toddCount++;
+    const nat  = img.naturalWidth / img.naturalHeight;
+    const initW = nat >= 1 ? 200 : Math.round(200 * nat);
+    const initH = nat >= 1 ? Math.round(200 / nat) : 200;
+    const sx0 = bgBounds ? bgBounds.x + 20 : CANVAS_W/2 - 100;
+    const sy0 = bgBounds ? bgBounds.y + 20 : CANVAS_H/2 - 100;
+    makeToddGroup(img, initW, initH,
+      sx0 + (Math.random()-0.5)*40,
+      sy0 + (Math.random()-0.5)*40
+    );
+    pushHistory();
+    setStatus(`Todd added! ${toddCount} on canvas`);
+    showToast('Todd added! ✓');
+  };
+  img.onerror = () => { toddCount--; showToast('Could not load image ✗'); };
+  img.src = src;
+}
+
+// ── Deselect ──
+stage.on('click tap', ev => {
+  if (eraserMode) return;
+  if (ev.target === stage) {
+    transformer.nodes([]);   // clear FIRST so refreshDelete sees no selection
+    selectedGroup = null;
+    toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+    document.getElementById('mirrorBtn').style.display = 'none';
+    document.getElementById('layerBtns').style.display = 'none';
+    document.getElementById('deleteToddBtn').style.display = 'none';
+    toddLayer.draw();
+    
+    setStatus('Ready');
+  }
+});
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', ev => {
+  // Don't fire when typing in an input
+  if (ev.target.tagName === 'INPUT') return;
+
+  // Delete / Backspace — delete selected Todd
+  if (ev.key === 'Delete' || ev.key === 'Backspace') {
+    deleteSelected();
+  }
+
+  // Ctrl+Z — undo
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z' && !ev.shiftKey) {
+    ev.preventDefault();
+    undo();
+  }
+
+  // Ctrl+Y or Ctrl+Shift+Z — redo
+  if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'y' || (ev.key === 'z' && ev.shiftKey))) {
+    ev.preventDefault();
+    redo();
+  }
+});
+
+// ── Eraser ──
+// ── Mirror / Flip horizontal ──
+function flipSelected() {
+  const nodes = transformer.nodes();
+  if (!nodes.length || !nodes[0]._toddId) return;
+  const group = nodes[0];
+  // Toggle the mirrored flag
+  group._mirrored = !group._mirrored;
+  const todd = group.findOne('Image');
+  if (group._mirrored) {
+    // Flip: scaleX = -1, offset so image stays in place
+    todd.scaleX(-1);
+    todd.x(group._currentW);
+  } else {
+    todd.scaleX(1);
+    todd.x(0);
+  }
+  toddLayer.draw();
+  pushHistory();
+}
+
+// ── Layer ordering ──
+function deleteSelected() {
+  const nodes = transformer.nodes();
+  if (nodes.length && nodes[0]._removeTodd) nodes[0]._removeTodd();
+}
+
+function moveLayer(dir) {
+  const nodes = transformer.nodes();
+  if (!nodes.length || !nodes[0]._toddId) return;
+  const group = nodes[0];
+  if (dir === 'up') group.moveUp();
+  else group.moveDown();
+  // Keep transformer on top
+  transformer.moveToTop();
+  toddLayer.draw();
+  pushHistory();
+}
+
+function toggleEraser() {
+  eraserMode = !eraserMode;
+  const btn     = document.getElementById('eraserBtn');
+  const sizeRow = document.getElementById('eraserSizeRow');
+  btn.classList.toggle('active', eraserMode);
+  btn.innerHTML = eraserMode
+    ? '<span class="btn-icon">✏️</span> Select Mode'
+    : '<span class="btn-icon">🧹</span> Eraser Mode';
+  sizeRow.style.display = eraserMode ? 'flex' : 'none';
+  containerEl.classList.toggle('eraser-active', eraserMode);
+  transformer.nodes([]);
+  toddLayer.find('Group').forEach(g => {
+    g.draggable(!eraserMode);
+    if (g._refreshDelete) g._refreshDelete();
+  });
+  setStatus(eraserMode ? 'Eraser active — paint over a Todd' : 'Ready', eraserMode);
+}
+
+const eraserSizeSlider = document.getElementById('eraserSize');
+const eraserSizeVal    = document.getElementById('eraserSizeVal');
+eraserSizeSlider.addEventListener('input', () => { eraserSizeVal.textContent = eraserSizeSlider.value; });
+
+stage.on('mousedown touchstart', ev => {
+  if (!eraserMode) return;
+  let node = ev.target;
+  while (node) {
+    if (node.eraseLayer) { selectedGroup = node; isErasing = true; return; }
+    node = node.getParent ? node.getParent() : null;
+  }
+});
+stage.on('mouseup touchend', () => {
+  if (isErasing) {
+    isErasing = false;
+    pushHistory();  // snapshot after each erase stroke
+  }
+});
+stage.on('mousemove touchmove', () => {
+  if (!isErasing || !selectedGroup) return;
+  const pos = selectedGroup.getRelativePointerPosition();
+  selectedGroup.eraseLayer.add(new Konva.Circle({
+    x:pos.x, y:pos.y,
+    radius: parseInt(eraserSizeSlider.value),
+    fill:'#000', listening:false,
+    globalCompositeOperation:'destination-out'
+  }));
+  toddLayer.batchDraw();
+});
+
+// ── Clear all ──
+function clearAll() {
+  toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
+  
+  if (background) { background.destroy(); background = null; bgBounds = null; }
+  transformer.nodes([]);
+  toddCount = 0;
+  bgLayer.draw(); toddLayer.draw(); 
+  pushHistory();
+  setStatus('Canvas cleared');
+  showToast('Canvas cleared');
+}
+
+// ── Export ──
+let _pendingDownloadURL = null;
+
+function exportImage() {
+  // Hide transformer
+  transformer.nodes([]);
+  toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+  toddLayer.draw();
+
+  const crop = bgBounds
+    ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y),
+        w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
+    : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
+
+  const tmp = document.createElement('canvas');
+  tmp.width  = crop.w;
+  tmp.height = crop.h;
+  const ctx = tmp.getContext('2d');
+
+  [bgLayer, toddLayer].forEach(layer => {
+    const src = layer.getCanvas()._canvas;
+    ctx.drawImage(src, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
+  });
+
+  _pendingDownloadURL = tmp.toDataURL('image/png');
+
+  // Show confirm modal
+  document.getElementById('dlConfirmPath').textContent = '~/Downloads/todd-masterpiece.png';
+  document.getElementById('dlConfirmModal').style.display = 'flex';
+}
+
+function confirmDownload() {
+  if (!_pendingDownloadURL) return;
+  const a = document.createElement('a');
+  a.href = _pendingDownloadURL;
+  a.download = 'todd-masterpiece.png';
+  a.click();
+  _pendingDownloadURL = null;
+  document.getElementById('dlConfirmModal').style.display = 'none';
+  showToast('Downloaded! 🎉');
+  setStatus('Exported ✓');
+}
+
+// ── TOKEN PRICE ──
+const TOKEN_ADDRESS = 'BzyKa1FGjs2EUpu3GGDibY4xdygn5evAiRboKmETpump';
+
+let _lastPrice = null;
+let _lastChange = null;
+
+function appendSystemMsg(text, dir) {
+  const box = document.getElementById('chatMessages');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  const el = document.createElement('div');
+  el.className = 'chat-msg-system' + (dir === 'up' ? ' price-up' : dir === 'down' ? ' price-down' : '');
+  el.textContent = text;
+  box.appendChild(el);
+  while (box.children.length > CHAT_MAX) box.removeChild(box.firstChild);
+  if (atBottom) box.scrollTop = box.scrollHeight;
+}
+
+function copyTokenAddress() {
+  navigator.clipboard.writeText(TOKEN_ADDRESS).then(() => {
+    showToast('CA copied!');
+  }).catch(() => {
+    showToast('Copy: ' + TOKEN_ADDRESS.slice(0,8) + '...');
+  });
+}
+
+async function fetchTokenPrice() {
+  try {
+    const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${TOKEN_ADDRESS}`);
+    const data = await res.json();
+    const pair = data?.pairs?.[0];
+    if (!pair) return;
+
+    const price  = parseFloat(pair.priceUsd);
+    const change = parseFloat(pair.priceChange?.h24 || 0);
+
+    const priceEl  = document.getElementById('tokenPrice');
+    const changeEl = document.getElementById('tokenChange');
+
+    let priceStr;
+    if (price < 0.0001)    priceStr = '$' + price.toExponential(2);
+    else if (price < 0.01) priceStr = '$' + price.toFixed(6);
+    else if (price < 1)    priceStr = '$' + price.toFixed(4);
+    else                   priceStr = '$' + price.toFixed(2);
+
+    priceEl.textContent = priceStr;
+
+    if (!isNaN(change)) {
+      const sign = change >= 0 ? '+' : '';
+      changeEl.textContent = sign + change.toFixed(1) + '%';
+      changeEl.className = 'token-change ' + (change >= 0 ? 'up' : 'down');
+    }
+
+    // ── System message on meaningful price movement ──
+    if (_lastPrice !== null && price > 0 && _lastPrice > 0) {
+      const movePct = ((price - _lastPrice) / _lastPrice) * 100;
+      if (Math.abs(movePct) >= 1.5) {
+        const dir = movePct > 0 ? 'up' : 'down';
+        const icon = dir === 'up' ? '📈' : '📉';
+        const sign = movePct > 0 ? '+' : '';
+        appendSystemMsg(`${icon} $TODD ${sign}${movePct.toFixed(1)}% → ${priceStr}`, dir);
+      }
+    }
+
+    // Post 24h change summary on first load or when it shifts meaningfully
+    if (_lastChange === null && !isNaN(change)) {
+      const dir = change >= 0 ? 'up' : 'down';
+      const icon = dir === 'up' ? '📈' : '📉';
+      const sign = change >= 0 ? '+' : '';
+      appendSystemMsg(`${icon} $TODD 24h: ${sign}${change.toFixed(1)}% · ${priceStr}`, dir);
+    } else if (_lastChange !== null && Math.abs(change - _lastChange) >= 3) {
+      const dir = change >= 0 ? 'up' : 'down';
+      const icon = dir === 'up' ? '📈' : '📉';
+      const sign = change >= 0 ? '+' : '';
+      appendSystemMsg(`${icon} $TODD 24h change updated: ${sign}${change.toFixed(1)}%`, dir);
+    }
+
+    _lastPrice  = price;
+    _lastChange = change;
+  } catch(e) {
+    document.getElementById('tokenPrice').textContent = '$-.----';
+  }
+}
+
+fetchTokenPrice();
+setInterval(fetchTokenPrice, 30000);
+
+// ── ADMIN ──
+let _adminToken = null;
+let _adminAllPosts = [];
+let _adminCurrentFilter = 'pending';
+
+function openAdmin() {
+  document.getElementById('adminModal').style.display = 'flex';
+  if (_adminToken) {
+    showAdminPanel(); // showAdminPanel now always clears cache and refetches
+  } else {
+    document.getElementById('adminLoginScreen').style.display = 'flex';
+    document.getElementById('adminPanelScreen').style.display = 'none';
+    document.getElementById('adminLoginError').style.display = 'none';
+    document.getElementById('adminPasswordInput').value = '';
+    setTimeout(() => document.getElementById('adminPasswordInput').focus(), 50);
+  }
+}
+
+function closeAdmin() {
+  document.getElementById('adminModal').style.display = 'none';
+}
+
+document.getElementById('adminPasswordInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') adminLogin();
+});
+
+async function adminLogin() {
+  const pw = document.getElementById('adminPasswordInput').value;
+  const errEl = document.getElementById('adminLoginError');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.style.display = 'block'; return; }
+    _adminToken = data.token;
+    showAdminPanel();
+  } catch(e) {
+    errEl.textContent = 'Connection error.';
+    errEl.style.display = 'block';
+  }
+}
+
+function showAdminPanel() {
+  document.getElementById('adminLoginScreen').style.display = 'none';
+  document.getElementById('adminPanelScreen').style.display = 'flex';
+  _adminAllPosts = []; // clear cache — always fetch fresh
+  loadAdminPosts();
+}
+
+async function loadAdminPosts() {
+  const grid = document.getElementById('adminPostsGrid');
+  grid.innerHTML = '<div style="color:#555;font-family:\'VT323\',monospace;font-size:15px;">Loading...</div>';
+  try {
+    const res = await fetch('/api/admin/posts', {
+      headers: { 'x-admin-token': _adminToken }
+    });
+    if (res.status === 403) { _adminToken = null; closeAdmin(); openAdmin(); return; }
+    _adminAllPosts = await res.json();
+    renderAdminPosts();
+  } catch(e) {
+    grid.innerHTML = '<div style="color:#ff5555;font-family:\'VT323\',monospace;">Failed to load.</div>';
+  }
+}
+
+function adminFilter(f) {
+  _adminCurrentFilter = f;
+  ['pending','approved','all'].forEach(id => {
+    document.getElementById('filter' + id.charAt(0).toUpperCase() + id.slice(1))
+      .classList.toggle('active', f === id);
+  });
+  renderAdminPosts();
+}
+
+function renderAdminPosts() {
+  const pending  = _adminAllPosts.filter(p => !p.approved);
+  const approved = _adminAllPosts.filter(p =>  p.approved);
+
+  document.getElementById('adminPendingCount').textContent  = pending.length;
+  document.getElementById('adminApprovedCount').textContent = approved.length;
+
+  const filtered = _adminCurrentFilter === 'pending'  ? pending
+                 : _adminCurrentFilter === 'approved' ? approved
+                 : _adminAllPosts;
+
+  const grid = document.getElementById('adminPostsGrid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div style="color:#555;font-family:\'VT323\',monospace;font-size:15px;padding:20px;">Nothing here.</div>';
+    return;
+  }
+
+  grid.innerHTML = '';
+  filtered.forEach(post => {
+    const date = new Date(post.created_at).toLocaleDateString();
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.id = 'admincard_' + post.id;
+    card.innerHTML = `
+      <div class="admin-card-titlebar">
+        📁 ${escHtml(post.name)}
+        <span class="${post.approved ? 'approved-badge' : 'pending-badge'}">
+          ${post.approved ? 'APPROVED' : 'PENDING'}
+        </span>
+      </div>
+      <img src="${post.image}" loading="lazy">
+      <div class="admin-card-body">
+        <div class="admin-card-msg">${post.message ? '"' + escHtml(post.message) + '"' : '<span style="color:#444">no caption</span>'}</div>
+        <div class="admin-card-msg" style="color:#555">${date} · 👍${post.votes_up} 👎${post.votes_down}</div>
+        <div class="admin-card-btns">
+          ${!post.approved ? `<button class="admin-btn approve" onclick="adminApprove('${post.id}')">✔ APPROVE</button>` : '<button class="admin-btn approve" style="opacity:.35;cursor:default">✔ LIVE</button>'}
+          <button class="admin-btn delete" onclick="adminDelete('${post.id}')">✕ DELETE</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+async function adminApprove(id) {
+  const btn = document.querySelector(`#admincard_${id} .admin-btn.approve`);
+  if (btn) { btn.textContent = '...'; btn.style.opacity = '.5'; }
+  try {
+    const res = await fetch(`/api/admin/approve/${id}`, {
+      method: 'POST',
+      headers: { 'x-admin-token': _adminToken }
+    });
+    if (!res.ok) throw new Error();
+    // Update local data
+    const post = _adminAllPosts.find(p => String(p.id) === String(id));
+    if (post) post.approved = true;
+    renderAdminPosts();
+    showToast('Approved ✔');
+  } catch(e) {
+    showToast('Approve failed');
+    if (btn) { btn.textContent = '✔ APPROVE'; btn.style.opacity = '1'; }
+  }
+}
+
+async function adminDelete(id) {
+  if (!confirm('Permanently delete this post?')) return;
+  const card = document.getElementById('admincard_' + id);
+  if (card) card.style.opacity = '.4';
+  try {
+    const res = await fetch(`/api/admin/posts/${id}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-token': _adminToken }
+    });
+    if (!res.ok) throw new Error();
+    _adminAllPosts = _adminAllPosts.filter(p => String(p.id) !== String(id));
+    renderAdminPosts();
+    showToast('Deleted.');
+  } catch(e) {
+    showToast('Delete failed');
+    if (card) card.style.opacity = '1';
+  }
+}
+
+
+updateUndoRedoBtns();
+
+// ── CHAT (Supabase real-time) ──
+const SUPA_URL  = 'https://cfaqadeoxskwhebyirok.supabase.co';
+const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
+const CHAT_MAX  = 120;
+const NAME_COLORS = ['#ff7eb3','#7eb3ff','#7effb3','#ffb37e','#d07eff','#ff7e7e','#7effe0','#fff07e','#ff9f7e','#a78bfa'];
+
+function nameColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return NAME_COLORS[Math.abs(h) % NAME_COLORS.length];
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function appendChatMsg(msg) {
+  const box = document.getElementById('chatMessages');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  const el = document.createElement('div');
+  el.className = 'chat-msg';
+  const color = nameColor(msg.name);
+  el.innerHTML = `<span class="chat-msg-name" style="color:${color}">${escapeHtml(msg.name)}:</span> <span class="chat-msg-text">${escapeHtml(msg.text)}</span>`;
+  box.appendChild(el);
+  // trim to max
+  while (box.children.length > CHAT_MAX) box.removeChild(box.firstChild);
+  if (atBottom) box.scrollTop = box.scrollHeight;
+  updateViewerCount();
+}
+
+function updateViewerCount() {
+  const box = document.getElementById('chatMessages');
+  const names = new Set();
+  box.querySelectorAll('.chat-msg-name').forEach(el => names.add(el.textContent.replace(':','')));
+  const count = Math.max(names.size, 1);
+  document.getElementById('chatViewerCount').textContent = count + (count === 1 ? ' viewer' : ' viewers');
+}
+
+// Load last 80 messages on startup
+async function loadChat() {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/chat_messages?select=id,name,text,created_at&order=created_at.asc&limit=80`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+    });
+    const msgs = await res.json();
+    const box = document.getElementById('chatMessages');
+    box.innerHTML = '';
+    if (Array.isArray(msgs)) msgs.forEach(appendChatMsg);
+    box.scrollTop = box.scrollHeight;
+  } catch(e) { console.error('Chat load error:', e); }
+}
+
+// Subscribe to new messages via Supabase real-time
+function subscribeChat() {
+  const wsUrl = SUPA_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?apikey=' + SUPA_KEY + '&vsn=1.0.0';
+  let ws, pingInterval;
+
+  function connect() {
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ topic:'realtime:public:chat_messages', event:'phx_join', payload:{}, ref:'1' }));
+      pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN)
+          ws.send(JSON.stringify({ topic:'phoenix', event:'heartbeat', payload:{}, ref:'hb' }));
+      }, 20000);
+    };
+
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.event === 'INSERT' && msg.payload?.record) {
+          appendChatMsg(msg.payload.record);
+        }
+      } catch(err) {}
+    };
+
+    ws.onclose = () => {
+      clearInterval(pingInterval);
+      setTimeout(connect, 3000); // reconnect
+    };
+    ws.onerror = () => ws.close();
+  }
+
+  connect();
+}
+
+async function sendChatMsg() {
+  const nameEl = document.getElementById('chatNameInput');
+  const msgEl  = document.getElementById('chatMsgInput');
+  const name   = (_currentUser?.username)
+    ? _currentUser.username + ' ✔'
+    : (nameEl.value || '').trim() || getGuestName();
+  const text   = (msgEl.value || '').trim();
+  if (!text) return;
+
+  msgEl.value = '';
+
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/chat_messages`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ name, text })
+    });
+  } catch(e) { console.error('Chat send error:', e); }
+}
+
+// ── GOOGLE AUTH + USERNAME SYSTEM ──
+let _currentUser = null; // { username, email, userId, avatar, verified }
+let _usernameCheckTimer = null;
+
+// ── Update all UI that shows the user's identity ──
+function updateAuthUI() {
+  const btn    = document.getElementById('authBtn');
+  const label  = document.getElementById('authBtnLabel');
+  const nameInput = document.getElementById('chatNameInput');
+
+  if (_currentUser && _currentUser.username) {
+    // Fully logged in with username
+    btn.classList.add('logged-in');
+    label.innerHTML = `<span style="color:#00cc66">✔</span> ${escHtml(_currentUser.username)}`;
+    nameInput.value = _currentUser.username;
+    nameInput.readOnly = true;
+    nameInput.style.color = '#00cc66';
+    nameInput.style.borderColor = '#00cc66';
+    nameInput.title = _currentUser.username;
+  } else {
+    // Guest
+    btn.classList.remove('logged-in');
+    label.textContent = '⬡ LOGIN';
+    const guestName = getGuestName();
+    nameInput.value = guestName;
+    nameInput.readOnly = true;
+    nameInput.style.color = '#888';
+    nameInput.style.borderColor = '';
+    nameInput.title = 'Guest — login to get a username';
+  }
+}
+
+function getGuestName() {
+  try {
+    let id = localStorage.getItem('todd_guest_id');
+    if (!id) {
+      const fp = [navigator.userAgent.length,screen.width,screen.height,screen.colorDepth,
+        new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,navigator.language.length
+      ].reduce((a,b)=>(a*31+b)&0xffff,0x4d32);
+      id = String(1000+(Math.abs(fp)%9000));
+      localStorage.setItem('todd_guest_id',id);
+    }
+    return 'guest'+id;
+  } catch(e){ return 'guest'+Math.floor(1000+Math.random()*9000); }
+}
+
+function getStoredAccessToken() {
+  try {
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
+    if (keys.length) { const s=JSON.parse(localStorage.getItem(keys[0])); return s?.access_token||''; }
+  } catch(e){}
+  return '';
+}
+
+// Fetch username from Supabase for a given user_id
+async function fetchUsername(userId, token) {
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(userId)}&select=username&limit=1`,
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` } }
+    );
+    if (res.ok) {
+      const rows = await res.json();
+      return rows[0]?.username || null;
+    }
+  } catch(e){}
+  return null;
+}
+
+async function checkAuthSession() {
+  // First check cached user
+  try {
+    const raw = localStorage.getItem('todd_user_data');
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u.verified && u.username) { _currentUser = u; updateAuthUI(); return; }
+    }
+  } catch(e){}
+
+  const token = getStoredAccessToken();
+  if (!token) { _currentUser = null; updateAuthUI(); return; }
+
+  try {
+    const res = await fetch(`${SUPA_URL}/auth/v1/user`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const user = await res.json();
+      if (user?.id) {
+        const username = await fetchUsername(user.id, token);
+        if (username) {
+          // Has username — fully set up
+          _currentUser = { username, email: user.email, userId: user.id, avatar: user.user_metadata?.avatar_url||null, verified: true };
+          localStorage.setItem('todd_user_data', JSON.stringify(_currentUser));
+          updateAuthUI();
+        } else {
+          // Logged in but no username yet — show picker
+          _currentUser = { email: user.email, userId: user.id, avatar: user.user_metadata?.avatar_url||null, verified: true, username: null };
+          updateAuthUI();
+          showUsernamePicker();
+        }
+        return;
+      }
+    }
+  } catch(e){}
+  _currentUser = null;
+  updateAuthUI();
+}
+
+function handleOAuthCallback() {
+  const hash = window.location.hash;
+  if (!hash.includes('access_token')) return false;
+
+  // Parse all params from the hash
+  const params = {};
+  hash.slice(1).split('&').forEach(p => {
+    const [k, v] = p.split('=');
+    params[decodeURIComponent(k)] = decodeURIComponent(v || '');
+  });
+
+  const accessToken  = params['access_token'];
+  const refreshToken = params['refresh_token'];
+  const expiresIn    = parseInt(params['expires_in'] || '3600');
+
+  if (!accessToken) return false;
+
+  // Store in the format Supabase expects
+  const sessionKey = `sb-cfaqadeoxskwhebyirok-auth-token`;
+  const session = {
+    access_token:  accessToken,
+    refresh_token: refreshToken,
+    expires_at:    Math.floor(Date.now() / 1000) + expiresIn,
+    token_type:    'bearer'
+  };
+  try {
+    localStorage.setItem(sessionKey, JSON.stringify(session));
+    history.replaceState(null, '', window.location.pathname);
+  } catch(e) {}
+
+  setTimeout(() => checkAuthSession(), 300);
+  return true;
+}
+
+// ── Username picker ──
+function showUsernamePicker() {
+  document.getElementById('usernamePickInput').value = '';
+  document.getElementById('usernamePickStatus').textContent = '';
+  document.getElementById('usernamePickBtn').disabled = true;
+  document.getElementById('usernamePickBtn').style.opacity = '0.4';
+  document.getElementById('usernameModal').style.display = 'flex';
+}
+
+function onUsernameInput() {
+  const val = document.getElementById('usernamePickInput').value.trim();
+  const statusEl = document.getElementById('usernamePickStatus');
+  const btn = document.getElementById('usernamePickBtn');
+
+  // Clear previous timer
+  clearTimeout(_usernameCheckTimer);
+  btn.disabled = true;
+  btn.style.opacity = '0.4';
+
+  if (!val) { statusEl.textContent = ''; return; }
+
+  // Validate format
+  if (!/^[a-zA-Z0-9_]{3,24}$/.test(val)) {
+    statusEl.style.color = '#ff5555';
+    statusEl.textContent = '✗ Letters, numbers and _ only (3–24 chars)';
+    return;
+  }
+
+  statusEl.style.color = '#777';
+  statusEl.textContent = 'Checking...';
+
+  _usernameCheckTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/usernames?username=eq.${encodeURIComponent(val)}&select=username&limit=1`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${getStoredAccessToken()}` } }
+      );
+      const rows = await res.json();
+      if (rows.length > 0) {
+        statusEl.style.color = '#ff5555';
+        statusEl.textContent = '✗ Already taken';
+        btn.disabled = true;
+        btn.style.opacity = '0.4';
+      } else {
+        statusEl.style.color = '#00cc66';
+        statusEl.textContent = '✔ Available!';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    } catch(e) {
+      statusEl.style.color = '#ff5555';
+      statusEl.textContent = 'Error checking — try again';
+    }
+  }, 500);
+}
+
+async function submitUsername() {
+  const val = document.getElementById('usernamePickInput').value.trim();
+  if (!val || !_currentUser?.userId) return;
+
+  const btn = document.getElementById('usernamePickBtn');
+  btn.disabled = true;
+  btn.textContent = 'Claiming...';
+
+  try {
+    const token = getStoredAccessToken();
+    const res = await fetch(`${SUPA_URL}/rest/v1/usernames`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ user_id: _currentUser.userId, username: val })
+    });
+
+    if (res.ok || res.status === 201) {
+      _currentUser.username = val;
+      localStorage.setItem('todd_user_data', JSON.stringify(_currentUser));
+      document.getElementById('usernameModal').style.display = 'none';
+      updateAuthUI();
+      showToast('Username claimed! Welcome, ' + val);
+    } else {
+      const err = await res.text();
+      if (err.includes('unique') || err.includes('duplicate')) {
+        document.getElementById('usernamePickStatus').textContent = '✗ Just taken — try another';
+        document.getElementById('usernamePickStatus').style.color = '#ff5555';
+      } else {
+        showToast('Error — try again');
+      }
+      btn.disabled = false;
+      btn.textContent = 'CLAIM USERNAME';
+      btn.style.opacity = '1';
+    }
+  } catch(e) {
+    showToast('Error — try again');
+    btn.disabled = false;
+    btn.textContent = 'CLAIM USERNAME';
+    btn.style.opacity = '1';
+  }
+}
+
+// ── Auth modal (account info / sign out) ──
+function openAuthModal() {
+  const inner = document.getElementById('authModalInner');
+  if (_currentUser?.username) {
+    inner.innerHTML = `
+      <div class="auth-modal-title">⬡ ACCOUNT</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        ${_currentUser.avatar ? `<img src="${_currentUser.avatar}" style="width:48px;height:48px;border-radius:50%;border:2px solid #00cc66;">` : '<div style="font-size:36px">👤</div>'}
+        <div style="font-family:'VT323',monospace;font-size:24px;color:#fff;">${escHtml(_currentUser.username)} <span style="color:#00cc66;font-size:14px;">✔ verified</span></div>
+        <div style="font-family:'VT323',monospace;font-size:12px;color:#444;">signed in with Google</div>
+      </div>
+      <button class="btn danger" style="width:100%;justify-content:center;" onclick="signOut()">Sign Out</button>`;
+  } else if (_currentUser) {
+    // Logged in but no username
+    inner.innerHTML = `
+      <div class="auth-modal-title">⬡ ACCOUNT</div>
+      <div class="auth-modal-sub">You need to pick a username first.</div>
+      <button class="btn primary" style="width:100%;justify-content:center;" onclick="closeAuthModal();showUsernamePicker();">Pick Username</button>`;
+  } else {
+    inner.innerHTML = `
+      <div class="auth-modal-title">⬡ LOGIN</div>
+      <div class="auth-modal-sub">Sign in with Google to get a username.</div>
+      <button class="google-btn" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>`;
+  }
+  document.getElementById('authModal').style.display = 'flex';
+}
+
+function closeAuthModal(e) {
+  if (e && e.target !== document.getElementById('authModal')) return;
+  document.getElementById('authModal').style.display = 'none';
+}
+
+function signInWithGoogle() {
+  const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+  const redirectTo = encodeURIComponent(base + 'app.html');
+  window.location.href = `${SUPA_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
+}
+
+async function signOut() {
+  try {
+    const token = getStoredAccessToken();
+    await fetch(`${SUPA_URL}/auth/v1/logout`, { method:'POST', headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${token}`} });
+    Object.keys(localStorage).filter(k=>k.startsWith('sb-')).forEach(k=>localStorage.removeItem(k));
+  } catch(e){}
+  localStorage.removeItem('todd_user_data');
+  _currentUser = null;
+  closeAuthModal();
+  window.location.href = 'index.html';
+}
+
+// ── Init ──
+if (!handleOAuthCallback()) {
+  checkAuthSession();
+}
+
+checkAuthSession();
+
+// Enter key to send
+document.getElementById('chatMsgInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); sendChatMsg(); }
+});
+
+// Escape closes lightbox
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('lightbox').style.display = 'none';
+    document.getElementById('galleryView').style.overflow = 'auto';
+  }
+});
+
+loadChat().then(() => subscribeChat());
+
+
+// ── Todd Picker ──
+const ALL_TODDS = [
+  'todd1.png','todd2.png','todd3.png','confidence.png',
+  'todd4.png','todd5.png','todd6.png','todd7.png',
+  'todd8.png','todd9.png','todd10.png','todd11.png',
+  'todd12.png','todd13.png','todd14.png','todd15.png',
+  'todd16.png','todd17.png','todd18.png','todd19.png',
+  'todd20.png'
+];
+
+function openToddPicker() {
+  const grid = document.getElementById('toddPickerGrid');
+  grid.innerHTML = '';
+  ALL_TODDS.forEach(src => {
+    const div = document.createElement('div');
+    div.className = 'todd-picker-thumb';
+    div.onclick = () => { addTodd(src); closeToddPicker(); };
+    const img = document.createElement('img');
+    img.src = src;
+    img.onerror = () => { div.style.display = 'none'; }; // hide missing ones
+    div.appendChild(img);
+    grid.appendChild(div);
+  });
+  document.getElementById('toddPickerModal').style.display = 'flex';
+}
+
+function closeToddPicker(e) {
+  if (e && e.target !== document.getElementById('toddPickerModal')) return;
+  document.getElementById('toddPickerModal').style.display = 'none';
+}
+
+// ── Tab switching ──
+function switchTab(tab) {
+  const isEditor = tab === 'editor';
+  document.getElementById('editorView').style.display  = isEditor ? 'flex' : 'none';
+  document.getElementById('galleryView').style.display = isEditor ? 'none'  : 'block';
+  document.getElementById('sidebar').style.display     = isEditor ? 'flex'  : 'none';
+  document.getElementById('tabEditor').classList.toggle('active', isEditor);
+  document.getElementById('tabGallery').classList.toggle('active', !isEditor);
+  if (!isEditor) loadGallery();
+}
+
+// ── Publish modal ──
+let _publishDataURL = null;
+
+function openPublishModal() {
+  transformer.nodes([]);
+  toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+  toddLayer.draw();
+
+  const crop = bgBounds
+    ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y), w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
+    : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
+
+  // Scale down to max 800px wide to keep base64 small enough for Supabase
+  const MAX_W = 800;
+  const scale = Math.min(1, MAX_W / crop.w);
+  const outW  = Math.round(crop.w * scale);
+  const outH  = Math.round(crop.h * scale);
+
+  const tmp = document.createElement('canvas');
+  tmp.width = outW; tmp.height = outH;
+  const ctx = tmp.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  [bgLayer, toddLayer].forEach(layer => {
+    ctx.drawImage(layer.getCanvas()._canvas, crop.x, crop.y, crop.w, crop.h, 0, 0, outW, outH);
+  });
+
+  // Quality 0.72 + scaled down keeps it well under 500KB base64
+  _publishDataURL = tmp.toDataURL('image/jpeg', 0.72);
+  console.log('Image base64 size (KB):', Math.round(_publishDataURL.length / 1024));
+
+  const prev = document.getElementById('modalPreview');
+  prev.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = _publishDataURL;
+  prev.appendChild(img);
+
+  // Reset to form view
+  document.getElementById('modalFormView').style.display = '';
+  document.getElementById('modalSuccessView').style.display = 'none';
+
+  document.getElementById('publishModal').style.display = 'flex';
+  // Show verified username or guest name, always locked
+  const nameInput = document.getElementById('publishName');
+  if (_currentUser?.username) {
+    nameInput.value = _currentUser.username + ' ✔';
+    nameInput.disabled = true;
+    nameInput.style.color = '#00cc66';
+    nameInput.style.borderColor = '#00cc66';
+  } else {
+    nameInput.value = getGuestName();
+    nameInput.disabled = true;
+    nameInput.style.color = '#888';
+    nameInput.style.borderColor = '';
+  }
+}
+
+function closePublishModal(e) {
+  if (e && e.target !== document.getElementById('publishModal')) return;
+  document.getElementById('publishModal').style.display = 'none';
+  _publishDataURL = null;
+}
+
+async function publishToGallery() {
+  const name = _currentUser?.username
+    ? _currentUser.username + ' ✔'
+    : getGuestName();
+  const msg  = document.getElementById('publishMsg').value.trim();
+  if (!_publishDataURL) return showToast('Nothing to publish!');
+
+  const btn = document.querySelector('#publishModal .btn.primary');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Publishing...'; }
+
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/gallery_posts`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ name, message: msg, image: _publishDataURL })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Supabase error status:', res.status, errText);
+      showToast('Error ' + res.status + ': ' + errText.slice(0, 80));
+      throw new Error(errText);
+    }
+
+    // Show success screen inside modal
+    document.getElementById('modalFormView').style.display = 'none';
+    document.getElementById('modalSuccessView').style.display = 'flex';
+    document.getElementById('modalSuccessName').textContent = name;
+
+    // Clear fields for next time
+    document.getElementById('publishName').value = '';
+    document.getElementById('publishMsg').value  = '';
+    _publishDataURL = null;
+
+  } catch(err) {
+    console.error('Publish error:', err);
+    showToast('Publish failed — image may be too large, try a smaller canvas');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'PUBLISH'; }
+  }
+}
+
+// ── Gallery loading ──
+let _galleryPosts = []; // store for lightbox access
+
+async function loadGallery() {
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '<div class="gallery-loading">Loading masterpieces...</div>';
+
+  try {
+    // Load my votes from localStorage
+    let myVotes = {};
+    try { myVotes = JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) {}
+
+    const res = await fetch(`${SUPA_URL}/rest/v1/gallery_posts?select=id,name,message,image,created_at,votes_up,votes_down&order=created_at.desc&limit=100&approved=eq.true`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+    });
+    const posts = await res.json();
+
+    if (!Array.isArray(posts) || !posts.length) {
+      grid.innerHTML = '';
+      return;
+    }
+
+    // Sort by score
+    posts.sort((a, b) => (b.votes_up - b.votes_down) - (a.votes_up - a.votes_down));
+    _galleryPosts = posts;
+
+    grid.innerHTML = '';
+    posts.forEach(post => {
+      const date   = new Date(post.created_at).toLocaleDateString();
+      const myVote = myVotes[post.id] || null;
+      const card   = document.createElement('div');
+      card.className = 'gallery-card';
+      card.id = 'card_' + post.id;
+      card.style.cursor = 'pointer';
+      card.innerHTML = `
+        <div class="gallery-card-titlebar">📁 ${escHtml(post.name)}</div>
+        <img src="${post.image}" alt="Todd by ${escHtml(post.name)}" loading="lazy" onclick="openLightbox(event,'${post.id}')">
+        <div class="gallery-card-body">
+          <div class="gallery-card-msg">${post.message ? '"' + escHtml(post.message) + '"' : ''}</div>
+          <div class="gallery-card-footer">
+            <div class="vote-btns">
+              <button class="vote-btn up ${myVote==='up'?'voted-up':''}" onclick="vote('${post.id}','up')">
+                👍 <span id="up_${post.id}">${post.votes_up}</span>
+              </button>
+              <button class="vote-btn down ${myVote==='down'?'voted-down':''}" onclick="vote('${post.id}','down')">
+                👎 <span id="dn_${post.id}">${post.votes_down}</span>
+              </button>
+            </div>
+            <span class="gallery-card-date">${date}</span>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  } catch(err) {
+    grid.innerHTML = '<div class="gallery-empty">Failed to load gallery.</div>';
+    console.error(err);
+  }
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Lightbox ──
+function openLightbox(e, postId) {
+  e.stopPropagation();
+  const post = _galleryPosts.find(p => String(p.id) === String(postId));
+  if (!post) return;
+
+  const myVotes = (() => { try { return JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) { return {}; } })();
+  const myVote  = myVotes[post.id] || null;
+  const date    = new Date(post.created_at).toLocaleDateString();
+
+  document.getElementById('lightboxTitle').textContent  = '📁 ' + post.name;
+  document.getElementById('lightboxImg').src            = post.image;
+  document.getElementById('lightboxMsg').textContent    = post.message ? '"' + post.message + '"' : '';
+  document.getElementById('lightboxDate').textContent   = date;
+  document.getElementById('lightboxVotes').innerHTML    = `
+    <button class="vote-btn up ${myVote==='up'?'voted-up':''}" onclick="vote('${post.id}','up')">
+      👍 <span id="lbup_${post.id}">${post.votes_up}</span>
+    </button>
+    <button class="vote-btn down ${myVote==='down'?'voted-down':''}" onclick="vote('${post.id}','down')">
+      👎 <span id="lbdn_${post.id}">${post.votes_down}</span>
+    </button>`;
+
+  document.getElementById('lightbox').style.display = 'flex';
+  // Prevent gallery scrolling while lightbox open
+  document.getElementById('galleryView').style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  if (e && e.target !== document.getElementById('lightbox')) return;
+  document.getElementById('lightbox').style.display = 'none';
+  document.getElementById('galleryView').style.overflow = 'auto';
+}
+
+function updateLightboxVotes(postId) {
+  // Sync counts from card to lightbox
+  const upCard = document.getElementById('up_'   + postId);
+  const dnCard = document.getElementById('dn_'   + postId);
+  const upLb   = document.getElementById('lbup_' + postId);
+  const dnLb   = document.getElementById('lbdn_' + postId);
+  if (upCard && upLb) upLb.textContent = upCard.textContent;
+  if (dnCard && dnLb) dnLb.textContent = dnCard.textContent;
+
+  // Sync highlight state
+  let myVotes = {};
+  try { myVotes = JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) {}
+  const myVote = myVotes[postId] || null;
+  const lbVotes = document.getElementById('lightboxVotes');
+  if (lbVotes) {
+    lbVotes.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('voted-up','voted-down'));
+    if (myVote === 'up')   lbVotes.querySelector('.vote-btn.up')?.classList.add('voted-up');
+    if (myVote === 'down') lbVotes.querySelector('.vote-btn.down')?.classList.add('voted-down');
+  }
+}
+async function vote(postId, dir) {
+  let myVotes = {};
+  try { myVotes = JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) {}
+
+  const prev = myVotes[postId] || null;
+  const isUnvoting = prev === dir; // clicking same button = remove vote
+
+  const upEl = document.getElementById('up_'   + postId);
+  const dnEl = document.getElementById('dn_'   + postId);
+  const card = document.getElementById('card_' + postId);
+
+  // Optimistic UI — adjust counts
+  if (prev === 'up'   && upEl) upEl.textContent = Math.max(0, parseInt(upEl.textContent) - 1);
+  if (prev === 'down' && dnEl) dnEl.textContent = Math.max(0, parseInt(dnEl.textContent) - 1);
+  if (!isUnvoting && dir === 'up'   && upEl) upEl.textContent = parseInt(upEl.textContent) + 1;
+  if (!isUnvoting && dir === 'down' && dnEl) dnEl.textContent = parseInt(dnEl.textContent) + 1;
+
+  // Update button highlight state
+  if (card) {
+    card.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('voted-up','voted-down'));
+    if (!isUnvoting) {
+      const upBtn = card.querySelector('.vote-btn.up');
+      const dnBtn = card.querySelector('.vote-btn.down');
+      if (dir === 'up'   && upBtn) upBtn.classList.add('voted-up');
+      if (dir === 'down' && dnBtn) dnBtn.classList.add('voted-down');
+    }
+  }
+
+  // Update stored vote
+  if (isUnvoting) {
+    delete myVotes[postId];
+  } else {
+    myVotes[postId] = dir;
+  }
+  try { localStorage.setItem('todd_my_votes', JSON.stringify(myVotes)); } catch(e) {}
+
+  // Build Supabase PATCH payload from current displayed counts
+  const update = {
+    votes_up:   parseInt(upEl?.textContent || 0),
+    votes_down: parseInt(dnEl?.textContent || 0)
+  };
+
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/gallery_posts?id=eq.${postId}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(update)
+    });
+  } catch(err) { console.error('Vote error:', err); }
+
+  // Sync lightbox if open
+  updateLightboxVotes(postId);
+}
+
+
+</script>
+</body>
+</html>
