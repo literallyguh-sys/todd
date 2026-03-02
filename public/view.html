@@ -611,9 +611,6 @@ function renderCard(entry){
 function flushResults(){
   const lp=document.getElementById('list-pf'),ls=document.getElementById('list-ps'),lc=document.getElementById('cert-list');
   lp.innerHTML=''; ls.innerHTML=''; lc.innerHTML='';
-  if(!pfResults.length) lp.innerHTML='<div class="col-empty">No tokens match filters</div>';
-  if(!psResults.length) ls.innerHTML='<div class="col-empty">No tokens match filters</div>';
-  if(!certResults.length) lc.innerHTML='<div class="col-empty">No certified tokens yet</div>';
   pfResults.forEach(r=>lp.appendChild(renderCard(r)));
   psResults.forEach(r=>ls.appendChild(renderCard(r)));
   certResults.forEach(r=>{const c=renderCard(r);c.classList.add('cert-card');lc.appendChild(c);});
