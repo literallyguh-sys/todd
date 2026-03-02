@@ -498,21 +498,42 @@ async function runScan() {
     prevProfileAddresses = new Set(profileTokens.map(t => t.tokenAddress));
 
     // ── Filter pump.fun coins by mcap < $100K ──────────────────────────────
-    const pfCoins = pfResult.status === 'fulfilled' && Array.isArray(pfResult.value)
-      ? pfResult.value.filter(c => c.mint && (c.usd_market_cap || 0) < 100000)
-      : [];
-    console.log(`[scan] ${pfCoins.length} pump.fun coins under $100K`);
+    console.log(`[scan] pump.fun fetch status: ${pfResult.status}`);
+    if (pfResult.status === 'fulfilled') {
+      const raw = pfResult.value;
+      console.log(`[scan] pump.fun raw type: ${Array.isArray(raw)?'array':'object'}, keys: ${Array.isArray(raw)?raw.length:Object.keys(raw||{}).join(',')}`);
+      if (Array.isArray(raw) && raw.length) console.log('[scan] pump.fun first coin sample:', JSON.stringify(raw[0]).slice(0, 300));
+      else if (raw && typeof raw === 'object') console.log('[scan] pump.fun object sample:', JSON.stringify(raw).slice(0, 300));
+    } else {
+      console.log(`[scan] pump.fun fetch error: ${pfResult.reason}`);
+    }
+
+    const pfRaw = pfResult.status === 'fulfilled' ? pfResult.value : null;
+    const pfArr = Array.isArray(pfRaw) ? pfRaw : (Array.isArray(pfRaw?.coins) ? pfRaw.coins : []);
+    const pfCoins = pfArr.filter(c => {
+      const addr = c.mint || c.address || c.tokenAddress;
+      const mc   = c.usd_market_cap ?? c.marketCap ?? c.usdMarketCap ?? 0;
+      if (!addr) return false;
+      c._addr = addr; c._mc = mc; // normalise
+      return mc < 100000;
+    });
+    console.log(`[scan] ${pfArr.length} total pump.fun coins, ${pfCoins.length} under $100K`);
 
     // ── Check DexScreener orders — only keep tokens with approved orders ───
     const approvedCoins = [];
     const ORDER_BATCH = 10;
+    let ordersSampleLogged = false;
     for (let i = 0; i < pfCoins.length; i += ORDER_BATCH) {
       await Promise.all(pfCoins.slice(i, i + ORDER_BATCH).map(async coin => {
         try {
-          const orders = await scanFetch(`${DS_API}/orders/v1/solana/${coin.mint}`);
-          if (Array.isArray(orders) && orders.some(o => o.status === 'approved')) {
-            approvedCoins.push(coin);
+          const addr = coin._addr;
+          const orders = await scanFetch(`${DS_API}/orders/v1/solana/${addr}`);
+          if (!ordersSampleLogged) {
+            console.log('[scan] DS orders sample:', JSON.stringify(orders).slice(0, 200));
+            ordersSampleLogged = true;
           }
+          const list = Array.isArray(orders) ? orders : (Array.isArray(orders?.orders) ? orders.orders : []);
+          if (list.some(o => o.status === 'approved')) approvedCoins.push(coin);
         } catch {}
       }));
       if (i + ORDER_BATCH < pfCoins.length) await scanDelay(100);
