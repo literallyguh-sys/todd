@@ -692,6 +692,8 @@ async function startScan(){
   try{
     const data=await fetch('/api/scan-results').then(r=>r.json());
     pfResults=data.pf||[]; psResults=data.ps||[]; certResults=data.cert||[];
+    const st=document.getElementById('scan-status');
+    if(data.lastUpdated){const s=Math.round((Date.now()-data.lastUpdated)/1000);st.textContent=s<60?'UPDATED JUST NOW':'UPDATED '+(Math.floor(s/60))+'m AGO';}
     hideColProgress();
     flushResults();
   }catch(e){
