@@ -285,13 +285,6 @@ function isRiskyToken(report) {
     const n = (r.name || '').toLowerCase();
     return n.includes('insider') && r.level === 'danger';
   })) return true;
-  // top holders insider/creator sum > 10%
-  const insiderPct = (report.topHolders || []).reduce((sum, h) => {
-    if (h.insider === true || (h.owner || '').toLowerCase().includes('creator'))
-      return sum + (h.pct || 0);
-    return sum;
-  }, 0);
-  if (insiderPct > 10) return true;
   return false;
 }
 
