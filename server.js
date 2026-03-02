@@ -256,6 +256,10 @@ const DS_API        = 'https://api.dexscreener.com';
 const RC_API        = 'https://api.rugcheck.xyz/v1';
 const SCAN_INTERVAL = 3 * 60 * 1000;
 const TICKER_TTL    = 10 * 60 * 1000;
+const BUNDLE_MAX_PCT = 10;
+const HELIUS_RPC = process.env.HELIUS_API_KEY
+  ? `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`
+  : null;
 
 let scanCache  = { pf: [], ps: [], lastUpdated: 0, scanning: false };
 let tickerCache = []; // [{address,ticker,icon,url,seenAt}]
