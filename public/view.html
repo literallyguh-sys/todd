@@ -628,57 +628,13 @@ async function startScan(){
   const btn=document.getElementById('scan-btn');
   btn.disabled=true; btn.textContent='↺ ...';
 
-  const newPf=[], newPs=[];
-  try {
-    if(!pfResults.length) document.getElementById('list-pf').innerHTML='';
-    if(!psResults.length) document.getElementById('list-ps').innerHTML='';
-    showColProgress(0,'fetching...','fetching...');
+  if(!pfResults.length) document.getElementById('list-pf').innerHTML='';
+  if(!psResults.length) document.getElementById('list-ps').innerHTML='';
+  showColProgress(50,'loading...','loading...');
 
-    const tokens=await fetchPaidTokens();
-    const profileByAddr=new Map(tokens.map(t=>[t.tokenAddress,t]));
-
-    // ── Phase 1: batch DexScreener (30 addresses per call) ──────────────────
-    const DS_BATCH=30;
-    const candidates=[]; // [{profile,pair}] passing mcap+dex filter
-    const totalBatches=Math.ceil(tokens.length/DS_BATCH);
-
-    for(let i=0;i<tokens.length;i+=DS_BATCH){
-      const addrs=tokens.slice(i,i+DS_BATCH).map(t=>t.tokenAddress);
-      try{
-        const data=await fetchJSON(`${DS}/latest/dex/tokens/${addrs.join(',')}`);
-        for(const pair of (data.pairs||[])){
-          const mc=pair.marketCap||pair.fdv||0;
-          if(pair.chainId!=='solana') continue;
-          const profile=profileByAddr.get(pair.baseToken?.address||'');
-          if(!profile) continue;
-          if(pair.dexId==='pumpfun'  && mc>=5000  && mc<33000)  candidates.push({profile,pair});
-          else if(pair.dexId==='pumpswap' && mc>=10000 && mc<100000) candidates.push({profile,pair});
-        }
-      }catch(e){}
-      const batch=Math.floor(i/DS_BATCH)+1;
-      const pct=Math.round(batch/totalBatches*60); // phase 1 uses 0-60%
-      showColProgress(pct,`batch ${batch}/${totalBatches}`,`batch ${batch}/${totalBatches}`);
-      if(i+DS_BATCH<tokens.length) await delay(250);
-    }
-
-    // ── Phase 2: parallel rugcheck (5 concurrent) ───────────────────────────
-    const RC_BATCH=5;
-    for(let i=0;i<candidates.length;i+=RC_BATCH){
-      await Promise.all(candidates.slice(i,i+RC_BATCH).map(async({profile,pair})=>{
-        try{
-          const report=await fetchJSON(`${RC}/tokens/${profile.tokenAddress}/report`);
-          if(!hasCreatorRisk(report.risks)){
-            if(pair.dexId==='pumpfun') newPf.push({profile,pair});
-            else newPs.push({profile,pair});
-          }
-        }catch(e){}
-      }));
-      const pct=60+Math.round((i+RC_BATCH)/Math.max(candidates.length,1)*40); // 60-100%
-      showColProgress(Math.min(pct,99),`${newPf.length} found`,`${newPs.length} found`);
-    }
-
-    checkNewTokens(newPf,newPs);
-    pfResults=newPf; psResults=newPs;
+  try{
+    const data=await fetch('/api/scan-results').then(r=>r.json());
+    pfResults=data.pf||[]; psResults=data.ps||[];
     hideColProgress();
     flushResults();
   }catch(e){
