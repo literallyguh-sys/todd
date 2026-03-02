@@ -267,6 +267,14 @@ let prevProfileAddresses = new Set();
 
 function scanDelay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+function srvAgo(ms) {
+  const m = Math.floor(ms / 60000);
+  const h = Math.floor(m / 60);
+  if (h >= 1) return h + 'h ago';
+  if (m < 1)  return 'just now';
+  return m + 'm ago';
+}
+
 async function scanFetch(url) {
   const r = await fetch(url);
   if (!r.ok) throw new Error('HTTP ' + r.status);
