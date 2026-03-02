@@ -578,7 +578,14 @@ async function runScan() {
       }));
       if (i + GT_BATCH < gtFiltered.length) await scanDelay(100);
     }
-    console.log(`[scan] GT: ${gtVerified.length}/${gtFiltered.length} with approved DS orders`);
+    console.log(`[GT] ${gtVerified.length}/${gtFiltered.length} with approved DS orders`);
+    if (gtFiltered.length && !gtVerified.length) {
+      // Log first orders response to debug format
+      try {
+        const sample = await scanFetch(`${DS_API}/orders/v1/solana/${gtFiltered[0].address}`);
+        console.log(`[GT] orders sample for ${gtFiltered[0].ticker}:`, JSON.stringify(sample).slice(0, 300));
+      } catch(e) { console.log('[GT] orders sample error:', e.message); }
+    }
 
     // ── Batch DexScreener pairs — pumpfun only from profiles+boosts ────────
     console.log(`[scan] ${tokens.length} tokens from profiles+boosts`);
