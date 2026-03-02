@@ -464,14 +464,10 @@ async function runScan() {
   lastScanStartedAt = Date.now();
   console.log('[scan] Starting...');
   try {
-    // Fetch profiles, boosts, and GeckoTerminal pumpswap pages all in parallel
-    const GT_URL = 'https://api.geckoterminal.com/api/v2/networks/solana/dexes/pumpswap/pools?include=base_token&sort=h24_volume_desc';
-    const [a, b, gt1, gt2, gt3] = await Promise.allSettled([
+    // Fetch profiles and boosts in parallel
+    const [a, b] = await Promise.allSettled([
       scanFetch(`${DS_API}/token-profiles/latest/v1`),
-      scanFetch(`${DS_API}/token-boosts/latest/v1`),
-      scanFetch(`${GT_URL}&page=1`),
-      scanFetch(`${GT_URL}&page=2`),
-      scanFetch(`${GT_URL}&page=3`)
+      scanFetch(`${DS_API}/token-boosts/latest/v1`)
     ]);
 
     // profileTokens — profiles only (DEX PAID ticker source)
