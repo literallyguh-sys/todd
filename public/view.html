@@ -512,20 +512,6 @@ function fmt1h(pct){
   return {label:`1H ${sign}${pct.toFixed(1)}%`, cls: pct>0?'up':pct<0?'dn':'nt'};
 }
 
-function hasCreatorRisk(risks){
-  return (risks||[]).some(r=>{const n=(r.name||'').toLowerCase();return n.includes('creator')||n.includes('deployer');});
-}
-async function fetchJSON(url){const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
-
-async function fetchPaidTokens(){
-  const [a,b]=await Promise.allSettled([fetchJSON(`${DS}/token-profiles/latest/v1`),fetchJSON(`${DS}/token-boosts/latest/v1`)]);
-  const all=[],seen=new Set();
-  const add=arr=>{if(!Array.isArray(arr))return;for(const t of arr)if(t.chainId==='solana'&&t.tokenAddress&&!seen.has(t.tokenAddress)){seen.add(t.tokenAddress);all.push(t);}};
-  if(a.status==='fulfilled') add(a.value);
-  if(b.status==='fulfilled') add(b.value);
-  return all;
-}
-
 let pfResults=[],psResults=[];
 
 // ── New-token ticker ───────────────────────────────────────────────────────────
