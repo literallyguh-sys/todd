@@ -263,6 +263,7 @@ const HELIUS_RPC = process.env.HELIUS_API_KEY
 
 let scanCache  = { pf: [], ps: [], cert: [], lastUpdated: 0, scanning: false };
 let tickerCache = []; // [{address,ticker,icon,url,seenAt}]
+let priceCache  = {}; // {address: {mcap, h1}} — updated every 5s
 let prevProfileAddresses = new Set();
 
 function scanDelay(ms) { return new Promise(r => setTimeout(r, ms)); }
