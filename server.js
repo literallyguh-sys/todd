@@ -563,7 +563,7 @@ async function runScan() {
               address: profile.tokenAddress,
               name:    pair.baseToken?.name   || profile.tokenAddress.slice(0, 8),
               ticker:  pair.baseToken?.symbol || '???',
-              icon:    profile.icon || pair.info?.imageUrl || pair.baseToken?.imageUrl || '',
+              icon:    pair.info?.imageUrl || profile.icon || pair.baseToken?.imageUrl || '',
               mcap:    mc,
               h1:      pair.priceChange?.h1 ?? null,
               url:     pair.url || profile.url || '',

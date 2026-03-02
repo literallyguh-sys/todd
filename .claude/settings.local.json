@@ -12,7 +12,8 @@
       "Bash(awk NR>=240 && NR<=270:*)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebFetch(domain:api.dexscreener.com)"
     ]
   }
 }
