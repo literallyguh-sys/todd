@@ -264,7 +264,7 @@ const HELIUS_RPC = process.env.HELIUS_API_KEY
 
 const TICKER_FILE = path.join(__dirname, 'ticker-cache.json');
 
-let scanCache  = { pf: [], ps: [], cert: [], lastUpdated: 0, scanning: false };
+let scanCache  = { pf: [], cert: [], lastUpdated: 0, scanning: false };
 let priceCache  = {}; // {address: {mcap, h1}} — updated every 5s
 let prevProfileAddresses = new Set();
 let lastScanStartedAt = 0;
@@ -572,7 +572,7 @@ async function runScan() {
     console.log(`[scan] Pass 1 done — ${pass1.length} tokens. Starting pass 2 (Helius)...`);
 
     // ── Pass 2: Helius bundle detection — 3 concurrent ─────────────────────
-    const newPf = [], newPs = [], newCert = [];
+    const newPf = [], newCert = [];
     if (HELIUS_RPC) {
       for (let i = 0; i < pass1.length; i += 3) {
         await Promise.all(pass1.slice(i, i + 3).map(async entry => {
@@ -582,37 +582,31 @@ async function runScan() {
             return;
           }
           const out = { ...entry, bundlePct };
-          if (entry.dex === 'pumpfun') newPf.push(out);
-          else                         newPs.push(out);
+          newPf.push(out);
           if (bundlePct !== null) newCert.push(out);
         }));
       }
     } else {
       for (const entry of pass1) {
-        const out = { ...entry, bundlePct: null };
-        if (entry.dex === 'pumpfun') newPf.push(out);
-        else                         newPs.push(out);
+        newPf.push({ ...entry, bundlePct: null });
       }
     }
 
     // ── Retain previously listed tokens not re-discovered this scan ─────────
-    const freshAddrs = new Set([...newPf, ...newPs].map(t => t.address));
-    for (const prev of [...scanCache.pf, ...scanCache.ps]) {
+    const freshAddrs = new Set(newPf.map(t => t.address));
+    for (const prev of scanCache.pf) {
       if (freshAddrs.has(prev.address)) continue;
       const p = priceCache[prev.address];
       if (!p || !p.mcap) continue;
       const mc = p.mcap;
-      const inRange = (prev.dex === 'pumpfun'  && mc >= 5000  && mc < 33000)
-                   || (prev.dex === 'pumpswap' && mc >= 10000 && mc < 200000);
-      if (!inRange) continue;
+      if (mc < 5000 || mc >= 33000) continue;
       const updated = { ...prev, mcap: mc, h1: p.h1 };
-      if (prev.dex === 'pumpfun') newPf.push(updated);
-      else                        newPs.push(updated);
+      newPf.push(updated);
       if (prev.bundlePct !== null) newCert.push(updated);
     }
 
-    scanCache = { pf: newPf, ps: newPs, cert: newCert, lastUpdated: Date.now(), scanning: false };
-    console.log(`[scan] Done — ${newPf.length} pump.fun, ${newPs.length} pumpswap`);
+    scanCache = { pf: newPf, cert: newCert, lastUpdated: Date.now(), scanning: false };
+    console.log(`[scan] Done — ${newPf.length} pump.fun, ${newCert.length} certified`);
   } catch (e) {
     console.error('[scan] Error:', e.message);
     scanCache.scanning = false;
