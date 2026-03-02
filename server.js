@@ -561,6 +561,11 @@ async function runScan() {
       if (i + DS_BATCH < tokens.length) await scanDelay(300);
     }
 
+    const pfCands = candidates.filter(c => c.pair.dexId === 'pumpfun').length;
+    const psCands = candidates.filter(c => c.pair.dexId === 'pumpswap').length;
+    const dexIds  = [...new Set(candidates.map(c => c.pair.dexId))].join(', ') || 'none';
+    console.log(`[scan] ${candidates.length} candidates (pumpfun:${pfCands} pumpswap:${psCands} dexIds:${dexIds})`);
+
     // Patch ticker entries with real symbols from DexScreener data
     const before = JSON.stringify(tickerCache);
     tickerCache = tickerCache.map(e => {
