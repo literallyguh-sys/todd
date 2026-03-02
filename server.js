@@ -299,17 +299,10 @@ async function scanFetch(url) {
 
 function isRiskyToken(report) {
   const risks = report.risks || [];
-  // creator/deployer flag
-  if (risks.some(r => {
-    const n = (r.name || '').toLowerCase();
-    return n.includes('creator') || n.includes('deployer');
-  })) return true;
-  // insider danger
-  if (risks.some(r => {
-    const n = (r.name || '').toLowerCase();
-    return n.includes('insider') && r.level === 'danger';
-  })) return true;
-  return false;
+  // Only block tokens with at least one danger-level risk.
+  // warn/info risks (e.g. creator holding a small %) are normal for pump.fun
+  // and should not disqualify a token.
+  return risks.some(r => r.level === 'danger');
 }
 
 async function heliusRpc(method, params) {
