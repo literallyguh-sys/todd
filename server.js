@@ -635,6 +635,9 @@ app.listen(PORT, () => {
   runScan();
   setInterval(runScan, SCAN_INTERVAL);
 
+  // Price refresh — update mcap/h1 for listed tokens every 5 seconds
+  setInterval(refreshPrices, 5000);
+
   // ── Keep-alive ping ──
   // Pings the server every 10 minutes so Render's free tier never goes to sleep.
   const SELF_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
