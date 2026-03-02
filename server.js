@@ -507,50 +507,6 @@ async function runScan() {
     }
     prevProfileAddresses = new Set(profileTokens.map(t => t.tokenAddress));
 
-    // ── Process GeckoTerminal pumpswap pools ───────────────────────────────
-    const gtTokenMap = new Map(); // "solana_ADDR" → token attributes
-    const gtPoolData = [];
-    for (const [idx, res] of [gt1, gt2, gt3].entries()) {
-      if (res.status !== 'fulfilled') { console.log(`[GT] page ${idx+1} failed:`, res.reason?.message||res.reason); continue; }
-      if (!res.value?.data) { console.log(`[GT] page ${idx+1} no data, keys:`, Object.keys(res.value||{})); continue; }
-      gtPoolData.push(...res.value.data);
-      for (const inc of (res.value.included || []))
-        if (inc.type === 'token') gtTokenMap.set(inc.id, inc.attributes);
-    }
-    console.log(`[GT] ${gtPoolData.length} total pools, ${gtTokenMap.size} token metadata entries`);
-    if (gtPoolData.length) {
-      const s = gtPoolData[0];
-      console.log(`[GT] first pool sample: mc_usd=${s.attributes?.market_cap_usd} fdv=${s.attributes?.fdv_usd} baseId=${s.relationships?.base_token?.data?.id}`);
-    }
-
-    // Filter by mcap range, deduplicate
-    const gtFiltered = [];
-    const gtSeen = new Set();
-    for (const pool of gtPoolData) {
-      const mc    = parseFloat(pool.attributes?.market_cap_usd || pool.attributes?.fdv_usd || 0);
-      const baseId = pool.relationships?.base_token?.data?.id || '';
-      const addr   = baseId.startsWith('solana_') ? baseId.slice(7) : '';
-      if (!addr || gtSeen.has(addr)) continue;
-      gtSeen.add(addr);
-      if (isNaN(mc) || mc < 10000 || mc >= 200000) continue;
-      const meta  = gtTokenMap.get(baseId) || {};
-      const h1raw = parseFloat(pool.attributes?.price_change_percentage?.h1 || 0);
-      gtFiltered.push({
-        address: addr,
-        name:    meta.name       || addr.slice(0, 8),
-        ticker:  meta.symbol     || '???',
-        icon:    meta.image_url  || '',
-        mcap:    mc,
-        h1:      isNaN(h1raw) ? null : h1raw,
-        url:     `https://dexscreener.com/solana/${addr}`,
-        dex:     'pumpswap'
-      });
-    }
-    console.log(`[GT] ${gtFiltered.length} pools in $10K-$200K range`);
-
-    const gtVerified = gtFiltered;
-    console.log(`[GT] ${gtVerified.length} pumpswap candidates after mcap filter`);
-
     // ── Batch DexScreener pairs — pumpfun only from profiles+boosts ────────
     console.log(`[scan] ${tokens.length} tokens from profiles+boosts`);
     const profileByAddr = new Map(tokens.map(t => [t.tokenAddress, t]));
