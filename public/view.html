@@ -560,7 +560,7 @@ async function loadTicker(){
 }
 
 function renderCard(entry){
-  const{name,ticker,icon,mcap,h1:h1raw,url,dex}=entry;
+  const{name,ticker,icon,mcap,h1:h1raw,url,dex,bundlePct}=entry;
   const h1=fmt1h(h1raw);
   const link=url||'#';
 
@@ -575,6 +575,10 @@ function renderCard(entry){
   const barMax=dex==='pumpfun'?33000:100000;
   const barPct=Math.max(0,Math.min(100,Math.round((mcap-2000)/(barMax-2000)*100)));
 
+  const bundleBadge=bundlePct!==null&&bundlePct!==undefined
+    ?`<span class="badge ok">BUNDLE ${bundlePct}% ✓</span>`
+    :'';
+
   card.innerHTML=`
     ${imgHtml}
     <div class="token-divider"></div>
@@ -587,6 +591,7 @@ function renderCard(entry){
       <div class="token-row2">
         <span class="badge ${h1.cls}">${h1.label}</span>
         <span class="badge ok">CREATOR ✔</span>
+        ${bundleBadge}
         <div class="mcap-bar-wrap"><div class="mcap-bar" style="width:${barPct}%"></div></div>
         <span class="token-link-label">VIEW ↗</span>
       </div>
@@ -651,7 +656,7 @@ loadChat();
 subscribeChat();
 loadTicker();
 startScan();
-setInterval(()=>{if(!scanning)startScan();},180000);
+setInterval(()=>{if(!scanning)startScan();},30000);
 setInterval(loadTicker,60000);
 setInterval(renderTicker,30000);
 </script>
