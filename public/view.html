@@ -538,6 +538,10 @@ async function loadTicker(){
   }catch(e){}
 }
 
+const BAR_MIN=2000,BAR_MAX=33000;
+function barPct(mc){return Math.max(0,Math.min(100,Math.round((mc-BAR_MIN)/(BAR_MAX-BAR_MIN)*100)));}
+function barColor(pct){return `hsl(${Math.round(pct*1.2)},90%,45%)`;}
+
 function renderCard(entry){
   const{address,name,ticker,icon,mcap,h1:h1raw,url,dex,bundlePct}=entry;
   const h1=fmt1h(h1raw);
