@@ -599,8 +599,8 @@ function flushResults(){
   lp.innerHTML=''; ls.innerHTML='';
   if(!pfResults.length) lp.innerHTML='<div class="col-empty">No tokens match filters</div>';
   if(!psResults.length) ls.innerHTML='<div class="col-empty">No tokens match filters</div>';
-  pfResults.forEach(r=>lp.appendChild(renderCard(r,'pumpfun')));
-  psResults.forEach(r=>ls.appendChild(renderCard(r,'pumpswap')));
+  pfResults.forEach(r=>lp.appendChild(renderCard(r)));
+  psResults.forEach(r=>ls.appendChild(renderCard(r)));
   document.getElementById('count-pf').textContent=pfResults.length;
   document.getElementById('count-ps').textContent=psResults.length;
 }
