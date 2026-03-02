@@ -545,9 +545,8 @@ async function runScan() {
     });
     if (JSON.stringify(tickerCache) !== before) saveTickerCache();
 
-    // ── Pass 1: rugcheck — pumpfun (DS) then pumpswap (GT) ─────────────────
+    // ── Pass 1: rugcheck ────────────────────────────────────────────────────
     const pass1 = [];
-    const pass1Addrs = new Set();
     const RC_BATCH = 5;
 
     for (let i = 0; i < candidates.length; i += RC_BATCH) {
@@ -564,22 +563,8 @@ async function runScan() {
               mcap:    mc,
               h1:      pair.priceChange?.h1 ?? null,
               url:     pair.url || profile.url || '',
-              dex:     pair.dexId
+              dex:     'pumpfun'
             });
-            pass1Addrs.add(profile.tokenAddress);
-          }
-        } catch {}
-      }));
-    }
-
-    for (let i = 0; i < gtVerified.length; i += RC_BATCH) {
-      await Promise.all(gtVerified.slice(i, i + RC_BATCH).map(async entry => {
-        if (pass1Addrs.has(entry.address)) return;
-        try {
-          const report = await scanFetch(`${RC_API}/tokens/${entry.address}/report`);
-          if (!isRiskyToken(report)) {
-            pass1.push(entry);
-            pass1Addrs.add(entry.address);
           }
         } catch {}
       }));
