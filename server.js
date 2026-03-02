@@ -477,10 +477,14 @@ async function runScan() {
   scanCache.scanning = true;
   console.log('[scan] Starting...');
   try {
-    // Fetch paid profiles + boosts in parallel (discovery source)
-    const [a, b] = await Promise.allSettled([
+    // Fetch profiles, boosts, and GeckoTerminal pumpswap pages all in parallel
+    const GT_URL = 'https://api.geckoterminal.com/api/v2/networks/solana/dexes/pumpswap/pools?include=base_token&sort=h24_volume_desc';
+    const [a, b, gt1, gt2, gt3] = await Promise.allSettled([
       scanFetch(`${DS_API}/token-profiles/latest/v1`),
-      scanFetch(`${DS_API}/token-boosts/latest/v1`)
+      scanFetch(`${DS_API}/token-boosts/latest/v1`),
+      scanFetch(`${GT_URL}&page=1`),
+      scanFetch(`${GT_URL}&page=2`),
+      scanFetch(`${GT_URL}&page=3`)
     ]);
 
     // profileTokens — profiles only (DEX PAID ticker source)
@@ -492,7 +496,7 @@ async function runScan() {
         }
     }
 
-    // tokens — profiles + boosts combined (candidates for scanning)
+    // tokens — profiles + boosts combined (pumpfun discovery only)
     const tokens = [...profileTokens], seen = new Set(profileSeen);
     if (b.status === 'fulfilled' && Array.isArray(b.value)) {
       for (const t of b.value)
@@ -504,8 +508,6 @@ async function runScan() {
     const now = Date.now();
 
     // ── Update DEX PAID ticker — profile-only, genuinely new entries ───────
-    // No size guard: on first scan after startup, all current profiles are
-    // treated as new so the ticker repopulates immediately after a restart.
     const newEntries = profileTokens
       .filter(t => !prevProfileAddresses.has(t.tokenAddress))
       .map(t => ({
@@ -522,10 +524,59 @@ async function runScan() {
     }
     prevProfileAddresses = new Set(profileTokens.map(t => t.tokenAddress));
 
+    // ── Process GeckoTerminal pumpswap pools ───────────────────────────────
+    const gtTokenMap = new Map(); // "solana_ADDR" → token attributes
+    const gtPoolData = [];
+    for (const res of [gt1, gt2, gt3]) {
+      if (res.status !== 'fulfilled' || !res.value?.data) continue;
+      gtPoolData.push(...res.value.data);
+      for (const inc of (res.value.included || []))
+        if (inc.type === 'token') gtTokenMap.set(inc.id, inc.attributes);
+    }
+
+    // Filter by mcap range, deduplicate
+    const gtFiltered = [];
+    const gtSeen = new Set();
+    for (const pool of gtPoolData) {
+      const mc    = parseFloat(pool.attributes?.market_cap_usd || pool.attributes?.fdv_usd || 0);
+      if (mc < 10000 || mc >= 200000) continue;
+      const baseId = pool.relationships?.base_token?.data?.id || '';
+      const addr   = baseId.startsWith('solana_') ? baseId.slice(7) : '';
+      if (!addr || gtSeen.has(addr)) continue;
+      gtSeen.add(addr);
+      const meta  = gtTokenMap.get(baseId) || {};
+      const h1raw = parseFloat(pool.attributes?.price_change_percentage?.h1 || 0);
+      gtFiltered.push({
+        address: addr,
+        name:    meta.name       || addr.slice(0, 8),
+        ticker:  meta.symbol     || '???',
+        icon:    meta.image_url  || '',
+        mcap:    mc,
+        h1:      isNaN(h1raw) ? null : h1raw,
+        url:     `https://dexscreener.com/solana/${addr}`,
+        dex:     'pumpswap'
+      });
+    }
+    console.log(`[scan] GT: ${gtPoolData.length} pools, ${gtFiltered.length} in $10K-$200K range`);
+
+    // Verify DS orders — only pumpswap tokens with an approved paid profile proceed
+    const gtVerified = [];
+    const GT_BATCH = 10;
+    for (let i = 0; i < gtFiltered.length; i += GT_BATCH) {
+      await Promise.all(gtFiltered.slice(i, i + GT_BATCH).map(async entry => {
+        try {
+          const orders = await scanFetch(`${DS_API}/orders/v1/solana/${entry.address}`);
+          const list = Array.isArray(orders) ? orders : [];
+          if (list.some(o => o.status === 'approved')) gtVerified.push(entry);
+        } catch {}
+      }));
+      if (i + GT_BATCH < gtFiltered.length) await scanDelay(100);
+    }
+    console.log(`[scan] GT: ${gtVerified.length}/${gtFiltered.length} with approved DS orders`);
+
+    // ── Batch DexScreener pairs — pumpfun only from profiles+boosts ────────
     console.log(`[scan] ${tokens.length} tokens from profiles+boosts`);
     const profileByAddr = new Map(tokens.map(t => [t.tokenAddress, t]));
-
-    // ── Batch DexScreener pairs — 30 addresses per call ────────────────────
     const DS_BATCH = 30;
     const candidates = [];
     const tickerInfoMap = new Map();
@@ -538,28 +589,22 @@ async function runScan() {
           const mc   = pair.marketCap || pair.fdv || 0;
           const addr = pair.baseToken?.address || '';
           if (pair.chainId !== 'solana' || !addr) continue;
-
           if (pair.baseToken?.symbol)
             tickerInfoMap.set(addr, {
               ticker: pair.baseToken.symbol,
               icon:   pair.info?.imageUrl || pair.baseToken?.imageUrl || ''
             });
-
           const profile = profileByAddr.get(addr);
           if (!profile) continue;
-          if      (pair.dexId === 'pumpfun'  && mc >= 5000  && mc < 33000)  candidates.push({ profile, pair });
-          else if (pair.dexId === 'pumpswap' && mc >= 10000 && mc < 200000) candidates.push({ profile, pair });
+          if (pair.dexId === 'pumpfun' && mc >= 5000 && mc < 33000)
+            candidates.push({ profile, pair });
         }
       } catch (e) { console.warn('[scan] DS batch error:', e.message); }
       if (i + DS_BATCH < tokens.length) await scanDelay(300);
     }
+    console.log(`[scan] ${candidates.length} pumpfun candidates from DS profiles`);
 
-    const pfCands = candidates.filter(c => c.pair.dexId === 'pumpfun').length;
-    const psCands = candidates.filter(c => c.pair.dexId === 'pumpswap').length;
-    const dexIds  = [...new Set(candidates.map(c => c.pair.dexId))].join(', ') || 'none';
-    console.log(`[scan] ${candidates.length} candidates (pumpfun:${pfCands} pumpswap:${psCands} dexIds:${dexIds})`);
-
-    // Patch ticker entries with real symbols from DexScreener data
+    // Patch ticker entries with real symbols
     const before = JSON.stringify(tickerCache);
     tickerCache = tickerCache.map(e => {
       const info = tickerInfoMap.get(e.address);
@@ -567,9 +612,11 @@ async function runScan() {
     });
     if (JSON.stringify(tickerCache) !== before) saveTickerCache();
 
-    // ── Pass 1: parallel rugcheck — 5 concurrent ───────────────────────────
+    // ── Pass 1: rugcheck — pumpfun (DS) then pumpswap (GT) ─────────────────
     const pass1 = [];
+    const pass1Addrs = new Set();
     const RC_BATCH = 5;
+
     for (let i = 0; i < candidates.length; i += RC_BATCH) {
       await Promise.all(candidates.slice(i, i + RC_BATCH).map(async ({ profile, pair }) => {
         try {
@@ -586,6 +633,20 @@ async function runScan() {
               url:     pair.url || profile.url || '',
               dex:     pair.dexId
             });
+            pass1Addrs.add(profile.tokenAddress);
+          }
+        } catch {}
+      }));
+    }
+
+    for (let i = 0; i < gtVerified.length; i += RC_BATCH) {
+      await Promise.all(gtVerified.slice(i, i + RC_BATCH).map(async entry => {
+        if (pass1Addrs.has(entry.address)) return;
+        try {
+          const report = await scanFetch(`${RC_API}/tokens/${entry.address}/report`);
+          if (!isRiskyToken(report)) {
+            pass1.push(entry);
+            pass1Addrs.add(entry.address);
           }
         } catch {}
       }));
@@ -616,14 +677,12 @@ async function runScan() {
       }
     }
 
-    // ── Retain previously listed tokens that scrolled off the profiles list ──
-    // priceCache has fresh prices (updated every 5s) for the old scanCache tokens.
-    // If they're still within mcap range, keep them on the list.
+    // ── Retain previously listed tokens not re-discovered this scan ─────────
     const freshAddrs = new Set([...newPf, ...newPs].map(t => t.address));
     for (const prev of [...scanCache.pf, ...scanCache.ps]) {
-      if (freshAddrs.has(prev.address)) continue; // already re-discovered this scan
+      if (freshAddrs.has(prev.address)) continue;
       const p = priceCache[prev.address];
-      if (!p || !p.mcap) continue; // no price data — token probably dead
+      if (!p || !p.mcap) continue;
       const mc = p.mcap;
       const inRange = (prev.dex === 'pumpfun'  && mc >= 5000  && mc < 33000)
                    || (prev.dex === 'pumpswap' && mc >= 10000 && mc < 200000);
