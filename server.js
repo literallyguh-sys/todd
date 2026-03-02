@@ -476,16 +476,16 @@ async function runScan() {
       return info ? { ...e, ticker: info.ticker, icon: e.icon || info.icon } : e;
     });
 
-    // ── Phase 2: parallel rugcheck — 5 concurrent ──────────────────────────
-    const newPf = [], newPs = [];
+    // ── Pass 1: parallel rugcheck — 5 concurrent ───────────────────────────
+    const pass1 = [];
     const RC_BATCH = 5;
     for (let i = 0; i < candidates.length; i += RC_BATCH) {
       await Promise.all(candidates.slice(i, i + RC_BATCH).map(async ({ profile, pair }) => {
         try {
           const report = await scanFetch(`${RC_API}/tokens/${profile.tokenAddress}/report`);
-          if (!hasCreatorRisk(report.risks)) {
+          if (!isRiskyToken(report)) {
             const mc = pair.marketCap || pair.fdv || 0;
-            const entry = {
+            pass1.push({
               address: profile.tokenAddress,
               name:    pair.baseToken?.name   || profile.tokenAddress.slice(0, 8),
               ticker:  pair.baseToken?.symbol || '???',
@@ -494,12 +494,34 @@ async function runScan() {
               h1:      pair.priceChange?.h1 ?? null,
               url:     pair.url || profile.url || '',
               dex:     pair.dexId
-            };
-            if (pair.dexId === 'pumpfun') newPf.push(entry);
-            else                          newPs.push(entry);
+            });
           }
         } catch (e) {}
       }));
+    }
+    console.log(`[scan] Pass 1 done — ${pass1.length} tokens. Starting pass 2 (Helius)...`);
+
+    // ── Pass 2: Helius bundle detection — 3 concurrent ─────────────────────
+    const newPf = [], newPs = [];
+    if (HELIUS_RPC) {
+      for (let i = 0; i < pass1.length; i += 3) {
+        await Promise.all(pass1.slice(i, i + 3).map(async entry => {
+          const bundlePct = await detectBundle(entry.address);
+          if (bundlePct !== null && bundlePct >= BUNDLE_MAX_PCT) {
+            console.log(`[bundle] Filtered ${entry.ticker}: ${bundlePct}%`);
+            return;
+          }
+          const out = { ...entry, bundlePct };
+          if (entry.dex === 'pumpfun') newPf.push(out);
+          else                         newPs.push(out);
+        }));
+      }
+    } else {
+      for (const entry of pass1) {
+        const out = { ...entry, bundlePct: null };
+        if (entry.dex === 'pumpfun') newPf.push(out);
+        else                         newPs.push(out);
+      }
     }
 
     scanCache = { pf: newPf, ps: newPs, lastUpdated: Date.now(), scanning: false };
