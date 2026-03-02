@@ -453,7 +453,12 @@ async function refreshPrices() {
         next[addr] = { mcap: pair.marketCap || pair.fdv || 0, h1: pair.priceChange?.h1 ?? null };
       }
     }
-    priceCache = next;
+    // Preserve old price for any token DS didn't return this cycle
+    const merged = {};
+    for (const addr of addrs) {
+      merged[addr] = next[addr] ?? priceCache[addr];
+    }
+    priceCache = merged;
   } catch (e) { console.warn('[prices] refresh error:', e.message); }
 }
 
