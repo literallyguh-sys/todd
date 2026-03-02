@@ -432,6 +432,30 @@ async function detectBundle(mintAddress) {
   }
 }
 
+async function refreshPrices() {
+  const entries = [...scanCache.pf, ...scanCache.ps];
+  if (!entries.length) return;
+  const dexById = new Map(entries.map(t => [t.address, t.dex]));
+  const addrs   = [...dexById.keys()];
+  try {
+    const DS_BATCH = 30;
+    const next = {};
+    for (let i = 0; i < addrs.length; i += DS_BATCH) {
+      const batch = addrs.slice(i, i + DS_BATCH);
+      const r = await fetch(`${DS_API}/latest/dex/tokens/${batch.join(',')}`);
+      if (!r.ok) continue;
+      const data = await r.json();
+      for (const pair of (data.pairs || [])) {
+        const addr = pair.baseToken?.address;
+        if (!addr || pair.chainId !== 'solana') continue;
+        if (pair.dexId !== dexById.get(addr)) continue;
+        next[addr] = { mcap: pair.marketCap || pair.fdv || 0, h1: pair.priceChange?.h1 ?? null };
+      }
+    }
+    priceCache = next;
+  } catch (e) { console.warn('[prices] refresh error:', e.message); }
+}
+
 async function runScan() {
   if (scanCache.scanning) return;
   scanCache.scanning = true;
