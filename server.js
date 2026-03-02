@@ -511,20 +511,21 @@ async function runScan() {
     const now = Date.now();
 
     // ── Update DEX PAID ticker — profile-only, genuinely new entries ───────
-    if (prevProfileAddresses.size > 0) {
-      const newEntries = profileTokens
-        .filter(t => !prevProfileAddresses.has(t.tokenAddress))
-        .map(t => ({
-          address: t.tokenAddress,
-          ticker:  t.tokenAddress.slice(0, 6),
-          icon:    t.icon || '',
-          url:     t.url || `https://dexscreener.com/solana/${t.tokenAddress}`,
-          seenAt:  now
-        }));
-      if (newEntries.length) {
-        tickerCache = [...newEntries, ...tickerCache].slice(0, TICKER_MAX);
-        console.log(`[scan] ${newEntries.length} new DEX PAID entries`);
-      }
+    // No size guard: on first scan after startup, all current profiles are
+    // treated as new so the ticker repopulates immediately after a restart.
+    const newEntries = profileTokens
+      .filter(t => !prevProfileAddresses.has(t.tokenAddress))
+      .map(t => ({
+        address: t.tokenAddress,
+        ticker:  t.tokenAddress.slice(0, 6),
+        icon:    t.icon || '',
+        url:     t.url || `https://dexscreener.com/solana/${t.tokenAddress}`,
+        seenAt:  now
+      }));
+    if (newEntries.length) {
+      tickerCache = [...newEntries, ...tickerCache].slice(0, TICKER_MAX);
+      saveTickerCache();
+      console.log(`[scan] ${newEntries.length} new DEX PAID entries`);
     }
     prevProfileAddresses = new Set(profileTokens.map(t => t.tokenAddress));
 
