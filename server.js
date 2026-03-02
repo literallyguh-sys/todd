@@ -540,7 +540,7 @@ async function runScan() {
     }
     console.log(`[scan] ${approvedCoins.length} tokens with approved DexScreener orders`);
 
-    const coinByAddr = new Map(approvedCoins.map(c => [c.mint, c]));
+    const coinByAddr = new Map(approvedCoins.map(c => [c._addr, c]));
 
     // ── Batch DexScreener pairs — 30 addresses per call ────────────────────
     const DS_BATCH = 30;
@@ -548,7 +548,7 @@ async function runScan() {
     const tickerInfoMap = new Map();
 
     for (let i = 0; i < approvedCoins.length; i += DS_BATCH) {
-      const addrs = approvedCoins.slice(i, i + DS_BATCH).map(c => c.mint);
+      const addrs = approvedCoins.slice(i, i + DS_BATCH).map(c => c._addr);
       try {
         const data = await scanFetch(`${DS_API}/latest/dex/tokens/${addrs.join(',')}`);
         for (const pair of (data.pairs || [])) {
