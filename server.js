@@ -249,6 +249,155 @@ app.delete('/api/admin/posts/:id', requireAdmin, async (req, res) => {
   }
 });
 
+// ────────────────────────────────────────────────────────────────────────────
+// Scanner engine — runs every 3 min server-side, one scan serves all clients
+// ────────────────────────────────────────────────────────────────────────────
+const DS_API        = 'https://api.dexscreener.com';
+const RC_API        = 'https://api.rugcheck.xyz/v1';
+const SCAN_INTERVAL = 3 * 60 * 1000;
+const TICKER_TTL    = 10 * 60 * 1000;
+
+let scanCache  = { pf: [], ps: [], lastUpdated: 0, scanning: false };
+let tickerCache = []; // [{address,ticker,icon,url,seenAt}]
+let prevProfileAddresses = new Set();
+
+function scanDelay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function scanFetch(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+function hasCreatorRisk(risks) {
+  return (risks || []).some(r => {
+    const n = (r.name || '').toLowerCase();
+    return n.includes('creator') || n.includes('deployer');
+  });
+}
+
+async function runScan() {
+  if (scanCache.scanning) return;
+  scanCache.scanning = true;
+  console.log('[scan] Starting...');
+  try {
+    // Fetch paid profiles + boosts in parallel
+    const [a, b] = await Promise.allSettled([
+      scanFetch(`${DS_API}/token-profiles/latest/v1`),
+      scanFetch(`${DS_API}/token-boosts/latest/v1`)
+    ]);
+    const tokens = [], seen = new Set();
+    const addTokens = arr => {
+      if (!Array.isArray(arr)) return;
+      for (const t of arr)
+        if (t.chainId === 'solana' && t.tokenAddress && !seen.has(t.tokenAddress)) {
+          seen.add(t.tokenAddress); tokens.push(t);
+        }
+    };
+    if (a.status === 'fulfilled') addTokens(a.value);
+    if (b.status === 'fulfilled') addTokens(b.value);
+
+    const profileByAddr = new Map(tokens.map(t => [t.tokenAddress, t]));
+    const now = Date.now();
+
+    // ── Update DEX PAID ticker with newly profiled tokens ──────────────────
+    if (prevProfileAddresses.size > 0) {
+      const newEntries = tokens
+        .filter(t => !prevProfileAddresses.has(t.tokenAddress))
+        .map(t => ({
+          address: t.tokenAddress,
+          ticker:  t.tokenAddress.slice(0, 6), // updated below with real symbol
+          icon:    t.icon || '',
+          url:     t.url || `https://dexscreener.com/solana/${t.tokenAddress}`,
+          seenAt:  now
+        }));
+      if (newEntries.length) {
+        tickerCache = [...newEntries, ...tickerCache];
+        console.log(`[scan] ${newEntries.length} new DEX PAID entries`);
+      }
+    }
+    prevProfileAddresses = new Set(tokens.map(t => t.tokenAddress));
+    tickerCache = tickerCache.filter(e => now - e.seenAt < TICKER_TTL);
+
+    // ── Phase 1: batch DexScreener — 30 addresses per call ─────────────────
+    const DS_BATCH = 30;
+    const candidates = [];      // [{profile,pair}] passing mcap+dex filter
+    const tickerInfoMap = new Map(); // address → {ticker,icon} for strip updates
+
+    for (let i = 0; i < tokens.length; i += DS_BATCH) {
+      const addrs = tokens.slice(i, i + DS_BATCH).map(t => t.tokenAddress);
+      try {
+        const data = await scanFetch(`${DS_API}/latest/dex/tokens/${addrs.join(',')}`);
+        for (const pair of (data.pairs || [])) {
+          const mc   = pair.marketCap || pair.fdv || 0;
+          const addr = pair.baseToken?.address || '';
+          if (pair.chainId !== 'solana' || !addr) continue;
+
+          // Collect real ticker symbols for the DEX PAID strip
+          if (pair.baseToken?.symbol)
+            tickerInfoMap.set(addr, {
+              ticker: pair.baseToken.symbol,
+              icon:   pair.info?.imageUrl || pair.baseToken?.imageUrl || ''
+            });
+
+          const profile = profileByAddr.get(addr);
+          if (!profile) continue;
+          if      (pair.dexId === 'pumpfun'  && mc >= 5000  && mc < 33000)  candidates.push({ profile, pair });
+          else if (pair.dexId === 'pumpswap' && mc >= 10000 && mc < 100000) candidates.push({ profile, pair });
+        }
+      } catch (e) { console.warn('[scan] DS batch error:', e.message); }
+      if (i + DS_BATCH < tokens.length) await scanDelay(300);
+    }
+
+    // Patch ticker entries with real symbols from DexScreener data
+    tickerCache = tickerCache.map(e => {
+      const info = tickerInfoMap.get(e.address);
+      return info ? { ...e, ticker: info.ticker, icon: e.icon || info.icon } : e;
+    });
+
+    // ── Phase 2: parallel rugcheck — 5 concurrent ──────────────────────────
+    const newPf = [], newPs = [];
+    const RC_BATCH = 5;
+    for (let i = 0; i < candidates.length; i += RC_BATCH) {
+      await Promise.all(candidates.slice(i, i + RC_BATCH).map(async ({ profile, pair }) => {
+        try {
+          const report = await scanFetch(`${RC_API}/tokens/${profile.tokenAddress}/report`);
+          if (!hasCreatorRisk(report.risks)) {
+            const mc = pair.marketCap || pair.fdv || 0;
+            const entry = {
+              address: profile.tokenAddress,
+              name:    pair.baseToken?.name   || profile.tokenAddress.slice(0, 8),
+              ticker:  pair.baseToken?.symbol || '???',
+              icon:    profile.icon || pair.info?.imageUrl || pair.baseToken?.imageUrl || '',
+              mcap:    mc,
+              h1:      pair.priceChange?.h1 ?? null,
+              url:     pair.url || profile.url || '',
+              dex:     pair.dexId
+            };
+            if (pair.dexId === 'pumpfun') newPf.push(entry);
+            else                          newPs.push(entry);
+          }
+        } catch (e) {}
+      }));
+    }
+
+    scanCache = { pf: newPf, ps: newPs, lastUpdated: Date.now(), scanning: false };
+    console.log(`[scan] Done — ${newPf.length} pump.fun, ${newPs.length} pumpswap`);
+  } catch (e) {
+    console.error('[scan] Error:', e.message);
+    scanCache.scanning = false;
+  }
+}
+
+app.get('/api/scan-results', (req, res) => {
+  res.json({ pf: scanCache.pf, ps: scanCache.ps, lastUpdated: scanCache.lastUpdated, scanning: scanCache.scanning });
+});
+
+app.get('/api/ticker', (req, res) => {
+  const now = Date.now();
+  res.json(tickerCache.filter(e => now - e.seenAt < TICKER_TTL));
+});
+
 // ── Catch-all: serve the app ──
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
