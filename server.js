@@ -436,31 +436,22 @@ async function runScan() {
   scanCache.scanning = true;
   console.log('[scan] Starting...');
   try {
-    // Fetch paid profiles + boosts in parallel
-    const [a, b] = await Promise.allSettled([
-      scanFetch(`${DS_API}/token-profiles/latest/v1`),
-      scanFetch(`${DS_API}/token-boosts/latest/v1`)
+    // Fetch pump.fun coins + DexScreener profiles in parallel
+    // Profiles are only used for the DEX PAID ticker — discovery is now pump.fun
+    const [pfResult, profilesResult] = await Promise.allSettled([
+      scanFetch('https://frontend-api.pump.fun/coins?sort=last_trade_timestamp&order=DESC&limit=100'),
+      scanFetch(`${DS_API}/token-profiles/latest/v1`)
     ]);
 
-    // profileTokens — profiles only (source of DEX PAID ticker)
+    // profileTokens — DexScreener profiles only (source of DEX PAID ticker)
     const profileTokens = [], profileSeen = new Set();
-    if (a.status === 'fulfilled' && Array.isArray(a.value)) {
-      for (const t of a.value)
+    if (profilesResult.status === 'fulfilled' && Array.isArray(profilesResult.value)) {
+      for (const t of profilesResult.value)
         if (t.chainId === 'solana' && t.tokenAddress && !profileSeen.has(t.tokenAddress)) {
           profileSeen.add(t.tokenAddress); profileTokens.push(t);
         }
     }
 
-    // tokens — profiles + boosts combined (source of scan candidates)
-    const tokens = [...profileTokens], seen = new Set(profileSeen);
-    if (b.status === 'fulfilled' && Array.isArray(b.value)) {
-      for (const t of b.value)
-        if (t.chainId === 'solana' && t.tokenAddress && !seen.has(t.tokenAddress)) {
-          seen.add(t.tokenAddress); tokens.push(t);
-        }
-    }
-
-    const profileByAddr = new Map(tokens.map(t => [t.tokenAddress, t]));
     const now = Date.now();
 
     // ── Update DEX PAID ticker — profile-only, genuinely new entries ───────
@@ -469,7 +460,7 @@ async function runScan() {
         .filter(t => !prevProfileAddresses.has(t.tokenAddress))
         .map(t => ({
           address: t.tokenAddress,
-          ticker:  t.tokenAddress.slice(0, 6), // updated below with real symbol
+          ticker:  t.tokenAddress.slice(0, 6),
           icon:    t.icon || '',
           url:     t.url || `https://dexscreener.com/solana/${t.tokenAddress}`,
           seenAt:  now
@@ -481,13 +472,37 @@ async function runScan() {
     }
     prevProfileAddresses = new Set(profileTokens.map(t => t.tokenAddress));
 
-    // ── Phase 1: batch DexScreener — 30 addresses per call ─────────────────
-    const DS_BATCH = 30;
-    const candidates = [];      // [{profile,pair}] passing mcap+dex filter
-    const tickerInfoMap = new Map(); // address → {ticker,icon} for strip updates
+    // ── Filter pump.fun coins by mcap < $100K ──────────────────────────────
+    const pfCoins = pfResult.status === 'fulfilled' && Array.isArray(pfResult.value)
+      ? pfResult.value.filter(c => c.mint && (c.usd_market_cap || 0) < 100000)
+      : [];
+    console.log(`[scan] ${pfCoins.length} pump.fun coins under $100K`);
 
-    for (let i = 0; i < tokens.length; i += DS_BATCH) {
-      const addrs = tokens.slice(i, i + DS_BATCH).map(t => t.tokenAddress);
+    // ── Check DexScreener orders — only keep tokens with approved orders ───
+    const approvedCoins = [];
+    const ORDER_BATCH = 10;
+    for (let i = 0; i < pfCoins.length; i += ORDER_BATCH) {
+      await Promise.all(pfCoins.slice(i, i + ORDER_BATCH).map(async coin => {
+        try {
+          const orders = await scanFetch(`${DS_API}/orders/v1/solana/${coin.mint}`);
+          if (Array.isArray(orders) && orders.some(o => o.status === 'approved')) {
+            approvedCoins.push(coin);
+          }
+        } catch {}
+      }));
+      if (i + ORDER_BATCH < pfCoins.length) await scanDelay(100);
+    }
+    console.log(`[scan] ${approvedCoins.length} tokens with approved DexScreener orders`);
+
+    const coinByAddr = new Map(approvedCoins.map(c => [c.mint, c]));
+
+    // ── Batch DexScreener pairs — 30 addresses per call ────────────────────
+    const DS_BATCH = 30;
+    const candidates = [];
+    const tickerInfoMap = new Map();
+
+    for (let i = 0; i < approvedCoins.length; i += DS_BATCH) {
+      const addrs = approvedCoins.slice(i, i + DS_BATCH).map(c => c.mint);
       try {
         const data = await scanFetch(`${DS_API}/latest/dex/tokens/${addrs.join(',')}`);
         for (const pair of (data.pairs || [])) {
@@ -495,20 +510,19 @@ async function runScan() {
           const addr = pair.baseToken?.address || '';
           if (pair.chainId !== 'solana' || !addr) continue;
 
-          // Collect real ticker symbols for the DEX PAID strip
           if (pair.baseToken?.symbol)
             tickerInfoMap.set(addr, {
               ticker: pair.baseToken.symbol,
               icon:   pair.info?.imageUrl || pair.baseToken?.imageUrl || ''
             });
 
-          const profile = profileByAddr.get(addr);
-          if (!profile) continue;
-          if      (pair.dexId === 'pumpfun'  && mc >= 5000  && mc < 33000)  candidates.push({ profile, pair });
-          else if (pair.dexId === 'pumpswap' && mc >= 10000 && mc < 200000) candidates.push({ profile, pair });
+          const coin = coinByAddr.get(addr);
+          if (!coin) continue;
+          if      (pair.dexId === 'pumpfun'  && mc >= 5000  && mc < 33000)  candidates.push({ coin, pair });
+          else if (pair.dexId === 'pumpswap' && mc >= 10000 && mc < 200000) candidates.push({ coin, pair });
         }
       } catch (e) { console.warn('[scan] DS batch error:', e.message); }
-      if (i + DS_BATCH < tokens.length) await scanDelay(300);
+      if (i + DS_BATCH < approvedCoins.length) await scanDelay(300);
     }
 
     // Patch ticker entries with real symbols from DexScreener data
@@ -521,30 +535,28 @@ async function runScan() {
     const pass1 = [];
     const RC_BATCH = 5;
     for (let i = 0; i < candidates.length; i += RC_BATCH) {
-      await Promise.all(candidates.slice(i, i + RC_BATCH).map(async ({ profile, pair }) => {
+      await Promise.all(candidates.slice(i, i + RC_BATCH).map(async ({ coin, pair }) => {
         try {
-          const report = await scanFetch(`${RC_API}/tokens/${profile.tokenAddress}/report`);
+          const report = await scanFetch(`${RC_API}/tokens/${coin.mint}/report`);
           if (!isRiskyToken(report)) {
             const mc = pair.marketCap || pair.fdv || 0;
             pass1.push({
-              address: profile.tokenAddress,
-              name:    pair.baseToken?.name   || profile.tokenAddress.slice(0, 8),
-              ticker:  pair.baseToken?.symbol || '???',
-              icon:    profile.icon || pair.info?.imageUrl || pair.baseToken?.imageUrl || '',
+              address: coin.mint,
+              name:    pair.baseToken?.name   || coin.name   || coin.mint.slice(0, 8),
+              ticker:  pair.baseToken?.symbol || coin.symbol || '???',
+              icon:    pair.info?.imageUrl || coin.image_uri || '',
               mcap:    mc,
               h1:      pair.priceChange?.h1 ?? null,
-              url:     pair.url || profile.url || '',
+              url:     pair.url || `https://dexscreener.com/solana/${coin.mint}`,
               dex:     pair.dexId
             });
           }
-        } catch (e) {}
+        } catch {}
       }));
     }
     console.log(`[scan] Pass 1 done — ${pass1.length} tokens. Starting pass 2 (Helius)...`);
 
     // ── Pass 2: Helius bundle detection — 3 concurrent ─────────────────────
-    // All surviving tokens go into pf/ps. Those that Helius also verifies
-    // (bundlePct is a number) additionally go into cert.
     const newPf = [], newPs = [], newCert = [];
     if (HELIUS_RPC) {
       for (let i = 0; i < pass1.length; i += 3) {
@@ -557,7 +569,7 @@ async function runScan() {
           const out = { ...entry, bundlePct };
           if (entry.dex === 'pumpfun') newPf.push(out);
           else                         newPs.push(out);
-          if (bundlePct !== null) newCert.push(out); // also in certified shitters
+          if (bundlePct !== null) newCert.push(out);
         }));
       }
     } else {
