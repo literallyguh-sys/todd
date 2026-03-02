@@ -568,23 +568,24 @@ async function loadTicker(){
 }
 
 function renderCard(entry){
-  const{name,ticker,icon,mcap,h1:h1raw,url,dex,bundlePct}=entry;
+  const{address,name,ticker,icon,mcap,h1:h1raw,url,dex,bundlePct}=entry;
   const h1=fmt1h(h1raw);
   const link=url||'#';
 
   const card=document.createElement('a');
   card.className=`token-card ${dex==='pumpfun'?'pf':'ps'}`;
   card.href=link; card.target='_blank'; card.rel='noopener';
+  card.dataset.addr=address||'';
 
   const imgHtml=icon
     ?`<img class="token-img" src="${escHtml(icon)}" alt="" onerror="this.outerHTML='<div class=token-img-placeholder>${escHtml(ticker.slice(0,3))}</div>'">`
     :`<div class="token-img-placeholder">${escHtml(ticker.slice(0,3))}</div>`;
 
-  const barMax=dex==='pumpfun'?33000:100000;
+  const barMax=dex==='pumpfun'?33000:200000;
   const barPct=Math.max(0,Math.min(100,Math.round((mcap-2000)/(barMax-2000)*100)));
 
   const bundleBadge=bundlePct!==null&&bundlePct!==undefined
-    ?`<span class="badge ok">TOP ${bundlePct}% ✓</span>`
+    ?`<span class="badge ok">BUNDLE ${bundlePct}%</span>`
     :'';
 
   card.innerHTML=`
