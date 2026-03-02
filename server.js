@@ -267,6 +267,7 @@ const TICKER_FILE = path.join(__dirname, 'ticker-cache.json');
 let scanCache  = { pf: [], ps: [], cert: [], lastUpdated: 0, scanning: false };
 let priceCache  = {}; // {address: {mcap, h1}} — updated every 5s
 let prevProfileAddresses = new Set();
+let lastScanStartedAt = 0;
 
 // Load ticker from disk so it survives server restarts
 let tickerCache = [];
@@ -460,6 +461,7 @@ async function refreshPrices() {
 async function runScan() {
   if (scanCache.scanning) return;
   scanCache.scanning = true;
+  lastScanStartedAt = Date.now();
   console.log('[scan] Starting...');
   try {
     // Fetch profiles, boosts, and GeckoTerminal pumpswap pages all in parallel
