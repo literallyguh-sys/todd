@@ -162,7 +162,8 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 .col-hdr.cert{border-left:3px solid var(--accent);color:var(--accent);}
 .col-hdr .sub{font-size:11px;opacity:0.55;margin-left:2px;}
 .col-hdr-logo{width:18px;height:18px;border-radius:3px;flex-shrink:0;object-fit:contain;}
-.col-count{margin-left:auto;font-size:12px;opacity:0.5;}
+.col-count{font-size:12px;opacity:0.5;min-width:2ch;text-align:right;}
+.col-hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
 .col-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0;padding-right:0;min-height:0;}
 .col-list::-webkit-scrollbar{width:4px;}
 .col-list::-webkit-scrollbar-track{background:rgba(255,255,255,0.03);}
