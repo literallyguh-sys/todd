@@ -495,7 +495,7 @@ async function runScan() {
     console.log(`[scan] Pass 1 done — ${pass1.length} tokens. Starting pass 2 (Helius)...`);
 
     // ── Pass 2: Helius bundle detection — 3 concurrent ─────────────────────
-    const newPf = [], newPs = [];
+    const newPf = [], newPs = [], newCert = [];
     if (HELIUS_RPC) {
       for (let i = 0; i < pass1.length; i += 3) {
         await Promise.all(pass1.slice(i, i + 3).map(async entry => {
@@ -505,8 +505,12 @@ async function runScan() {
             return;
           }
           const out = { ...entry, bundlePct };
-          if (entry.dex === 'pumpfun') newPf.push(out);
-          else                         newPs.push(out);
+          if (bundlePct !== null) {
+            newCert.push(out); // Helius-verified → certified shitters
+          } else {
+            if (entry.dex === 'pumpfun') newPf.push(out);
+            else                         newPs.push(out);
+          }
         }));
       }
     } else {
@@ -517,7 +521,7 @@ async function runScan() {
       }
     }
 
-    scanCache = { pf: newPf, ps: newPs, lastUpdated: Date.now(), scanning: false };
+    scanCache = { pf: newPf, ps: newPs, cert: newCert, lastUpdated: Date.now(), scanning: false };
     console.log(`[scan] Done — ${newPf.length} pump.fun, ${newPs.length} pumpswap`);
   } catch (e) {
     console.error('[scan] Error:', e.message);
@@ -526,7 +530,7 @@ async function runScan() {
 }
 
 app.get('/api/scan-results', (req, res) => {
-  res.json({ pf: scanCache.pf, ps: scanCache.ps, lastUpdated: scanCache.lastUpdated, scanning: scanCache.scanning });
+  res.json({ pf: scanCache.pf, ps: scanCache.ps, cert: scanCache.cert || [], lastUpdated: scanCache.lastUpdated, scanning: scanCache.scanning });
 });
 
 app.get('/api/ticker', (req, res) => {
