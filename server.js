@@ -311,7 +311,7 @@ async function heliusRpc(method, params) {
 
 async function detectBundle(mintAddress) {
   try {
-    // Two parallel calls — fast, no pagination needed
+    // ── Part 1: top-holder check ────────────────────────────────────────────
     const [supplyRes, holdersRes] = await Promise.all([
       heliusRpc('getTokenSupply', [mintAddress]),
       heliusRpc('getTokenLargestAccounts', [mintAddress])
@@ -321,16 +321,112 @@ async function detectBundle(mintAddress) {
     const accounts   = holdersRes?.value || [];
     if (!totalSupply || !accounts.length) return null;
 
-    // Skip accounts that hold the majority of supply — those are LPs /
-    // bonding-curve contracts, not wallets. Focus on individual holders.
+    // Filter LP/bonding-curve accounts (hold >50% of supply)
     const walletAccounts = accounts.filter(a => (a.uiAmount / totalSupply) < 0.5);
-    if (!walletAccounts.length) return 0;
+    const topPct = walletAccounts.length
+      ? Math.round((walletAccounts[0].uiAmount / totalSupply) * 1000) / 10
+      : 0;
 
-    // Return the top wallet's % of supply (lower = better distributed)
-    const topPct = Math.round((walletAccounts[0].uiAmount / totalSupply) * 1000) / 10;
-    return topPct;
+    // Early exit: already over threshold without bundle check
+    if (topPct >= BUNDLE_MAX_PCT) return topPct;
+
+    // ── Part 2: coordinated-buy bundle detection ─────────────────────────────
+    // Find the mint creation tx (oldest sig on the mint account)
+    const mintSigs = await heliusRpc('getSignaturesForAddress', [mintAddress, { limit: 10 }]);
+    if (!mintSigs || !mintSigs.length) return topPct;
+
+    const creationSig = mintSigs[mintSigs.length - 1].signature;
+    const creationTx  = await heliusRpc('getTransaction', [
+      creationSig,
+      { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }
+    ]);
+    if (!creationTx) return topPct;
+
+    const accountKeys   = creationTx.transaction?.message?.accountKeys || [];
+    const postTokenBals = creationTx.meta?.postTokenBalances || [];
+
+    // Bonding curve holds the largest token balance at creation
+    const bcBal = postTokenBals
+      .filter(b => b.mint === mintAddress)
+      .sort((a, b) => (b.uiTokenAmount?.uiAmount || 0) - (a.uiTokenAmount?.uiAmount || 0))[0];
+    if (!bcBal) return topPct;
+
+    const bcTokenAcct = accountKeys[bcBal.accountIndex]?.pubkey;
+    const bcOwner     = bcBal.owner || '';
+    if (!bcTokenAcct) return topPct;
+
+    // Get launch transactions via the bonding curve token account
+    const bcSigs = await heliusRpc('getSignaturesForAddress', [bcTokenAcct, { limit: 100 }]);
+    if (!bcSigs || !bcSigs.length) return topPct;
+
+    // Chronological order, take first 30 (launch buys)
+    const launchSigs = bcSigs.filter(s => !s.err).reverse().slice(0, 30);
+    if (!launchSigs.length) return topPct;
+
+    // Batch-fetch transactions in one HTTP request
+    const batchReqs = launchSigs.map((s, i) => ({
+      jsonrpc: '2.0', id: i + 1,
+      method: 'getTransaction',
+      params: [s.signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }]
+    }));
+    const batchRes = await fetch(HELIUS_RPC, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(batchReqs)
+    });
+    if (!batchRes.ok) return topPct;
+    const txArray = await batchRes.json();
+
+    // Group buyers by slot — any wallet that received tokens in that tx
+    const slotBuyers = new Map(); // slot → Set<wallet>
+    for (const r of (Array.isArray(txArray) ? txArray : [])) {
+      const tx = r?.result;
+      if (!tx) continue;
+      const slot = tx.slot;
+      const pre  = tx.meta?.preTokenBalances  || [];
+      const post = tx.meta?.postTokenBalances || [];
+      for (const pb of post) {
+        if (pb.mint !== mintAddress) continue;
+        if (pb.owner === bcOwner) continue; // skip bonding curve itself
+        const preEntry = pre.find(x => x.accountIndex === pb.accountIndex);
+        const preAmt   = preEntry?.uiTokenAmount?.uiAmount  || 0;
+        const postAmt  = pb.uiTokenAmount?.uiAmount || 0;
+        if (postAmt > preAmt) {
+          if (!slotBuyers.has(slot)) slotBuyers.set(slot, new Set());
+          slotBuyers.get(slot).add(pb.owner);
+        }
+      }
+    }
+
+    // Bundle wallets = all buyers in slots that had ≥2 distinct buyers
+    const bundleWallets = new Set();
+    for (const [, wallets] of slotBuyers) {
+      if (wallets.size >= 2) wallets.forEach(w => bundleWallets.add(w));
+    }
+    if (!bundleWallets.size) return topPct;
+
+    // Sum current holdings of bundle wallets (5 concurrent)
+    let bundleTotal = 0;
+    const walletList = [...bundleWallets];
+    for (let i = 0; i < walletList.length; i += 5) {
+      await Promise.all(walletList.slice(i, i + 5).map(async wallet => {
+        try {
+          const res = await heliusRpc('getTokenAccountsByOwner', [
+            wallet,
+            { mint: mintAddress },
+            { encoding: 'jsonParsed' }
+          ]);
+          for (const acc of (res?.value || []))
+            bundleTotal += acc.account?.data?.parsed?.info?.tokenAmount?.uiAmount || 0;
+        } catch {}
+      }));
+    }
+
+    const bundlePct = Math.round((bundleTotal / totalSupply) * 1000) / 10;
+    return Math.max(topPct, bundlePct);
+
   } catch (e) {
-    console.warn('[bundle] top-holder check failed for', mintAddress, ':', e.message);
+    console.warn('[bundle] detection failed for', mintAddress, ':', e.message);
     return null;
   }
 }
