@@ -561,10 +561,12 @@ async function runScan() {
     }
 
     // Patch ticker entries with real symbols from DexScreener data
+    const before = JSON.stringify(tickerCache);
     tickerCache = tickerCache.map(e => {
       const info = tickerInfoMap.get(e.address);
       return info ? { ...e, ticker: info.ticker, icon: e.icon || info.icon } : e;
     });
+    if (JSON.stringify(tickerCache) !== before) saveTickerCache();
 
     // ── Pass 1: parallel rugcheck — 5 concurrent ───────────────────────────
     const pass1 = [];
