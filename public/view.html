@@ -532,14 +532,7 @@ let pfResults=[],psResults=[],certResults=[];
 // ── DEX PAID ticker ────────────────────────────────────────────────────────────
 let tickerEntries=[];
 
-function fmtAgo(ms){
-  const m=Math.floor(ms/60000);
-  if(m<1) return 'just now';
-  return m+'m ago';
-}
-
 function renderTicker(){
-  const now=Date.now();
   const strip=document.getElementById('new-ticker');
   while(strip.children.length>1) strip.removeChild(strip.lastChild);
   for(const e of tickerEntries){
@@ -549,7 +542,7 @@ function renderTicker(){
     const iconHtml=e.icon
       ?`<img class="te-icon" src="${escHtml(e.icon)}" alt="" onerror="this.outerHTML='<span class=te-icon-ph></span>'">`
       :`<span class="te-icon-ph"></span>`;
-    a.innerHTML=`${iconHtml}$${escHtml(e.ticker)}<span class="te-ago">${fmtAgo(now-e.seenAt)}</span>`;
+    a.innerHTML=`${iconHtml}$${escHtml(e.ticker)}<span class="te-ago">${escHtml(e.ago||'')}</span>`;
     strip.appendChild(a);
   }
 }
