@@ -533,7 +533,7 @@ async function runScan() {
           else if (pair.dexId === 'pumpswap' && mc >= 10000 && mc < 200000) candidates.push({ profile, pair });
         }
       } catch (e) { console.warn('[scan] DS batch error:', e.message); }
-      if (i + DS_BATCH < approvedTokens.length) await scanDelay(300);
+      if (i + DS_BATCH < tokens.length) await scanDelay(300);
     }
 
     // Patch ticker entries with real symbols from DexScreener data
