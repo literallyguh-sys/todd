@@ -345,23 +345,31 @@ async function runScan() {
       scanFetch(`${DS_API}/token-profiles/latest/v1`),
       scanFetch(`${DS_API}/token-boosts/latest/v1`)
     ]);
-    const tokens = [], seen = new Set();
-    const addTokens = arr => {
-      if (!Array.isArray(arr)) return;
-      for (const t of arr)
+
+    // profileTokens — profiles only (source of DEX PAID ticker)
+    const profileTokens = [], profileSeen = new Set();
+    if (a.status === 'fulfilled' && Array.isArray(a.value)) {
+      for (const t of a.value)
+        if (t.chainId === 'solana' && t.tokenAddress && !profileSeen.has(t.tokenAddress)) {
+          profileSeen.add(t.tokenAddress); profileTokens.push(t);
+        }
+    }
+
+    // tokens — profiles + boosts combined (source of scan candidates)
+    const tokens = [...profileTokens], seen = new Set(profileSeen);
+    if (b.status === 'fulfilled' && Array.isArray(b.value)) {
+      for (const t of b.value)
         if (t.chainId === 'solana' && t.tokenAddress && !seen.has(t.tokenAddress)) {
           seen.add(t.tokenAddress); tokens.push(t);
         }
-    };
-    if (a.status === 'fulfilled') addTokens(a.value);
-    if (b.status === 'fulfilled') addTokens(b.value);
+    }
 
     const profileByAddr = new Map(tokens.map(t => [t.tokenAddress, t]));
     const now = Date.now();
 
-    // ── Update DEX PAID ticker with newly profiled tokens ──────────────────
+    // ── Update DEX PAID ticker — profile-only, genuinely new entries ───────
     if (prevProfileAddresses.size > 0) {
-      const newEntries = tokens
+      const newEntries = profileTokens
         .filter(t => !prevProfileAddresses.has(t.tokenAddress))
         .map(t => ({
           address: t.tokenAddress,
@@ -371,12 +379,11 @@ async function runScan() {
           seenAt:  now
         }));
       if (newEntries.length) {
-        // Prepend new entries, trim to TICKER_MAX (oldest fall off the end)
         tickerCache = [...newEntries, ...tickerCache].slice(0, TICKER_MAX);
         console.log(`[scan] ${newEntries.length} new DEX PAID entries`);
       }
     }
-    prevProfileAddresses = new Set(tokens.map(t => t.tokenAddress));
+    prevProfileAddresses = new Set(profileTokens.map(t => t.tokenAddress));
 
     // ── Phase 1: batch DexScreener — 30 addresses per call ─────────────────
     const DS_BATCH = 30;
