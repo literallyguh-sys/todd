@@ -405,6 +405,9 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Todd Generator running on http://localhost:${PORT}`);
+  // Start scan engine — first run immediately, then every 3 minutes
+  runScan();
+  setInterval(runScan, SCAN_INTERVAL);
 
   // ── Keep-alive ping ──
   // Pings the server every 10 minutes so Render's free tier never goes to sleep.
