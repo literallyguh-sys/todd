@@ -409,7 +409,7 @@ async function runScan() {
           const profile = profileByAddr.get(addr);
           if (!profile) continue;
           if      (pair.dexId === 'pumpfun'  && mc >= 5000  && mc < 33000)  candidates.push({ profile, pair });
-          else if (pair.dexId === 'pumpswap' && mc >= 10000 && mc < 100000) candidates.push({ profile, pair });
+          else if (pair.dexId === 'pumpswap' && mc >= 10000 && mc < 200000) candidates.push({ profile, pair });
         }
       } catch (e) { console.warn('[scan] DS batch error:', e.message); }
       if (i + DS_BATCH < tokens.length) await scanDelay(300);
