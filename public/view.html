@@ -670,6 +670,8 @@ async function refreshPrices(){
   }catch(e){}
 }
 
+document.addEventListener('keydown',e=>{if(e.key==='Escape')location.href='index.html';});
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 initChatName();
 updateLoginBtn();
