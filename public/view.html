@@ -656,15 +656,13 @@ function flushResults(){
   document.getElementById('count-ps').textContent=psResults.length;
 }
 
-function showColProgress(checked, total, pfCount, psCount) {
-  const pct = total ? Math.round(checked/total*100) : 0;
+function showColProgress(pct, pfTxt, psTxt) {
   ['pf','ps'].forEach(id=>{
-    const el=document.getElementById('prog-'+id);
-    el.classList.add('active');
+    document.getElementById('prog-'+id).classList.add('active');
     document.getElementById('prog-'+id+'-bar').style.width=pct+'%';
   });
-  document.getElementById('prog-pf-txt').textContent=`${checked}/${total} · ${pfCount} found`;
-  document.getElementById('prog-ps-txt').textContent=`${checked}/${total} · ${psCount} found`;
+  document.getElementById('prog-pf-txt').textContent=pfTxt;
+  document.getElementById('prog-ps-txt').textContent=psTxt;
 }
 function hideColProgress() {
   ['pf','ps'].forEach(id=>{
