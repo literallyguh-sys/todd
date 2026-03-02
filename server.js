@@ -356,12 +356,20 @@ async function detectBundle(mintAddress) {
     const bcOwner     = bcBal.owner || '';
     if (!bcTokenAcct) return topPct;
 
-    // Get launch transactions via the bonding curve token account
-    const bcSigs = await heliusRpc('getSignaturesForAddress', [bcTokenAcct, { limit: 100 }]);
-    if (!bcSigs || !bcSigs.length) return topPct;
-
-    // Chronological order, take first 30 (launch buys)
-    const launchSigs = bcSigs.filter(s => !s.err).reverse().slice(0, 30);
+    // Paginate signatures for BC token account — oldest first (launch buys)
+    // API returns newest-first; paginate until we have all or hit 3000 cap
+    let allBcSigs = [], beforeSig;
+    for (let p = 0; p < 3; p++) {
+      const opts = { limit: 1000 };
+      if (beforeSig) opts.before = beforeSig;
+      const page = await heliusRpc('getSignaturesForAddress', [bcTokenAcct, opts]);
+      if (!page || !page.length) break;
+      allBcSigs = allBcSigs.concat(page);
+      if (page.length < 1000) break; // reached beginning of history
+      beforeSig = page[page.length - 1].signature;
+    }
+    // Oldest transactions are at the END of the newest-first list
+    const launchSigs = allBcSigs.filter(s => !s.err).slice(-50);
     if (!launchSigs.length) return topPct;
 
     // Batch-fetch transactions in one HTTP request
