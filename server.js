@@ -599,6 +599,24 @@ async function runScan() {
       }
     }
 
+    // ── Retain previously listed tokens that scrolled off the profiles list ──
+    // priceCache has fresh prices (updated every 5s) for the old scanCache tokens.
+    // If they're still within mcap range, keep them on the list.
+    const freshAddrs = new Set([...newPf, ...newPs].map(t => t.address));
+    for (const prev of [...scanCache.pf, ...scanCache.ps]) {
+      if (freshAddrs.has(prev.address)) continue; // already re-discovered this scan
+      const p = priceCache[prev.address];
+      if (!p || !p.mcap) continue; // no price data — token probably dead
+      const mc = p.mcap;
+      const inRange = (prev.dex === 'pumpfun'  && mc >= 5000  && mc < 33000)
+                   || (prev.dex === 'pumpswap' && mc >= 10000 && mc < 200000);
+      if (!inRange) continue;
+      const updated = { ...prev, mcap: mc, h1: p.h1 };
+      if (prev.dex === 'pumpfun') newPf.push(updated);
+      else                        newPs.push(updated);
+      if (prev.bundlePct !== null) newCert.push(updated);
+    }
+
     scanCache = { pf: newPf, ps: newPs, cert: newCert, lastUpdated: Date.now(), scanning: false };
     console.log(`[scan] Done — ${newPf.length} pump.fun, ${newPs.length} pumpswap`);
   } catch (e) {
