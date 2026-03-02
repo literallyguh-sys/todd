@@ -284,7 +284,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
       <div class="col-list" id="list-pf"><div class="col-empty">Waiting for scan...</div></div>
     </div>
     <div class="col">
-      <div class="col-hdr cert">TODD CERTIFIED SHITTERS<span class="col-next-scan" id="next-scan-cert">NEXT: --:--</span><span class="col-count" id="count-cert">0</span></div>
+      <div class="col-hdr cert">TODD CERTIFIED SHITTERS<span class="col-hdr-right"><span class="col-count" id="count-cert">0</span></span></div>
       <div class="col-list" id="cert-list"><div class="col-empty">Waiting for scan...</div></div>
     </div>
   </div>
@@ -590,7 +590,7 @@ function flushResults(){
 let scanning=false;
 let scanStartedAt=0, serverScanning=false;
 const SCAN_MS=180000;
-const nextScanEls=[document.getElementById('next-scan-pf'),document.getElementById('next-scan-cert')];
+const nextScanEls=[document.getElementById('next-scan-pf')];
 function tickCountdown(){
   let text,cls;
   if(!scanStartedAt){text='NEXT: --:--';cls='col-next-scan';}
