@@ -438,6 +438,13 @@ async function refreshPrices() {
   const entries = scanCache.pf;
   if (!entries.length) return;
   const addrs = entries.map(t => t.address);
+
+  // Seed with scan-time mcap for tokens not yet in priceCache
+  const base = {};
+  for (const t of entries) {
+    base[t.address] = priceCache[t.address] ?? { mcap: t.mcap, h1: t.h1 };
+  }
+
   try {
     const DS_BATCH = 30;
     const next = {};
@@ -450,13 +457,14 @@ async function refreshPrices() {
         const addr = pair.baseToken?.address;
         if (!addr || pair.chainId !== 'solana') continue;
         if (pair.dexId !== 'pumpfun') continue;
-        next[addr] = { mcap: pair.marketCap || pair.fdv || 0, h1: pair.priceChange?.h1 ?? null };
+        const mc = pair.marketCap || pair.fdv || 0;
+        if (mc > 0) next[addr] = { mcap: mc, h1: pair.priceChange?.h1 ?? null };
       }
     }
-    // Preserve old price for any token DS didn't return this cycle
+    // Use fresh DS data when valid; otherwise keep last known price
     const merged = {};
     for (const addr of addrs) {
-      merged[addr] = next[addr] ?? priceCache[addr];
+      merged[addr] = next[addr] ?? base[addr];
     }
     priceCache = merged;
   } catch (e) { console.warn('[prices] refresh error:', e.message); }
