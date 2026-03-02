@@ -371,12 +371,12 @@ async function runScan() {
           seenAt:  now
         }));
       if (newEntries.length) {
-        tickerCache = [...newEntries, ...tickerCache];
+        // Prepend new entries, trim to TICKER_MAX (oldest fall off the end)
+        tickerCache = [...newEntries, ...tickerCache].slice(0, TICKER_MAX);
         console.log(`[scan] ${newEntries.length} new DEX PAID entries`);
       }
     }
     prevProfileAddresses = new Set(tokens.map(t => t.tokenAddress));
-    tickerCache = tickerCache.filter(e => now - e.seenAt < TICKER_TTL);
 
     // ── Phase 1: batch DexScreener — 30 addresses per call ─────────────────
     const DS_BATCH = 30;
