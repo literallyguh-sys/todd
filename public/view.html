@@ -632,6 +632,8 @@ async function refreshPrices(){
         const h1=fmt1h(p.h1);
         const h1el=card.querySelector('.token-row2 .badge');
         if(h1el){h1el.textContent=h1.label;h1el.className=`badge ${h1.cls}`;}
+        const bar=card.querySelector('.mcap-bar');
+        if(bar){const bp=barPct(p.mcap);bar.style.width=bp+'%';bar.style.background=barColor(bp);}
       });
     }
   }catch(e){}
