@@ -529,6 +529,7 @@ async function runScan() {
     }
     prevProfileAddresses = new Set(profileTokens.map(t => t.tokenAddress));
 
+    console.log(`[scan] ${tokens.length} tokens from profiles+boosts`);
     const profileByAddr = new Map(tokens.map(t => [t.tokenAddress, t]));
 
     // ── Batch DexScreener pairs — 30 addresses per call ────────────────────
