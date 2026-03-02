@@ -261,7 +261,7 @@ const HELIUS_RPC = process.env.HELIUS_API_KEY
   ? `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`
   : null;
 
-let scanCache  = { pf: [], ps: [], lastUpdated: 0, scanning: false };
+let scanCache  = { pf: [], ps: [], cert: [], lastUpdated: 0, scanning: false };
 let tickerCache = []; // [{address,ticker,icon,url,seenAt}]
 let prevProfileAddresses = new Set();
 
