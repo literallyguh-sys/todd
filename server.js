@@ -505,30 +505,15 @@ async function runScan() {
     }
     prevProfileAddresses = new Set(profileTokens.map(t => t.tokenAddress));
 
-    // ── Verify approved orders for all discovered tokens ───────────────────
-    const approvedTokens = [];
-    const ORDER_BATCH = 10;
-    for (let i = 0; i < tokens.length; i += ORDER_BATCH) {
-      await Promise.all(tokens.slice(i, i + ORDER_BATCH).map(async token => {
-        try {
-          const orders = await scanFetch(`${DS_API}/orders/v1/solana/${token.tokenAddress}`);
-          const list = Array.isArray(orders) ? orders : [];
-          if (list.some(o => o.status === 'approved')) approvedTokens.push(token);
-        } catch {}
-      }));
-      if (i + ORDER_BATCH < tokens.length) await scanDelay(100);
-    }
-    console.log(`[scan] ${approvedTokens.length}/${tokens.length} tokens with approved orders`);
-
-    const profileByAddr = new Map(approvedTokens.map(t => [t.tokenAddress, t]));
+    const profileByAddr = new Map(tokens.map(t => [t.tokenAddress, t]));
 
     // ── Batch DexScreener pairs — 30 addresses per call ────────────────────
     const DS_BATCH = 30;
     const candidates = [];
     const tickerInfoMap = new Map();
 
-    for (let i = 0; i < approvedTokens.length; i += DS_BATCH) {
-      const addrs = approvedTokens.slice(i, i + DS_BATCH).map(t => t.tokenAddress);
+    for (let i = 0; i < tokens.length; i += DS_BATCH) {
+      const addrs = tokens.slice(i, i + DS_BATCH).map(t => t.tokenAddress);
       try {
         const data = await scanFetch(`${DS_API}/latest/dex/tokens/${addrs.join(',')}`);
         for (const pair of (data.pairs || [])) {
