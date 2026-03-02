@@ -559,14 +559,10 @@ async function loadTicker(){
   }catch(e){}
 }
 
-function renderCard(result,dex){
-  const{profile,pair}=result;
-  const mcap=pair.marketCap||pair.fdv||0;
-  const name=pair.baseToken?.name||profile.tokenAddress.slice(0,8);
-  const ticker=pair.baseToken?.symbol||'???';
-  const icon=profile.icon||(pair.info&&pair.info.imageUrl)||'';
-  const link=pair.url||profile.url||'#';
-  const h1=fmt1h(pair.priceChange?.h1);
+function renderCard(entry){
+  const{name,ticker,icon,mcap,h1:h1raw,url,dex}=entry;
+  const h1=fmt1h(h1raw);
+  const link=url||'#';
 
   const card=document.createElement('a');
   card.className=`token-card ${dex==='pumpfun'?'pf':'ps'}`;
