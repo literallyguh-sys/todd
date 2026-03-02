@@ -619,18 +619,17 @@ function flushResults(){
 }
 
 let scanning=false;
-let lastUpdated=0, serverScanning=false;
+let scanStartedAt=0, serverScanning=false;
 const SCAN_MS=180000;
 const nextScanEls=[document.getElementById('next-scan-pf'),document.getElementById('next-scan-ps')];
 function tickCountdown(){
   let text,cls;
-  if(serverScanning){text='SCANNING...';cls='col-next-scan scanning';}
-  else if(!lastUpdated){text='NEXT: --:--';cls='col-next-scan';}
+  if(!scanStartedAt){text='NEXT: --:--';cls='col-next-scan';}
   else{
-    const secs=Math.max(0,Math.round((lastUpdated+SCAN_MS-Date.now())/1000));
+    const secs=Math.max(0,Math.round((scanStartedAt+SCAN_MS-Date.now())/1000));
     const m=Math.floor(secs/60),s=secs%60;
-    text=`NEXT: ${m}:${String(s).padStart(2,'0')}`;
-    cls='col-next-scan';
+    text=serverScanning?`SCANNING... ${m}:${String(s).padStart(2,'0')}`:`NEXT: ${m}:${String(s).padStart(2,'0')}`;
+    cls=serverScanning?'col-next-scan scanning':'col-next-scan';
   }
   nextScanEls.forEach(el=>{if(el){el.textContent=text;el.className=cls;}});
 }
@@ -642,7 +641,7 @@ async function startScan(){
   try{
     const data=await fetch('/api/scan-results').then(r=>r.json());
     pfResults=data.pf||[]; psResults=data.ps||[]; certResults=data.cert||[];
-    lastUpdated=data.lastUpdated||0;
+    scanStartedAt=data.scanStartedAt||0;
     serverScanning=data.scanning||false;
     flushResults();
     tickCountdown();
