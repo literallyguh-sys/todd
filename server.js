@@ -479,7 +479,7 @@ app.get('/api/scan-results', (req, res) => {
 
 app.get('/api/ticker', (req, res) => {
   const now = Date.now();
-  res.json(tickerCache.filter(e => now - e.seenAt < TICKER_TTL));
+  res.json(tickerCache.map(e => ({ ...e, ago: srvAgo(now - e.seenAt) })));
 });
 
 // ── Catch-all: serve the app ──
