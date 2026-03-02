@@ -320,36 +320,22 @@ async function heliusRpc(method, params) {
 
 async function detectBundle(mintAddress) {
   try {
-    // ── Part 1: top-holder check ────────────────────────────────────────────
-    const [supplyRes, holdersRes] = await Promise.all([
-      heliusRpc('getTokenSupply', [mintAddress]),
-      heliusRpc('getTokenLargestAccounts', [mintAddress])
-    ]);
-
+    // Total supply (needed as denominator for bundle %)
+    const supplyRes = await heliusRpc('getTokenSupply', [mintAddress]);
     const totalSupply = supplyRes?.value?.uiAmount;
-    const accounts   = holdersRes?.value || [];
-    if (!totalSupply || !accounts.length) return null;
+    if (!totalSupply) return null;
 
-    // Filter LP/bonding-curve accounts (hold >50% of supply)
-    const walletAccounts = accounts.filter(a => (a.uiAmount / totalSupply) < 0.5);
-    const topPct = walletAccounts.length
-      ? Math.round((walletAccounts[0].uiAmount / totalSupply) * 1000) / 10
-      : 0;
-
-    // Early exit: already over threshold without bundle check
-    if (topPct >= BUNDLE_MAX_PCT) return topPct;
-
-    // ── Part 2: coordinated-buy bundle detection ─────────────────────────────
+    // ── Coordinated-buy bundle detection ─────────────────────────────────────
     // Find the mint creation tx (oldest sig on the mint account)
     const mintSigs = await heliusRpc('getSignaturesForAddress', [mintAddress, { limit: 10 }]);
-    if (!mintSigs || !mintSigs.length) return topPct;
+    if (!mintSigs || !mintSigs.length) return null;
 
     const creationSig = mintSigs[mintSigs.length - 1].signature;
     const creationTx  = await heliusRpc('getTransaction', [
       creationSig,
       { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }
     ]);
-    if (!creationTx) return topPct;
+    if (!creationTx) return null;
 
     const accountKeys   = creationTx.transaction?.message?.accountKeys || [];
     const postTokenBals = creationTx.meta?.postTokenBalances || [];
@@ -358,11 +344,11 @@ async function detectBundle(mintAddress) {
     const bcBal = postTokenBals
       .filter(b => b.mint === mintAddress)
       .sort((a, b) => (b.uiTokenAmount?.uiAmount || 0) - (a.uiTokenAmount?.uiAmount || 0))[0];
-    if (!bcBal) return topPct;
+    if (!bcBal) return null;
 
     const bcTokenAcct = accountKeys[bcBal.accountIndex]?.pubkey;
     const bcOwner     = bcBal.owner || '';
-    if (!bcTokenAcct) return topPct;
+    if (!bcTokenAcct) return null;
 
     // Paginate signatures for BC token account — oldest first (launch buys)
     // API returns newest-first; paginate until we have all or hit 3000 cap
@@ -378,7 +364,7 @@ async function detectBundle(mintAddress) {
     }
     // Oldest transactions are at the END of the newest-first list
     const launchSigs = allBcSigs.filter(s => !s.err).slice(-50);
-    if (!launchSigs.length) return topPct;
+    if (!launchSigs.length) return null;
 
     // Batch-fetch transactions in one HTTP request
     const batchReqs = launchSigs.map((s, i) => ({
@@ -391,7 +377,7 @@ async function detectBundle(mintAddress) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(batchReqs)
     });
-    if (!batchRes.ok) return topPct;
+    if (!batchRes.ok) return null;
     const txArray = await batchRes.json();
 
     // Group buyers by slot — any wallet that received tokens in that tx
@@ -420,7 +406,7 @@ async function detectBundle(mintAddress) {
     for (const [, wallets] of slotBuyers) {
       if (wallets.size >= 2) wallets.forEach(w => bundleWallets.add(w));
     }
-    if (!bundleWallets.size) return topPct;
+    if (!bundleWallets.size) return 0;
 
     // Sum current holdings of bundle wallets (5 concurrent)
     let bundleTotal = 0;
@@ -439,8 +425,7 @@ async function detectBundle(mintAddress) {
       }));
     }
 
-    const bundlePct = Math.round((bundleTotal / totalSupply) * 1000) / 10;
-    return Math.max(topPct, bundlePct);
+    return Math.round((bundleTotal / totalSupply) * 1000) / 10;
 
   } catch (e) {
     console.warn('[bundle] detection failed for', mintAddress, ':', e.message);
