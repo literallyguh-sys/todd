@@ -556,8 +556,7 @@ function renderCard(entry){
     ?`<img class="token-img" src="${escHtml(icon)}" alt="" onerror="this.outerHTML='<div class=token-img-placeholder>${escHtml(ticker.slice(0,3))}</div>'">`
     :`<div class="token-img-placeholder">${escHtml(ticker.slice(0,3))}</div>`;
 
-  const barMax=33000;
-  const barPct=Math.max(0,Math.min(100,Math.round((mcap-2000)/(barMax-2000)*100)));
+  const bp=barPct(mcap);
 
   const bundleBadge=bundlePct!==null&&bundlePct!==undefined
     ?`<span class="badge ok">BUNDLE ${bundlePct}%</span>`
