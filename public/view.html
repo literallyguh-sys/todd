@@ -514,11 +514,8 @@ function fmt1h(pct){
 
 let pfResults=[],psResults=[];
 
-// ── New-token ticker ───────────────────────────────────────────────────────────
-let prevAddresses=new Set();
-let tickerEntries=[]; // [{address,ticker,icon,url,seenAt}]
-const TICKER_TTL=10*60*1000;
-const TICKER_KEY='todd_dexpaid_ticker';
+// ── DEX PAID ticker ────────────────────────────────────────────────────────────
+let tickerEntries=[];
 
 function fmtAgo(ms){
   const m=Math.floor(ms/60000);
@@ -526,26 +523,8 @@ function fmtAgo(ms){
   return m+'m ago';
 }
 
-function saveTickerToStorage(){
-  try{localStorage.setItem(TICKER_KEY,JSON.stringify(tickerEntries));}catch(e){}
-}
-
-function loadTickerFromStorage(){
-  try{
-    const raw=localStorage.getItem(TICKER_KEY);
-    if(!raw) return;
-    const entries=JSON.parse(raw);
-    const now=Date.now();
-    tickerEntries=entries.filter(e=>now-e.seenAt<TICKER_TTL);
-    // Seed prevAddresses so restored tokens don't re-fire as new
-    tickerEntries.forEach(e=>prevAddresses.add(e.address));
-    renderTicker();
-  }catch(e){}
-}
-
 function renderTicker(){
   const now=Date.now();
-  tickerEntries=tickerEntries.filter(e=>now-e.seenAt<TICKER_TTL);
   const strip=document.getElementById('new-ticker');
   while(strip.children.length>1) strip.removeChild(strip.lastChild);
   for(const e of tickerEntries){
@@ -558,34 +537,26 @@ function renderTicker(){
     a.innerHTML=`${iconHtml}$${escHtml(e.ticker)}<span class="te-ago">${fmtAgo(now-e.seenAt)}</span>`;
     strip.appendChild(a);
   }
-  saveTickerToStorage();
 }
 
-function checkNewTokens(newPf,newPs){
-  const allNew=[...newPf,...newPs];
-  const added=[];
-  for(const r of allNew){
-    const addr=r.profile.tokenAddress;
-    if(!prevAddresses.has(addr)){
-      added.push({
-        address:addr,
-        ticker:r.pair.baseToken?.symbol||addr.slice(0,6),
-        icon:r.profile.icon||r.pair.info?.imageUrl||r.pair.baseToken?.imageUrl||'',
-        url:r.pair.url||r.profile.url||'#',
-        seenAt:Date.now()
-      });
-    }
-  }
-  prevAddresses=new Set(allNew.map(r=>r.profile.tokenAddress));
-  if(added.length){
-    tickerEntries=[...added,...tickerEntries];
+async function loadTicker(){
+  try{
+    const entries=await fetch('/api/ticker').then(r=>r.json());
+    const prev=new Set(tickerEntries.map(e=>e.address));
+    tickerEntries=entries;
     renderTicker();
-    const strip=document.getElementById('new-ticker');
-    for(let i=1;i<=Math.min(added.length,strip.children.length-1);i++){
-      strip.children[i].classList.add('new-flash');
-      setTimeout(()=>strip.children[i]?.classList.remove('new-flash'),1500);
+    // Flash newly appeared entries
+    const added=entries.filter(e=>!prev.has(e.address));
+    if(added.length){
+      const strip=document.getElementById('new-ticker');
+      for(let i=1;i<strip.children.length;i++){
+        if(added.some(a=>strip.children[i].href?.includes(a.address))){
+          strip.children[i].classList.add('new-flash');
+          setTimeout(()=>strip.children[i]?.classList.remove('new-flash'),1500);
+        }
+      }
     }
-  }
+  }catch(e){}
 }
 
 function renderCard(result,dex){
