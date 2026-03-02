@@ -605,7 +605,7 @@ function renderCard(entry){
   const barPct=Math.max(0,Math.min(100,Math.round((mcap-2000)/(barMax-2000)*100)));
 
   const bundleBadge=bundlePct!==null&&bundlePct!==undefined
-    ?`<span class="badge ok">BUNDLE ${bundlePct}% ✓</span>`
+    ?`<span class="badge ok">TOP ${bundlePct}% ✓</span>`
     :'';
 
   card.innerHTML=`
