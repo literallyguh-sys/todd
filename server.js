@@ -583,14 +583,14 @@ async function runScan() {
     for (let i = 0; i < candidates.length; i += RC_BATCH) {
       await Promise.all(candidates.slice(i, i + RC_BATCH).map(async ({ coin, pair }) => {
         try {
-          const report = await scanFetch(`${RC_API}/tokens/${coin.mint}/report`);
+          const report = await scanFetch(`${RC_API}/tokens/${coin._addr}/report`);
           if (!isRiskyToken(report)) {
             const mc = pair.marketCap || pair.fdv || 0;
             pass1.push({
-              address: coin.mint,
-              name:    pair.baseToken?.name   || coin.name   || coin.mint.slice(0, 8),
+              address: coin._addr,
+              name:    pair.baseToken?.name   || coin.name   || coin._addr.slice(0, 8),
               ticker:  pair.baseToken?.symbol || coin.symbol || '???',
-              icon:    pair.info?.imageUrl || coin.image_uri || '',
+              icon:    pair.info?.imageUrl || coin.image_uri || coin.imageUri || '',
               mcap:    mc,
               h1:      pair.priceChange?.h1 ?? null,
               url:     pair.url || `https://dexscreener.com/solana/${coin.mint}`,
