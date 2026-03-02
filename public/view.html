@@ -497,7 +497,7 @@ function fmt1h(pct){
   return {label:`1H ${sign}${pct.toFixed(1)}%`, cls: pct>0?'up':pct<0?'dn':'nt'};
 }
 
-let pfResults=[],psResults=[],certResults=[];
+let pfResults=[],certResults=[];
 
 // ── DEX PAID ticker ────────────────────────────────────────────────────────────
 let tickerEntries=[];
@@ -609,7 +609,7 @@ async function startScan(){
   scanning=true;
   try{
     const data=await fetch('/api/scan-results').then(r=>r.json());
-    pfResults=data.pf||[]; psResults=data.ps||[]; certResults=data.cert||[];
+    pfResults=data.pf||[]; certResults=data.cert||[];
     scanStartedAt=data.scanStartedAt||0;
     serverScanning=data.scanning||false;
     flushResults();
