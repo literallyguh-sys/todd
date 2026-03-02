@@ -262,10 +262,24 @@ const HELIUS_RPC = process.env.HELIUS_API_KEY
   ? `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`
   : null;
 
+const TICKER_FILE = path.join(__dirname, 'ticker-cache.json');
+
 let scanCache  = { pf: [], ps: [], cert: [], lastUpdated: 0, scanning: false };
-let tickerCache = []; // [{address,ticker,icon,url,seenAt}]
 let priceCache  = {}; // {address: {mcap, h1}} — updated every 5s
 let prevProfileAddresses = new Set();
+
+// Load ticker from disk so it survives server restarts
+let tickerCache = [];
+try {
+  if (fs.existsSync(TICKER_FILE))
+    tickerCache = JSON.parse(fs.readFileSync(TICKER_FILE, 'utf8'));
+  console.log(`[ticker] Loaded ${tickerCache.length} entries from disk`);
+} catch (e) { console.warn('[ticker] Could not load ticker cache:', e.message); }
+
+function saveTickerCache() {
+  try { fs.writeFileSync(TICKER_FILE, JSON.stringify(tickerCache)); }
+  catch (e) { console.warn('[ticker] Could not save ticker cache:', e.message); }
+}
 
 function scanDelay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
