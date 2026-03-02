@@ -681,42 +681,58 @@ async function startScan(){
 
   const newPf=[], newPs=[];
   try {
-    // Clear placeholder text so progress bars are immediately visible
     if(!pfResults.length) document.getElementById('list-pf').innerHTML='';
     if(!psResults.length) document.getElementById('list-ps').innerHTML='';
-    showColProgress(0, 0, 0, 0);
-    const tokens=await fetchPaidTokens();
+    showColProgress(0,'fetching...','fetching...');
 
-    let checked=0;
-    for(const profile of tokens){
-      checked++;
-      showColProgress(checked, tokens.length, newPf.length, newPs.length);
-      try {
-        await delay(120);
-        const data=await fetchJSON(`${DS}/latest/dex/tokens/${profile.tokenAddress}`);
-        const pairs=(data.pairs||[]).filter(p=>{
-          const mc=p.marketCap||p.fdv||0;
-          if(p.chainId!=='solana') return false;
-          if(p.dexId==='pumpfun')  return mc>=5000  && mc<33000;
-          if(p.dexId==='pumpswap') return mc>=10000 && mc<100000;
-          return false;
-        });
-        if(!pairs.length) continue;
-        pairs.sort((a,b)=>(b.marketCap||b.fdv||0)-(a.marketCap||a.fdv||0));
-        const pair=pairs[0];
-        await delay(120);
-        const report=await fetchJSON(`${RC}/tokens/${profile.tokenAddress}/report`);
-        if(!hasCreatorRisk(report.risks)){
-          if(pair.dexId==='pumpfun') newPf.push({profile,pair}); else newPs.push({profile,pair});
+    const tokens=await fetchPaidTokens();
+    const profileByAddr=new Map(tokens.map(t=>[t.tokenAddress,t]));
+
+    // ── Phase 1: batch DexScreener (30 addresses per call) ──────────────────
+    const DS_BATCH=30;
+    const candidates=[]; // [{profile,pair}] passing mcap+dex filter
+    const totalBatches=Math.ceil(tokens.length/DS_BATCH);
+
+    for(let i=0;i<tokens.length;i+=DS_BATCH){
+      const addrs=tokens.slice(i,i+DS_BATCH).map(t=>t.tokenAddress);
+      try{
+        const data=await fetchJSON(`${DS}/latest/dex/tokens/${addrs.join(',')}`);
+        for(const pair of (data.pairs||[])){
+          const mc=pair.marketCap||pair.fdv||0;
+          if(pair.chainId!=='solana') continue;
+          const profile=profileByAddr.get(pair.baseToken?.address||'');
+          if(!profile) continue;
+          if(pair.dexId==='pumpfun'  && mc>=5000  && mc<33000)  candidates.push({profile,pair});
+          else if(pair.dexId==='pumpswap' && mc>=10000 && mc<100000) candidates.push({profile,pair});
         }
-      } catch(e){}
+      }catch(e){}
+      const batch=Math.floor(i/DS_BATCH)+1;
+      const pct=Math.round(batch/totalBatches*60); // phase 1 uses 0-60%
+      showColProgress(pct,`batch ${batch}/${totalBatches}`,`batch ${batch}/${totalBatches}`);
+      if(i+DS_BATCH<tokens.length) await delay(250);
+    }
+
+    // ── Phase 2: parallel rugcheck (5 concurrent) ───────────────────────────
+    const RC_BATCH=5;
+    for(let i=0;i<candidates.length;i+=RC_BATCH){
+      await Promise.all(candidates.slice(i,i+RC_BATCH).map(async({profile,pair})=>{
+        try{
+          const report=await fetchJSON(`${RC}/tokens/${profile.tokenAddress}/report`);
+          if(!hasCreatorRisk(report.risks)){
+            if(pair.dexId==='pumpfun') newPf.push({profile,pair});
+            else newPs.push({profile,pair});
+          }
+        }catch(e){}
+      }));
+      const pct=60+Math.round((i+RC_BATCH)/Math.max(candidates.length,1)*40); // 60-100%
+      showColProgress(Math.min(pct,99),`${newPf.length} found`,`${newPs.length} found`);
     }
 
     checkNewTokens(newPf,newPs);
     pfResults=newPf; psResults=newPs;
     hideColProgress();
     flushResults();
-  } catch(e){
+  }catch(e){
     hideColProgress();
   }
 
