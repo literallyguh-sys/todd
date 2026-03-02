@@ -495,6 +495,8 @@ async function runScan() {
     console.log(`[scan] Pass 1 done — ${pass1.length} tokens. Starting pass 2 (Helius)...`);
 
     // ── Pass 2: Helius bundle detection — 3 concurrent ─────────────────────
+    // All surviving tokens go into pf/ps. Those that Helius also verifies
+    // (bundlePct is a number) additionally go into cert.
     const newPf = [], newPs = [], newCert = [];
     if (HELIUS_RPC) {
       for (let i = 0; i < pass1.length; i += 3) {
@@ -505,12 +507,9 @@ async function runScan() {
             return;
           }
           const out = { ...entry, bundlePct };
-          if (bundlePct !== null) {
-            newCert.push(out); // Helius-verified → certified shitters
-          } else {
-            if (entry.dex === 'pumpfun') newPf.push(out);
-            else                         newPs.push(out);
-          }
+          if (entry.dex === 'pumpfun') newPf.push(out);
+          else                         newPs.push(out);
+          if (bundlePct !== null) newCert.push(out); // also in certified shitters
         }));
       }
     } else {
