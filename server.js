@@ -685,7 +685,7 @@ async function runScan() {
 app.get('/api/prices', (req, res) => res.json(priceCache));
 
 app.get('/api/scan-results', (req, res) => {
-  res.json({ pf: scanCache.pf, ps: scanCache.ps, cert: scanCache.cert || [], lastUpdated: scanCache.lastUpdated, scanning: scanCache.scanning });
+  res.json({ pf: scanCache.pf, ps: scanCache.ps, cert: scanCache.cert || [], lastUpdated: scanCache.lastUpdated, scanning: scanCache.scanning, scanStartedAt: lastScanStartedAt });
 });
 
 app.get('/api/ticker', (req, res) => {
