@@ -273,11 +273,128 @@ async function scanFetch(url) {
   return r.json();
 }
 
-function hasCreatorRisk(risks) {
-  return (risks || []).some(r => {
+function isRiskyToken(report) {
+  const risks = report.risks || [];
+  // creator/deployer flag
+  if (risks.some(r => {
     const n = (r.name || '').toLowerCase();
     return n.includes('creator') || n.includes('deployer');
+  })) return true;
+  // insider danger
+  if (risks.some(r => {
+    const n = (r.name || '').toLowerCase();
+    return n.includes('insider') && r.level === 'danger';
+  })) return true;
+  // top holders insider/creator sum > 10%
+  const insiderPct = (report.topHolders || []).reduce((sum, h) => {
+    if (h.insider === true || (h.owner || '').toLowerCase().includes('creator'))
+      return sum + (h.pct || 0);
+    return sum;
+  }, 0);
+  if (insiderPct > 10) return true;
+  return false;
+}
+
+async function heliusRpc(method, params) {
+  if (!HELIUS_RPC) throw new Error('No Helius RPC configured');
+  const r = await fetch(HELIUS_RPC, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })
   });
+  if (!r.ok) throw new Error('Helius HTTP ' + r.status);
+  const json = await r.json();
+  if (json.error) throw new Error('Helius RPC: ' + JSON.stringify(json.error));
+  return json.result;
+}
+
+async function detectBundle(mintAddress) {
+  try {
+    // 1. Paginate signatures (up to 10 pages × 1000)
+    let allSigs = [];
+    let before;
+    for (let page = 0; page < 10; page++) {
+      const opts = { limit: 1000 };
+      if (before) opts.before = before;
+      const sigs = await heliusRpc('getSignaturesForAddress', [mintAddress, opts]);
+      const valid = (sigs || []).filter(s => !s.err);
+      allSigs = allSigs.concat(valid);
+      if ((sigs || []).length < 1000) break;
+      if (page === 9) return null; // >10k txns — inconclusive
+      before = sigs[sigs.length - 1].signature;
+    }
+
+    // 2. Reverse to chronological, take first 100 (launch txns)
+    allSigs.reverse();
+    const launchSigs = allSigs.slice(0, 100);
+    if (!launchSigs.length) return null;
+
+    // 3. Batch-fetch transactions
+    const batch = launchSigs.map((s, i) => ({
+      jsonrpc: '2.0', id: i,
+      method: 'getTransaction',
+      params: [s.signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }]
+    }));
+    const r = await fetch(HELIUS_RPC, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(batch)
+    });
+    if (!r.ok) throw new Error('Helius batch HTTP ' + r.status);
+    const txResponses = await r.json();
+
+    // 4. Group buyers by slot
+    const slotBuyers = new Map(); // slot → Set<wallet>
+    for (const resp of (Array.isArray(txResponses) ? txResponses : [])) {
+      const tx = resp.result;
+      if (!tx) continue;
+      const slot = tx.slot;
+      const pre  = tx.meta?.preTokenBalances  || [];
+      const post = tx.meta?.postTokenBalances || [];
+      for (const b of post) {
+        if (b.mint !== mintAddress || !b.owner) continue;
+        const preEntry = pre.find(p => p.accountIndex === b.accountIndex);
+        const preAmt  = preEntry?.uiTokenAmount?.uiAmount || 0;
+        const postAmt = b.uiTokenAmount?.uiAmount || 0;
+        if (postAmt > preAmt) {
+          if (!slotBuyers.has(slot)) slotBuyers.set(slot, new Set());
+          slotBuyers.get(slot).add(b.owner);
+        }
+      }
+    }
+
+    // 5. Bundle wallets = wallets in slots with ≥2 distinct buyers
+    const bundleWallets = new Set();
+    for (const [, wallets] of slotBuyers)
+      if (wallets.size >= 2) for (const w of wallets) bundleWallets.add(w);
+
+    if (!bundleWallets.size) return 0;
+
+    // 6. Total supply
+    const supplyResult = await heliusRpc('getTokenSupply', [mintAddress]);
+    const totalSupply = supplyResult?.value?.uiAmount || 0;
+    if (!totalSupply) return null;
+
+    // 7. Sum current holdings for bundle wallets (5 concurrent)
+    let bundleTotal = 0;
+    const walletArr = [...bundleWallets];
+    for (let i = 0; i < walletArr.length; i += 5) {
+      await Promise.all(walletArr.slice(i, i + 5).map(async wallet => {
+        try {
+          const res = await heliusRpc('getTokenAccountsByOwner', [
+            wallet, { mint: mintAddress }, { encoding: 'jsonParsed' }
+          ]);
+          for (const acc of (res?.value || []))
+            bundleTotal += acc.account?.data?.parsed?.info?.tokenAmount?.uiAmount || 0;
+        } catch (e) {}
+      }));
+    }
+
+    return Math.round((bundleTotal / totalSupply) * 1000) / 10;
+  } catch (e) {
+    console.warn('[bundle] detection failed for', mintAddress, ':', e.message);
+    return null;
+  }
 }
 
 async function runScan() {
