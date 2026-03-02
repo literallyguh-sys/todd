@@ -621,18 +621,18 @@ function flushResults(){
 let scanning=false;
 let lastUpdated=0, serverScanning=false;
 const SCAN_MS=180000;
-const nextScanEl=document.getElementById('next-scan');
+const nextScanEls=[document.getElementById('next-scan-pf'),document.getElementById('next-scan-ps')];
 function tickCountdown(){
-  if(serverScanning){
-    nextScanEl.textContent='SCANNING...';
-    nextScanEl.className='scanning';
-    return;
+  let text,cls;
+  if(serverScanning){text='SCANNING...';cls='col-next-scan scanning';}
+  else if(!lastUpdated){text='NEXT: --:--';cls='col-next-scan';}
+  else{
+    const secs=Math.max(0,Math.round((lastUpdated+SCAN_MS-Date.now())/1000));
+    const m=Math.floor(secs/60),s=secs%60;
+    text=`NEXT: ${m}:${String(s).padStart(2,'0')}`;
+    cls='col-next-scan';
   }
-  nextScanEl.className='';
-  if(!lastUpdated){nextScanEl.textContent='NEXT: --:--';return;}
-  const secs=Math.max(0,Math.round((lastUpdated+SCAN_MS-Date.now())/1000));
-  const m=Math.floor(secs/60), s=secs%60;
-  nextScanEl.textContent=`NEXT: ${m}:${String(s).padStart(2,'0')}`;
+  nextScanEls.forEach(el=>{if(el){el.textContent=text;el.className=cls;}});
 }
 setInterval(tickCountdown,1000);
 
