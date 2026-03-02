@@ -550,27 +550,8 @@ async function runScan() {
     }
     console.log(`[GT] ${gtFiltered.length} pools in $10K-$200K range`);
 
-    // Verify DS orders — only pumpswap tokens with an approved paid profile proceed
-    const gtVerified = [];
-    const GT_BATCH = 10;
-    for (let i = 0; i < gtFiltered.length; i += GT_BATCH) {
-      await Promise.all(gtFiltered.slice(i, i + GT_BATCH).map(async entry => {
-        try {
-          const orders = await scanFetch(`${DS_API}/orders/v1/solana/${entry.address}`);
-          const list = Array.isArray(orders) ? orders : [];
-          if (list.some(o => o.status === 'approved')) gtVerified.push(entry);
-        } catch {}
-      }));
-      if (i + GT_BATCH < gtFiltered.length) await scanDelay(100);
-    }
-    console.log(`[GT] ${gtVerified.length}/${gtFiltered.length} with approved DS orders`);
-    if (gtFiltered.length && !gtVerified.length) {
-      // Log first orders response to debug format
-      try {
-        const sample = await scanFetch(`${DS_API}/orders/v1/solana/${gtFiltered[0].address}`);
-        console.log(`[GT] orders sample for ${gtFiltered[0].ticker}:`, JSON.stringify(sample).slice(0, 300));
-      } catch(e) { console.log('[GT] orders sample error:', e.message); }
-    }
+    const gtVerified = gtFiltered;
+    console.log(`[GT] ${gtVerified.length} pumpswap candidates after mcap filter`);
 
     // ── Batch DexScreener pairs — pumpfun only from profiles+boosts ────────
     console.log(`[scan] ${tokens.length} tokens from profiles+boosts`);
