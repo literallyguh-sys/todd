@@ -631,6 +631,22 @@ async function startScan(){
   scanning=false;
 }
 
+// ── Live price refresh (every 5s) ─────────────────────────────────────────────
+async function refreshPrices(){
+  try{
+    const prices=await fetch('/api/prices').then(r=>r.json());
+    for(const[addr,p] of Object.entries(prices)){
+      document.querySelectorAll(`[data-addr="${addr}"]`).forEach(card=>{
+        const mcapEl=card.querySelector('.token-mcap');
+        if(mcapEl) mcapEl.textContent=fmtMcap(p.mcap);
+        const h1=fmt1h(p.h1);
+        const h1el=card.querySelector('.token-row2 .badge');
+        if(h1el){h1el.textContent=h1.label;h1el.className=`badge ${h1.cls}`;}
+      });
+    }
+  }catch(e){}
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 initChatName();
 updateLoginBtn();
@@ -640,6 +656,7 @@ loadTicker();
 startScan();
 setInterval(()=>{if(!scanning)startScan();},30000);
 setInterval(loadTicker,60000);
+setInterval(refreshPrices,5000);
 </script>
 </body>
 </html>
