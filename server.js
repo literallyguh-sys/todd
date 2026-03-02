@@ -527,11 +527,17 @@ async function runScan() {
     // ── Process GeckoTerminal pumpswap pools ───────────────────────────────
     const gtTokenMap = new Map(); // "solana_ADDR" → token attributes
     const gtPoolData = [];
-    for (const res of [gt1, gt2, gt3]) {
-      if (res.status !== 'fulfilled' || !res.value?.data) continue;
+    for (const [idx, res] of [gt1, gt2, gt3].entries()) {
+      if (res.status !== 'fulfilled') { console.log(`[GT] page ${idx+1} failed:`, res.reason?.message||res.reason); continue; }
+      if (!res.value?.data) { console.log(`[GT] page ${idx+1} no data, keys:`, Object.keys(res.value||{})); continue; }
       gtPoolData.push(...res.value.data);
       for (const inc of (res.value.included || []))
         if (inc.type === 'token') gtTokenMap.set(inc.id, inc.attributes);
+    }
+    console.log(`[GT] ${gtPoolData.length} total pools, ${gtTokenMap.size} token metadata entries`);
+    if (gtPoolData.length) {
+      const s = gtPoolData[0];
+      console.log(`[GT] first pool sample: mc_usd=${s.attributes?.market_cap_usd} fdv=${s.attributes?.fdv_usd} baseId=${s.relationships?.base_token?.data?.id}`);
     }
 
     // Filter by mcap range, deduplicate
@@ -539,11 +545,11 @@ async function runScan() {
     const gtSeen = new Set();
     for (const pool of gtPoolData) {
       const mc    = parseFloat(pool.attributes?.market_cap_usd || pool.attributes?.fdv_usd || 0);
-      if (mc < 10000 || mc >= 200000) continue;
       const baseId = pool.relationships?.base_token?.data?.id || '';
       const addr   = baseId.startsWith('solana_') ? baseId.slice(7) : '';
       if (!addr || gtSeen.has(addr)) continue;
       gtSeen.add(addr);
+      if (isNaN(mc) || mc < 10000 || mc >= 200000) continue;
       const meta  = gtTokenMap.get(baseId) || {};
       const h1raw = parseFloat(pool.attributes?.price_change_percentage?.h1 || 0);
       gtFiltered.push({
@@ -557,7 +563,7 @@ async function runScan() {
         dex:     'pumpswap'
       });
     }
-    console.log(`[scan] GT: ${gtPoolData.length} pools, ${gtFiltered.length} in $10K-$200K range`);
+    console.log(`[GT] ${gtFiltered.length} pools in $10K-$200K range`);
 
     // Verify DS orders — only pumpswap tokens with an approved paid profile proceed
     const gtVerified = [];
