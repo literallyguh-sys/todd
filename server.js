@@ -593,7 +593,7 @@ async function runScan() {
               icon:    pair.info?.imageUrl || coin.image_uri || coin.imageUri || '',
               mcap:    mc,
               h1:      pair.priceChange?.h1 ?? null,
-              url:     pair.url || `https://dexscreener.com/solana/${coin.mint}`,
+              url:     pair.url || `https://dexscreener.com/solana/${coin._addr}`,
               dex:     pair.dexId
             });
           }
