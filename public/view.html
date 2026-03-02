@@ -500,8 +500,6 @@ async function sendMsg() {
 document.getElementById('chat-msg-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
 
 // ── Scanner ───────────────────────────────────────────────────────────────────
-function delay(ms){return new Promise(r=>setTimeout(r,ms));}
-
 function fmtMcap(n){
   if(n>=1000000) return '$'+(n/1000000).toFixed(2)+'M';
   if(n>=1000)    return '$'+(n/1000).toFixed(1)+'K';
