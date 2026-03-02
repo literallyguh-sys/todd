@@ -435,10 +435,9 @@ async function detectBundle(mintAddress) {
 }
 
 async function refreshPrices() {
-  const entries = [...scanCache.pf, ...scanCache.ps];
+  const entries = scanCache.pf;
   if (!entries.length) return;
-  const dexById = new Map(entries.map(t => [t.address, t.dex]));
-  const addrs   = [...dexById.keys()];
+  const addrs = entries.map(t => t.address);
   try {
     const DS_BATCH = 30;
     const next = {};
@@ -450,7 +449,7 @@ async function refreshPrices() {
       for (const pair of (data.pairs || [])) {
         const addr = pair.baseToken?.address;
         if (!addr || pair.chainId !== 'solana') continue;
-        if (pair.dexId !== dexById.get(addr)) continue;
+        if (pair.dexId !== 'pumpfun') continue;
         next[addr] = { mcap: pair.marketCap || pair.fdv || 0, h1: pair.priceChange?.h1 ?? null };
       }
     }
