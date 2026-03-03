@@ -142,13 +142,15 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 .te-icon{width:30px;height:30px;object-fit:cover;border-radius:3px;flex-shrink:0;}
 .te-icon-ph{width:30px;height:30px;background:#1e1e1e;border-radius:3px;flex-shrink:0;display:inline-block;}
 @keyframes tickerfadein{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
-#back-area{position:fixed;left:24px;bottom:80px;z-index:200;}
 #back-btn{
-  background:transparent;color:#888;border:2px solid #555;
-  font-family:'VT323',monospace;font-size:18px;letter-spacing:2px;
-  padding:8px 20px;cursor:pointer;text-decoration:none;display:inline-block;
+  position:fixed;top:0;left:0;z-index:200;width:190px;
+  display:block;text-align:center;
+  background:transparent;color:#888;
+  border:1px solid rgba(255,255,255,0.1);border-top:none;border-left:none;
+  font-family:'VT323',monospace;font-size:16px;letter-spacing:2px;
+  padding:7px 0;cursor:pointer;text-decoration:none;
 }
-#back-btn:hover{border-color:var(--accent);color:var(--accent);}
+#back-btn:hover{background:rgba(255,255,255,0.05);color:var(--accent);border-color:rgba(255,214,0,0.4);}
 .col-next-scan{border:1px solid rgba(255,214,0,0.4);color:var(--accent);font-family:'VT323',monospace;font-size:12px;letter-spacing:1px;padding:1px 7px;white-space:nowrap;margin-left:auto;}
 .col-next-scan.scanning{opacity:0.6;}
 
