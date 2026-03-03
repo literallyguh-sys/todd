@@ -483,6 +483,8 @@ body {
       <button class="sidebar-tab" id="tabGallery" onclick="switchTab('gallery')">GALLERY</button>
     </div>
 
+    <div id="sidebarPanels">
+
     <div class="panel">
       <p class="panel-title">Add Todd</p>
       <div class="todd-grid">
@@ -492,14 +494,6 @@ body {
         </div>
         <div class="todd-thumb" onclick="addTodd('todd2.png')" title="Todd 2">
           <img src="todd2.png" onerror="this.parentNode.innerHTML='<span style=\'font-size:28px\'>😄</span><div class=\'add-icon\'>➕</div>'">
-          <div class="add-icon">➕</div>
-        </div>
-        <div class="todd-thumb" onclick="addTodd('todd3.png')" title="Todd 3">
-          <img src="todd3.png" onerror="this.parentNode.innerHTML='<span style=\'font-size:28px\'>😎</span><div class=\'add-icon\'>➕</div>'">
-          <div class="add-icon">➕</div>
-        </div>
-        <div class="todd-thumb" onclick="addTodd('confidence.png')" title="Confidence">
-          <img src="confidence.png" onerror="this.parentNode.innerHTML='<span style=\'font-size:28px\'>💪</span><div class=\'add-icon\'>➕</div>'">
           <div class="add-icon">➕</div>
         </div>
         <div class="add-todd-btn" onclick="openToddPicker()" style="grid-column:1/-1">👁 See more Todds</div>
@@ -519,6 +513,17 @@ body {
     <div class="panel">
       <p class="panel-title">Tools</p>
       <div class="control-group">
+        <button class="btn" id="pencilBtn" onclick="togglePencil()">
+          <span class="btn-icon">✏️</span> Pencil
+        </button>
+        <div class="slider-row" id="pencilSizeRow" style="display:none">
+          <span>Size</span>
+          <input type="range" id="pencilSize" min="1" max="24" value="3">
+          <span id="pencilSizeVal">3</span>
+        </div>
+        <button class="btn" id="textBtn" onclick="openTextModal()">
+          <span class="btn-icon">T</span> Add Text
+        </button>
         <button class="btn" id="eraserBtn" onclick="toggleEraser()">
           <span class="btn-icon">🧹</span> Eraser Mode
         </button>
@@ -529,10 +534,10 @@ body {
         </div>
 
         <button class="btn" id="mirrorBtn" onclick="flipSelected()" style="display:none">
-          <span class="btn-icon">↔️</span> Mirror Todd
+          <span class="btn-icon">↔️</span> Mirror
         </button>
         <button class="btn danger" id="deleteToddBtn" onclick="deleteSelected()" style="display:none">
-          <span class="btn-icon">🗑️</span> Delete Todd
+          <span class="btn-icon">🗑️</span> Delete
         </button>
         <div id="layerBtns" style="display:none;flex-direction:row;gap:6px">
           <button class="btn" onclick="moveLayer('up')" style="flex:1;width:auto;justify-content:center;padding:8px 4px" title="Bring forward">
@@ -561,6 +566,8 @@ body {
       <button class="btn primary" onclick="exportImage()" style="margin-bottom:6px">Download PNG</button>
       <button class="btn" onclick="openPublishModal()" style="border-color:#7c4dff;color:#b39ddb">Publish to Gallery</button>
     </div>
+
+    </div><!-- /sidebarPanels -->
 
     <!-- Sidebar footer: social links + admin -->
     <div class="sidebar-footer">
