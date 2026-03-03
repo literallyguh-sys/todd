@@ -362,6 +362,32 @@ async function initLobbyName() {
 }
 
 initLobbyName();
+
+// ── Music ──
+const bgMusic = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('music-btn');
+bgMusic.volume = 0.4;
+
+function toggleMusic() {
+  if (bgMusic.paused) {
+    bgMusic.play();
+    musicBtn.textContent = '♪ ON';
+    musicBtn.classList.add('playing');
+  } else {
+    bgMusic.pause();
+    musicBtn.textContent = '♪ OFF';
+    musicBtn.classList.remove('playing');
+  }
+}
+
+// Autoplay on first interaction
+document.addEventListener('click', function startMusic() {
+  bgMusic.play().then(() => {
+    musicBtn.textContent = '♪ ON';
+    musicBtn.classList.add('playing');
+  }).catch(() => {});
+  document.removeEventListener('click', startMusic);
+}, { once: true });
 </script>
 </body>
 </html>
