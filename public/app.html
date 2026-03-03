@@ -2483,6 +2483,17 @@ async function vote(postId, dir) {
 }
 
 
+function toggleMobileSidebar(){
+  document.querySelector('.app').classList.toggle('sidebar-open');
+}
+function closeMobileSidebar(){
+  document.querySelector('.app').classList.remove('sidebar-open');
+}
 </script>
+<div id="mobile-bar">
+  <a href="index.html" id="mobile-back">← BACK</a>
+  <button id="mobile-toggle" onclick="toggleMobileSidebar()">≡ TOOLS</button>
+</div>
+<div id="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
 </body>
 </html>
