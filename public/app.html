@@ -1615,23 +1615,15 @@ let _usernameCheckTimer = null;
 
 // ── Update all UI that shows the user's identity ──
 function updateAuthUI() {
-  const btn    = document.getElementById('authBtn');
-  const label  = document.getElementById('authBtnLabel');
   const nameInput = document.getElementById('chatNameInput');
 
   if (_currentUser && _currentUser.username) {
-    // Fully logged in with username
-    btn.classList.add('logged-in');
-    label.innerHTML = `<span style="color:#00cc66">✔</span> ${escHtml(_currentUser.username)}`;
     nameInput.value = _currentUser.username;
     nameInput.readOnly = true;
     nameInput.style.color = '#00cc66';
     nameInput.style.borderColor = '#00cc66';
     nameInput.title = _currentUser.username;
   } else {
-    // Guest
-    btn.classList.remove('logged-in');
-    label.textContent = '[ LOGIN ]';
     const guestName = getGuestName();
     nameInput.value = guestName;
     nameInput.readOnly = true;
