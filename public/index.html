@@ -78,8 +78,28 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 
 @media(max-width:600px){
   #site-title h1{font-size:34px;letter-spacing:3px;}
-  #tv-hotspot{left:1%;top:7%;width:22%;height:30%;}
-  #computer-hotspot{left:18%;top:64%;width:24%;height:22%;}
+  #room{background-position:20% center;}
+  #tv-hotspot{
+    left:2%;top:8%;width:26%;height:28%;
+    clip-path:none;
+    border:1px solid rgba(106,163,255,0.3);
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;
+  }
+  #computer-hotspot{
+    left:14%;top:62%;width:30%;height:24%;
+    clip-path:none;
+    border:1px solid rgba(106,163,255,0.3);
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;
+  }
+  #tv-hotspot::after,#computer-hotspot::after{
+    content:attr(data-label);
+    position:static;background:none;
+    color:rgba(255,255,255,0.6);
+    font-family:'VT323',monospace;font-size:13px;letter-spacing:2px;
+    text-shadow:0 1px 4px rgba(0,0,0,1);
+  }
+  .hint{display:none;}
+  #enter-hint{bottom:72px;}
 }
 
 /* lobby-chat-overlay */
