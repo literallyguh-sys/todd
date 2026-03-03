@@ -398,10 +398,11 @@ function lbSetNameField(value, isUser) {
   const el = document.getElementById('lobby-name-input');
   if (!el) return;
   el.value = value;
-  el.readOnly = isUser;
+  el.readOnly = true;
   el.style.color = isUser ? '#00cc66' : '#aaa';
   el.style.borderColor = isUser ? '#00cc66' : '';
-  el.title = isUser ? value : '';
+  el.title = value;
+  updateLobbyLoginBtn();
 }
 
 async function initLobbyName() {
