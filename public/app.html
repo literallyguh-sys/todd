@@ -26,8 +26,11 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;}
 
+#room{position:fixed;inset:0;z-index:-1;background-image:url('app.jpg');background-size:cover;background-position:center;}
+#room::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.72);}
+
 body {
-  background: var(--bg);
+  background: transparent;
   background-image:
     repeating-linear-gradient(0deg,transparent,transparent 3px,
       rgba(255,255,255,.013) 3px,rgba(255,255,255,.013) 4px);
