@@ -647,6 +647,31 @@ startScan();
 setInterval(()=>{if(!scanning)startScan();},30000);
 setInterval(loadTicker,60000);
 setInterval(refreshPrices,5000);
+
+// ── Ticker drag-to-scroll ──
+(function(){
+  const el = document.getElementById('new-ticker');
+  let down = false, startX = 0, scrollLeft = 0, moved = false;
+  el.addEventListener('mousedown', e => {
+    if (e.target.closest('a')) return;
+    down = true; moved = false;
+    startX = e.pageX - el.offsetLeft;
+    scrollLeft = el.scrollLeft;
+    el.style.cursor = 'grabbing';
+  });
+  el.addEventListener('mouseleave', () => { down = false; el.style.cursor = ''; });
+  el.addEventListener('mouseup',    () => { down = false; el.style.cursor = ''; });
+  el.addEventListener('mousemove', e => {
+    if (!down) return;
+    e.preventDefault();
+    moved = true;
+    el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX);
+  });
+  el.addEventListener('wheel', e => {
+    e.preventDefault();
+    el.scrollLeft += e.deltaY + e.deltaX;
+  }, { passive: false });
+})();
 </script>
 </body>
 </html>
