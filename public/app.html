@@ -1456,6 +1456,8 @@ function toggleEraser() {
     : '<span class="btn-icon">🧹</span> Eraser Mode';
   sizeRow.style.display = eraserMode ? 'flex' : 'none';
   containerEl.classList.toggle('eraser-active', eraserMode);
+  const mdbEraser = document.getElementById('mdb-eraser');
+  if (mdbEraser) mdbEraser.classList.toggle('active', eraserMode);
   transformer.nodes([]);
   toddLayer.find('Group').forEach(g => {
     g.draggable(!eraserMode);
