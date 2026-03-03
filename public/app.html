@@ -645,6 +645,26 @@ body {
   </div>
 </aside>
 
+<!-- Text input modal -->
+<div class="modal-overlay" id="textModal" style="display:none" onclick="closeTextModal(event)">
+  <div class="modal" style="width:320px">
+    <div class="modal-titlebar">
+      <span>ADD TEXT</span>
+      <div class="modal-titlebar-close" onclick="closeTextModal()">✕</div>
+    </div>
+    <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+      <input type="text" id="textInput" placeholder="Enter text..."
+        style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);
+               color:#e0e0e0;font-family:'VT323',monospace;font-size:20px;
+               padding:8px 10px;letter-spacing:1px;width:100%;outline:none;">
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" onclick="confirmAddText()" style="flex:1">ADD</button>
+        <button class="btn" onclick="closeTextModal()" style="flex:1;justify-content:center">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Publish modal -->
 <div class="modal-overlay" id="publishModal" style="display:none" onclick="closePublishModal(event)">
   <div class="modal">
