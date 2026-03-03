@@ -34,62 +34,6 @@ body {
 }
 
 
-/* ── HEADER ── */
-header {
-  flex-shrink: 0;
-  display: flex; align-items: center; gap: 14px;
-  padding: 7px 14px;
-  background: transparent;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-.header-title-wrap { cursor:pointer; }
-
-header h1 {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 36px; letter-spacing: 4px;
-  color: var(--accent); line-height:1;
-  position:relative; display:inline-block;
-  animation: glitch-base 6s infinite;
-  text-shadow: 2px 0 #ff003c,-2px 0 #00f5ff;
-}
-header h1::before,header h1::after {
-  content:attr(data-text);
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  font-family:inherit;font-size:inherit;letter-spacing:inherit;
-}
-header h1::before { color:#ff003c; animation:glitch-r 6s infinite;
-  clip-path:polygon(0 15%,100% 15%,100% 38%,0 38%); }
-header h1::after  { color:#00f5ff; animation:glitch-b 6s infinite;
-  clip-path:polygon(0 62%,100% 62%,100% 82%,0 82%); }
-
-@keyframes glitch-base {
-  0%,89%,100%{transform:none;opacity:1}
-  90%{transform:skewX(-3deg) translateX(2px);opacity:.9}
-  91%{transform:skewX(2deg) translateX(-2px)}
-  92%{transform:none}
-  93%{transform:translateX(3px) skewX(-1deg);opacity:.95}
-  94%,95%{transform:none}
-}
-@keyframes glitch-r {
-  0%,89%,100%{transform:none;opacity:0}
-  90%{transform:translateX(-4px);opacity:.8}
-  91%{transform:translateX(3px);opacity:.5}
-  92%,95%{opacity:0}
-  93%{transform:translateX(-5px);opacity:.6}
-}
-@keyframes glitch-b {
-  0%,91%,100%{transform:none;opacity:0}
-  92%{transform:translateX(5px);opacity:.8}
-  93%{transform:translateX(-3px);opacity:.4}
-  94%,97%{opacity:0}
-  95%{transform:translateX(4px);opacity:.5}
-}
-
-header .subtitle {
-  font-size:13px; color:#555; letter-spacing:3px; text-transform:uppercase;
-}
-
-
 /* ── FIXED NAV BUTTONS (same as view.html) ── */
 #back-area{position:fixed;left:24px;bottom:80px;z-index:200;}
 #back-btn{
