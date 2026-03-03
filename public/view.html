@@ -217,6 +217,29 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 @keyframes spin{to{transform:rotate(360deg)}}
 
 #transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
+
+@media(max-width:599px){
+  #scanner{
+    right:0;
+    padding:8px 8px 80px;
+    overflow-y:auto;
+  }
+  #scanner-body{
+    flex-direction:column;
+    overflow:visible;
+    flex:none;
+    height:auto;
+    gap:16px;
+  }
+  .col{
+    flex:none;
+    overflow:visible;
+  }
+  .col-list{
+    max-height:50vh;
+    overflow-y:auto;
+  }
+}
 </style>
 </head>
 <body>
