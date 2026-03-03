@@ -632,25 +632,26 @@ body {
     </div>
   </div>
 
-  <!-- Chat panel — always visible -->
-  <aside class="chat-panel" id="chatPanel">
-    <div class="chat-titlebar">
-      <div class="chat-live-dot"></div>
-      <span>LIVE CHAT</span>
-      <span class="chat-viewer-count" id="chatViewerCount"></span>
-    </div>
-    <div class="chat-messages" id="chatMessages">
-      <!-- messages rendered here -->
-    </div>
-    <div class="chat-input-area">
-      <input type="text" id="chatNameInput" class="chat-name-input" placeholder="Your name" maxlength="20">
-      <div class="chat-bottom">
-        <input type="text" id="chatMsgInput" class="chat-msg-input" placeholder="Say something..." maxlength="200">
-        <button class="chat-send-btn" onclick="sendChatMsg()">➤</button>
-      </div>
-    </div>
-  </aside>
 </div>
+
+<!-- Chat panel — fixed right overlay, same as index.html lobby chat -->
+<aside class="chat-panel" id="chatPanel">
+  <div class="chat-titlebar">
+    <div class="chat-live-dot"></div>
+    <span>LIVE CHAT</span>
+    <span class="chat-viewer-count" id="chatViewerCount"></span>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <!-- messages rendered here -->
+  </div>
+  <div class="chat-input-area">
+    <input type="text" id="chatNameInput" class="chat-name-input" placeholder="Your name" maxlength="20">
+    <div class="chat-bottom">
+      <input type="text" id="chatMsgInput" class="chat-msg-input" placeholder="Say something..." maxlength="200">
+      <button class="chat-send-btn" onclick="sendChatMsg()">➤</button>
+    </div>
+  </div>
+</aside>
 
 <!-- Publish modal -->
 <div class="modal-overlay" id="publishModal" style="display:none" onclick="closePublishModal(event)">
