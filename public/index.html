@@ -251,10 +251,14 @@ function enterAsGuest() {
   enterApp();
 }
 
-function enterApp() {
+function fadeNavigate(url) {
   const fade = document.getElementById('transition');
   fade.classList.add('fade-out');
-  setTimeout(() => { window.location.href = 'app.html'; }, 500);
+  setTimeout(() => { window.location.href = url; }, 500);
+}
+
+function enterApp() {
+  fadeNavigate('app.html');
 }
 
 // If Google OAuth redirected back here with a token, forward to app.html
