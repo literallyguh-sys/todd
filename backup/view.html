@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TODD'S WITNESSES — SCANNER</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#060608;font-family:'VT323',monospace;}
+:root{--accent:#FFD600;--red:#FF3A3A;--green:#00cc66;--pf:#FF6B00;--ps:#9945FF;}
+
+body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
+
+#room{position:fixed;inset:0;z-index:0;
+  background-image:url('room.jpg');background-size:cover;background-position:center;}
+#room::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.82) 100%);}
+
+/* ── CHAT — exact lobby match ── */
+#chat-panel{
+  position:fixed;right:10px;top:10px;width:33.333%;height:calc(100% - 20px);z-index:100;
+  display:flex;flex-direction:column;background:transparent;
+  border-left:1px solid rgba(255,255,255,0.07);font-family:'VT323',monospace;
+}
+#chat-titlebar{
+  display:flex;align-items:center;gap:6px;padding:8px 12px;
+  background:transparent;border-bottom:1px solid rgba(255,255,255,0.08);
+  font-size:16px;color:#ddd;letter-spacing:2px;flex-shrink:0;
+}
+.live-dot{width:7px;height:7px;background:var(--red);border-radius:50%;
+  box-shadow:0 0 5px var(--red);animation:lbpulse 1.2s steps(2) infinite;flex-shrink:0;}
+@keyframes lbpulse{0%,100%{opacity:1}50%{opacity:0.3}}
+#chat-messages{
+  flex:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:2px;
+}
+#chat-messages::-webkit-scrollbar{width:4px;}
+#chat-messages::-webkit-scrollbar-track{background:transparent;}
+#chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);}
+.chat-msg{font-size:14px;line-height:1.3;word-break:break-word;}
+.chat-msg-name{font-size:15px;font-weight:700;margin-right:3px;}
+.chat-msg-text{color:#ccc;}
+#chat-input-area{
+  padding:8px;border-top:1px solid rgba(255,255,255,0.08);
+  display:flex;flex-direction:column;gap:4px;background:transparent;flex-shrink:0;
+}
+#chat-name-input{
+  width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);
+  color:#ddd;font-family:'VT323',monospace;font-size:14px;padding:3px 7px;outline:none;
+}
+#chat-name-input:focus{border-color:var(--accent);}
+#chat-bottom{display:flex;gap:4px;}
+#chat-msg-input{
+  flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);
+  color:#ddd;font-family:'VT323',monospace;font-size:14px;padding:4px 7px;outline:none;min-width:0;
+}
+#chat-msg-input:focus{border-color:var(--accent);}
+#chat-send-btn{
+  background:var(--accent);color:#000;border:1px solid var(--accent);
+  padding:4px 10px;font-size:15px;cursor:pointer;flex-shrink:0;
+  font-weight:700;font-family:'VT323',monospace;
+}
+#chat-send-btn:hover{background:#ffe033;}
+@media(max-width:700px){#chat-panel{display:none;}}
+
+/* ── LOGIN BUTTON (bottom-left, same as lobby) ── */
+#login-btn{
+  position:fixed;left:24px;bottom:24px;z-index:200;
+  background:transparent;color:var(--accent);border:2px solid var(--accent);
+  font-family:'VT323',monospace;font-size:18px;letter-spacing:2px;
+  padding:8px 20px;cursor:pointer;
+}
+#login-btn:hover{background:var(--accent);color:#000;}
+
+/* ── AUTH MODAL ── */
+#auth-modal{
+  display:none;position:fixed;inset:0;z-index:500;
+  align-items:center;justify-content:center;background:rgba(0,0,0,0.75);
+}
+#auth-modal.open{display:flex;}
+.auth-box{
+  background:#111114;border-top:2px solid #555;border-left:2px solid #555;
+  border-right:2px solid #222;border-bottom:2px solid #222;width:340px;overflow:hidden;
+}
+.auth-titlebar{
+  background:#2a2a2a;border-bottom:1px solid #111;padding:5px 12px;
+  display:flex;align-items:center;gap:8px;font-size:14px;color:#bbb;letter-spacing:1px;
+}
+.auth-dot{width:10px;height:10px;border-radius:50%;}
+.auth-inner{padding:22px 20px;display:flex;flex-direction:column;gap:12px;align-items:center;}
+.auth-logo{font-size:22px;color:var(--accent);letter-spacing:3px;text-align:center;}
+.auth-sub{font-size:14px;color:#555;letter-spacing:1px;}
+.auth-google{
+  display:flex;align-items:center;gap:10px;width:100%;background:#fff;
+  border:none;padding:10px 16px;cursor:pointer;font-size:14px;font-weight:500;
+  color:#333;justify-content:center;
+}
+.auth-google:hover{background:#f0f0f0;}
+.auth-or{color:#444;font-size:13px;letter-spacing:2px;}
+.auth-guest{
+  width:100%;background:#1a1a1a;border-top:1px solid #444;border-left:1px solid #444;
+  border-right:1px solid #111;border-bottom:1px solid #111;
+  color:#999;font-family:'VT323',monospace;font-size:20px;
+  letter-spacing:2px;padding:8px;cursor:pointer;
+}
+.auth-guest:hover{color:var(--accent);border-color:#666;}
+.auth-cancel{
+  background:transparent;border:none;color:#444;
+  font-family:'VT323',monospace;font-size:13px;cursor:pointer;letter-spacing:1px;
+}
+.auth-cancel:hover{color:#777;}
+
+/* ── SCANNER ── */
+#scanner{
+  position:fixed;left:0;top:0;right:calc(33.333% + 10px);bottom:0;z-index:10;
+  display:flex;flex-direction:column;padding:10px 16px 72px;overflow:hidden;
+}
+
+/* ── PROFILE STRIP (replaces header) ── */
+#new-ticker{
+  flex-shrink:0;height:54px;overflow-x:auto;overflow-y:hidden;
+  display:flex;align-items:center;flex-direction:row;gap:0;
+  border-bottom:1px solid rgba(255,214,0,0.18);margin-bottom:8px;
+}
+#new-ticker::-webkit-scrollbar{height:3px;}
+#new-ticker::-webkit-scrollbar-track{background:transparent;}
+#new-ticker::-webkit-scrollbar-thumb{background:rgba(255,214,0,0.3);}
+.ticker-entry{
+  font-family:'VT323',monospace;font-size:17px;color:var(--accent);
+  white-space:nowrap;padding:0 14px;flex-shrink:0;letter-spacing:1px;
+  border-right:1px solid rgba(255,214,0,0.12);line-height:1;
+  animation:tickerfadein 0.35s ease;text-decoration:none;
+  display:flex;align-items:center;gap:7px;height:100%;
+}
+.ticker-entry:hover{color:#fff;background:rgba(255,214,0,0.05);}
+.ticker-entry:last-child{border-right:none;}
+.ticker-entry.new-flash{color:#fff;}
+.te-ago{font-size:12px;color:rgba(255,214,0,0.4);letter-spacing:0;}
+.te-icon{width:30px;height:30px;object-fit:cover;border-radius:3px;flex-shrink:0;}
+.te-icon-ph{width:30px;height:30px;background:#1e1e1e;border-radius:3px;flex-shrink:0;display:inline-block;}
+@keyframes tickerfadein{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+#back-btn{
+  display:flex;align-items:center;justify-content:center;
+  height:100%;padding:0 16px;flex-shrink:0;
+  background:transparent;color:#888;
+  border-right:1px solid rgba(255,255,255,0.1);
+  font-family:'VT323',monospace;font-size:16px;letter-spacing:2px;
+  cursor:pointer;text-decoration:none;white-space:nowrap;
+}
+#back-btn:hover{background:rgba(255,255,255,0.05);color:var(--accent);}
+.col-next-scan{border:1px solid rgba(255,214,0,0.4);color:var(--accent);font-family:'VT323',monospace;font-size:12px;letter-spacing:1px;padding:1px 7px;white-space:nowrap;margin-left:auto;}
+.col-next-scan.scanning{opacity:0.6;}
+
+#scanner-body{display:flex;gap:10px;flex:1;overflow:hidden;min-height:0;}
+.col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.col-hdr{
+  display:flex;align-items:center;gap:7px;padding:4px 8px;
+  margin-bottom:6px;font-size:14px;letter-spacing:2px;flex-shrink:0;
+}
+.col-hdr.pf{border-left:3px solid var(--pf);color:var(--pf);}
+.col-hdr.cert{border-left:3px solid var(--accent);color:var(--accent);}
+.col-hdr .sub{font-size:11px;opacity:0.55;margin-left:2px;}
+.col-hdr-logo{width:18px;height:18px;border-radius:3px;flex-shrink:0;object-fit:contain;}
+.col-count{font-size:12px;opacity:0.5;min-width:2ch;text-align:right;}
+.col-hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.col-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0;padding-right:0;min-height:0;}
+.col-list::-webkit-scrollbar{width:4px;}
+.col-list::-webkit-scrollbar-track{background:rgba(255,255,255,0.03);}
+.col-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:2px;}
+.col-list::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.35);}
+
+/* ── TOKEN CARD ── */
+.token-card{
+  background:transparent;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  display:flex;gap:0;align-items:stretch;
+  text-decoration:none;transition:background 0.12s;
+}
+.token-card:hover{background:rgba(255,255,255,0.04);}
+.token-card.pf{border-left:2px solid rgba(255,107,0,0.55);}
+
+.token-img{width:56px;height:56px;flex-shrink:0;object-fit:cover;display:block;}
+.token-img-placeholder{
+  width:56px;height:56px;flex-shrink:0;background:#111;
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:#333;
+}
+.token-divider{width:1px;background:rgba(255,255,255,0.06);flex-shrink:0;}
+.token-body{flex:1;padding:7px 10px;display:flex;flex-direction:column;gap:4px;min-width:0;}
+
+.token-row1{display:flex;align-items:baseline;gap:6px;min-width:0;}
+.token-name{font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.token-ticker{font-size:13px;color:var(--accent);flex-shrink:0;}
+.token-mcap{font-size:16px;color:#fff;white-space:nowrap;margin-left:auto;flex-shrink:0;}
+
+.token-row2{display:flex;align-items:center;gap:6px;}
+.badge{font-size:12px;letter-spacing:1px;padding:1px 6px;border:1px solid rgba(255,255,255,0.07);color:#555;}
+.badge.up{color:var(--green);border-color:rgba(0,204,102,0.25);}
+.badge.dn{color:var(--red);border-color:rgba(255,58,58,0.25);}
+.badge.nt{color:#666;border-color:rgba(255,255,255,0.07);}
+.badge.ok{color:var(--green);border-color:rgba(0,204,102,0.25);}
+.mcap-bar-wrap{
+  flex:1;height:8px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);overflow:hidden;align-self:center;min-width:20px;
+}
+.mcap-bar{height:100%;min-width:2px;}
+.token-link-label{
+  font-size:11px;color:#444;letter-spacing:1px;flex-shrink:0;
+}
+.token-card:hover .token-link-label{color:var(--accent);}
+
+.col-empty{font-size:13px;color:#2e2e2e;letter-spacing:1px;padding:14px 8px;}
+
+.loading-row{display:flex;gap:6px;align-items:center;font-size:13px;color:#333;padding:6px 0;}
+.spinner{width:9px;height:9px;border:1px solid #2a2a2a;border-top-color:var(--accent);
+  border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+#transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
+</style>
+</head>
+<body>
+<div id="room"></div>
+<div id="transition"></div>
+
+<!-- ── CHAT (right side, exact lobby style) ── -->
+<div id="chat-panel">
+  <div id="chat-titlebar">
+    <div class="live-dot"></div>
+    <span>LIVE CHAT</span>
+  </div>
+  <div id="chat-messages"></div>
+  <div id="chat-input-area">
+    <input type="text" id="chat-name-input" placeholder="Your name" maxlength="20">
+    <div id="chat-bottom">
+      <input type="text" id="chat-msg-input" placeholder="Say something..." maxlength="200">
+      <button id="chat-send-btn" onclick="sendMsg()">&#x27A4;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOGIN BUTTON ── -->
+<button id="login-btn" onclick="openAuthModal()">[ LOGIN ]</button>
+
+
+<!-- ── AUTH MODAL ── -->
+<div id="auth-modal">
+  <div class="auth-box">
+    <div class="auth-titlebar">
+      <div class="auth-dot" style="background:#ff5f56"></div>
+      <div class="auth-dot" style="background:#ffbd2e"></div>
+      <div class="auth-dot" style="background:#27c93f"></div>
+      <span style="margin-left:4px;">todd's witnesses — access</span>
+    </div>
+    <div class="auth-inner">
+      <div class="auth-logo">TODD'S<br>WITNESSES</div>
+      <div class="auth-sub">who are you?</div>
+      <button class="auth-google" onclick="authGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <div class="auth-or">or</div>
+      <button class="auth-guest" onclick="authGuest()">[ ENTER AS GUEST ]</button>
+      <button class="auth-cancel" onclick="closeAuthModal()">cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCANNER ── -->
+<div id="scanner">
+  <div id="new-ticker"><a id="back-btn" href="index.html">← BACK</a></div>
+  <div id="scanner-body">
+    <div class="col">
+      <div class="col-hdr pf"><img class="col-hdr-logo" src="https://pump.fun/logo.png" alt="pump.fun" onerror="this.style.display='none'"> PUMP.FUN<span class="sub">(pre-bond)</span><span class="col-hdr-right"><span class="col-count" id="count-pf">0</span><span class="col-next-scan" id="next-scan-pf">NEXT: --:--</span></span></div>
+      <div class="col-list" id="list-pf"><div class="col-empty">Waiting for scan...</div></div>
+    </div>
+    <div class="col">
+      <div class="col-hdr cert">TODD CERTIFIED SHITTERS<span class="col-hdr-right"><span class="col-count" id="count-cert">0</span></span></div>
+      <div class="col-list" id="cert-list"><div class="col-empty">Waiting for scan...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Constants ─────────────────────────────────────────────────────────────────
+const SUPA_URL = 'https://cfaqadeoxskwhebyirok.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
+const CHAT_MAX = 100;
+const NAME_COLORS = ['#ff7eb3','#7eb3ff','#7effb3','#ffb37e','#d07eff','#ff7e7e','#7effe0','#fff07e','#ff9f7e','#a78bfa'];
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+let _currentUser = null;
+
+function getGuestName() {
+  try {
+    let id = localStorage.getItem('todd_guest_id');
+    if (!id) {
+      const fp = [navigator.userAgent.length,screen.width,screen.height,screen.colorDepth,
+        new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,navigator.language.length
+      ].reduce((a,b)=>(a*31+b)&0xffff,0x4d32);
+      id = String(1000+(Math.abs(fp)%9000));
+      localStorage.setItem('todd_guest_id',id);
+    }
+    return 'guest'+id;
+  } catch(e){ return 'guest'+Math.floor(1000+Math.random()*9000); }
+}
+
+function getStoredToken() {
+  try {
+    const k = Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
+    if (k) { const s=JSON.parse(localStorage.getItem(k)); return s?.access_token||''; }
+  } catch(e){}
+  return '';
+}
+
+function openAuthModal()  { document.getElementById('auth-modal').classList.add('open'); }
+function closeAuthModal() { document.getElementById('auth-modal').classList.remove('open'); }
+
+function authGoogle() {
+  const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/,'/');
+  window.location.href = `${SUPA_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(base+'view.html')}`;
+}
+
+function authGuest() {
+  localStorage.setItem('todd_authed','1');
+  closeAuthModal();
+  initChatName();
+  updateLoginBtn();
+}
+
+function updateLoginBtn() {
+  const btn = document.getElementById('login-btn');
+  if (_currentUser?.username) {
+    btn.textContent = '[ ' + _currentUser.username + ' ✔ ]';
+    btn.onclick = doLogout;
+  } else if (getStoredToken() || localStorage.getItem('todd_authed')==='1') {
+    btn.textContent = '[ LOGGED IN ]';
+    btn.onclick = doLogout;
+  } else {
+    btn.textContent = '[ LOGIN ]';
+    btn.onclick = openAuthModal;
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('todd_authed');
+  localStorage.removeItem('todd_user_data');
+  const k = Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
+  if (k) localStorage.removeItem(k);
+  _currentUser = null;
+  initChatName();
+  updateLoginBtn();
+}
+
+async function initChatName() {
+  const el = document.getElementById('chat-name-input');
+  // 1. Cached user
+  try {
+    const raw = localStorage.getItem('todd_user_data');
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u && u.username) {
+        _currentUser = u;
+        el.value = u.username + ' ✔';
+        el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
+        updateLoginBtn(); return;
+      }
+    }
+  } catch(e){}
+  // 2. Live fetch
+  const token = getStoredToken();
+  if (token) {
+    try {
+      const ur = await fetch(`${SUPA_URL}/auth/v1/user`,{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token}});
+      if (ur.ok) {
+        const user = await ur.json();
+        if (user?.id) {
+          const rr = await fetch(`${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(user.id)}&select=username&limit=1`,
+            {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token}});
+          if (rr.ok) {
+            const rows = await rr.json();
+            const username = rows[0]?.username;
+            if (username) {
+              _currentUser = {username,userId:user.id,email:user.email,verified:true};
+              try{localStorage.setItem('todd_user_data',JSON.stringify(_currentUser));}catch(e){}
+              el.value = username + ' ✔';
+              el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
+              updateLoginBtn(); return;
+            }
+          }
+        }
+      }
+    } catch(e){}
+  }
+  // 3. Guest
+  el.value = getGuestName();
+  el.readOnly = false; el.style.color = ''; el.style.borderColor = '';
+  updateLoginBtn();
+}
+
+// Handle Google OAuth return to this page
+if (window.location.hash.includes('access_token')) {
+  localStorage.setItem('todd_authed','1');
+  try {
+    const params={};
+    window.location.hash.slice(1).split('&').forEach(p=>{const[k,v]=p.split('=');params[decodeURIComponent(k)]=decodeURIComponent(v||'');});
+    localStorage.setItem('sb-cfaqadeoxskwhebyirok-auth-token', JSON.stringify({
+      access_token:params['access_token'], refresh_token:params['refresh_token'],
+      expires_at:Math.floor(Date.now()/1000)+parseInt(params['expires_in']||'3600'), token_type:'bearer'
+    }));
+  } catch(e){}
+  history.replaceState(null,'',window.location.pathname);
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+function nameColor(name) {
+  let h=0;
+  for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))&0xffffffff;
+  return NAME_COLORS[Math.abs(h)%NAME_COLORS.length];
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function appendMsg(msg) {
+  const box=document.getElementById('chat-messages');
+  const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
+  const el=document.createElement('div');
+  el.className='chat-msg';
+  el.innerHTML=`<span class="chat-msg-name" style="color:${nameColor(msg.name)}">${escHtml(msg.name)}:</span> <span class="chat-msg-text">${escHtml(msg.text)}</span>`;
+  box.appendChild(el);
+  while(box.children.length>CHAT_MAX) box.removeChild(box.firstChild);
+  if(atBottom) box.scrollTop=box.scrollHeight;
+}
+
+async function loadChat() {
+  try {
+    const r=await fetch(`${SUPA_URL}/rest/v1/chat_messages?select=id,name,text,created_at&order=created_at.asc&limit=80`,
+      {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}});
+    const msgs=await r.json();
+    const box=document.getElementById('chat-messages');
+    box.innerHTML='';
+    if(Array.isArray(msgs)) msgs.forEach(appendMsg);
+    box.scrollTop=box.scrollHeight;
+  } catch(e){}
+}
+
+function subscribeChat() {
+  const wsUrl=SUPA_URL.replace('https://','wss://')+'/realtime/v1/websocket?apikey='+SUPA_KEY+'&vsn=1.0.0';
+  let ws,ping;
+  function connect(){
+    ws=new WebSocket(wsUrl);
+    ws.onopen=()=>{
+      ws.send(JSON.stringify({topic:'realtime:public:chat_messages',event:'phx_join',payload:{},ref:'v1'}));
+      ping=setInterval(()=>{if(ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:'hb'}));},20000);
+    };
+    ws.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.event==='INSERT'&&m.payload?.record)appendMsg(m.payload.record);}catch(err){}};
+    ws.onclose=()=>{clearInterval(ping);setTimeout(connect,3000);};
+    ws.onerror=()=>ws.close();
+  }
+  connect();
+}
+
+async function sendMsg() {
+  const ne=document.getElementById('chat-name-input');
+  const me=document.getElementById('chat-msg-input');
+  const name=(_currentUser?.username)?_currentUser.username+' ✔':(ne.value||'').trim()||getGuestName();
+  const text=(me.value||'').trim();
+  if(!text) return;
+  me.value='';
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/chat_messages`,{
+      method:'POST',
+      headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},
+      body:JSON.stringify({name,text})
+    });
+  } catch(e){}
+}
+document.getElementById('chat-msg-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
+
+// ── Scanner ───────────────────────────────────────────────────────────────────
+function fmtMcap(n){
+  if(n>=1000000) return '$'+(n/1000000).toFixed(2)+'M';
+  if(n>=1000)    return '$'+(n/1000).toFixed(1)+'K';
+  return '$'+Math.round(n);
+}
+
+function fmt1h(pct){
+  if(pct==null||isNaN(pct)) return {label:'—', cls:'nt'};
+  const sign=pct>=0?'+':'';
+  return {label:`1H ${sign}${pct.toFixed(1)}%`, cls: pct>0?'up':pct<0?'dn':'nt'};
+}
+
+let pfResults=[],certResults=[];
+
+// ── DEX PAID ticker ────────────────────────────────────────────────────────────
+let tickerEntries=[];
+
+function renderTicker(){
+  const strip=document.getElementById('new-ticker');
+  while(strip.children.length>1) strip.removeChild(strip.lastChild);
+  for(const e of tickerEntries){
+    const a=document.createElement('a');
+    a.className='ticker-entry';
+    a.href=e.url||'#'; a.target='_blank'; a.rel='noopener';
+    const iconHtml=e.icon
+      ?`<img class="te-icon" src="${escHtml(e.icon)}" alt="" onerror="this.outerHTML='<span class=te-icon-ph></span>'">`
+      :`<span class="te-icon-ph"></span>`;
+    a.innerHTML=`${iconHtml}$${escHtml(e.ticker)}<span class="te-ago">${escHtml(e.ago||'')}</span>`;
+    strip.appendChild(a);
+  }
+}
+
+async function loadTicker(){
+  try{
+    const entries=await fetch('/api/ticker').then(r=>r.json());
+    const prev=new Set(tickerEntries.map(e=>e.address));
+    tickerEntries=entries;
+    renderTicker();
+    // Flash newly appeared entries
+    const added=entries.filter(e=>!prev.has(e.address));
+    if(added.length){
+      const strip=document.getElementById('new-ticker');
+      for(let i=1;i<strip.children.length;i++){
+        if(added.some(a=>strip.children[i].href?.includes(a.address))){
+          strip.children[i].classList.add('new-flash');
+          setTimeout(()=>strip.children[i]?.classList.remove('new-flash'),1500);
+        }
+      }
+    }
+  }catch(e){}
+}
+
+const BAR_MIN=2000,BAR_MAX=33000;
+function barPct(mc){return Math.max(0,Math.min(100,Math.round((mc-BAR_MIN)/(BAR_MAX-BAR_MIN)*100)));}
+function barColor(pct){return `hsl(${Math.round(pct*1.2)},90%,45%)`;}
+
+function renderCard(entry){
+  const{address,name,ticker,icon,mcap,h1:h1raw,url,dex,bundlePct}=entry;
+  const h1=fmt1h(h1raw);
+  const link=url||'#';
+
+  const card=document.createElement('a');
+  card.className='token-card pf';
+  card.href=link; card.target='_blank'; card.rel='noopener';
+  card.dataset.addr=address||'';
+
+  const imgHtml=icon
+    ?`<img class="token-img" src="${escHtml(icon)}" alt="" onerror="this.outerHTML='<div class=token-img-placeholder>${escHtml(ticker.slice(0,3))}</div>'">`
+    :`<div class="token-img-placeholder">${escHtml(ticker.slice(0,3))}</div>`;
+
+  const bp=barPct(mcap);
+
+  const bundleBadge=bundlePct!==null&&bundlePct!==undefined
+    ?`<span class="badge ok">BUNDLE ${bundlePct}%</span>`
+    :'';
+
+  card.innerHTML=`
+    ${imgHtml}
+    <div class="token-divider"></div>
+    <div class="token-body">
+      <div class="token-row1">
+        <span class="token-name">${escHtml(name)}</span>
+        <span class="token-ticker">$${escHtml(ticker)}</span>
+        <span class="token-mcap">${fmtMcap(mcap)}</span>
+      </div>
+      <div class="token-row2">
+        <span class="badge ${h1.cls}">${h1.label}</span>
+${bundleBadge}
+        <div class="mcap-bar-wrap"><div class="mcap-bar" style="width:${bp}%;background:${barColor(bp)}"></div></div>
+        <span class="token-link-label">VIEW ↗</span>
+      </div>
+    </div>`;
+  return card;
+}
+
+function flushResults(){
+  const lp=document.getElementById('list-pf'),lc=document.getElementById('cert-list');
+  lp.innerHTML=''; lc.innerHTML='';
+  pfResults.forEach(r=>lp.appendChild(renderCard(r)));
+  certResults.forEach(r=>lc.appendChild(renderCard(r)));
+  document.getElementById('count-pf').textContent=pfResults.length;
+  document.getElementById('count-cert').textContent=certResults.length;
+}
+
+let scanning=false;
+let scanStartedAt=0, serverScanning=false;
+const SCAN_MS=180000;
+const nextScanEls=[document.getElementById('next-scan-pf')];
+function tickCountdown(){
+  let text,cls;
+  if(!scanStartedAt){text='NEXT: --:--';cls='col-next-scan';}
+  else{
+    const secs=Math.max(0,Math.round((scanStartedAt+SCAN_MS-Date.now())/1000));
+    const m=Math.floor(secs/60),s=secs%60;
+    text=serverScanning?`SCANNING... ${m}:${String(s).padStart(2,'0')}`:`NEXT: ${m}:${String(s).padStart(2,'0')}`;
+    cls=serverScanning?'col-next-scan scanning':'col-next-scan';
+  }
+  nextScanEls.forEach(el=>{if(el){el.textContent=text;el.className=cls;}});
+}
+setInterval(tickCountdown,1000);
+
+async function startScan(){
+  if(scanning) return;
+  scanning=true;
+  try{
+    const data=await fetch('/api/scan-results').then(r=>r.json());
+    pfResults=data.pf||[]; certResults=data.cert||[];
+    scanStartedAt=data.scanStartedAt||0;
+    serverScanning=data.scanning||false;
+    flushResults();
+    tickCountdown();
+  }catch(e){}
+  scanning=false;
+}
+
+// ── Live price refresh (every 5s) ─────────────────────────────────────────────
+async function refreshPrices(){
+  try{
+    const prices=await fetch('/api/prices').then(r=>r.json());
+    for(const[addr,p] of Object.entries(prices)){
+      document.querySelectorAll(`[data-addr="${addr}"]`).forEach(card=>{
+        const mcapEl=card.querySelector('.token-mcap');
+        if(mcapEl) mcapEl.textContent=fmtMcap(p.mcap);
+        const h1=fmt1h(p.h1);
+        const h1el=card.querySelector('.token-row2 .badge');
+        if(h1el){h1el.textContent=h1.label;h1el.className=`badge ${h1.cls}`;}
+        const bar=card.querySelector('.mcap-bar');
+        if(bar){const bp=barPct(p.mcap);bar.style.width=bp+'%';bar.style.background=barColor(bp);}
+      });
+    }
+  }catch(e){}
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')location.href='index.html';});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+initChatName();
+updateLoginBtn();
+loadChat();
+subscribeChat();
+loadTicker();
+startScan();
+setInterval(()=>{if(!scanning)startScan();},30000);
+setInterval(loadTicker,60000);
+setInterval(refreshPrices,5000);
+
+// ── Ticker drag-to-scroll ──
+(function(){
+  const el = document.getElementById('new-ticker');
+  let down = false, startX = 0, scrollLeft = 0, moved = false;
+  el.addEventListener('mousedown', e => {
+    if (e.target.closest('a')) return;
+    down = true; moved = false;
+    startX = e.pageX - el.offsetLeft;
+    scrollLeft = el.scrollLeft;
+    el.style.cursor = 'grabbing';
+  });
+  el.addEventListener('mouseleave', () => { down = false; el.style.cursor = ''; });
+  el.addEventListener('mouseup',    () => { down = false; el.style.cursor = ''; });
+  el.addEventListener('mousemove', e => {
+    if (!down) return;
+    e.preventDefault();
+    moved = true;
+    el.scrollLeft = scrollLeft - (e.pageX - el.offsetLeft - startX);
+  });
+  el.addEventListener('wheel', e => {
+    e.preventDefault();
+    el.scrollLeft += e.deltaY + e.deltaX;
+  }, { passive: false });
+})();
+</script>
+</body>
+</html>

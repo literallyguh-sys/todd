@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Todd's Witnesses</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#008080;font-family:Arial,sans-serif;font-size:11px;}
+
+/* ── DESKTOP ── */
+#desktop{
+  position:fixed;inset:0;bottom:28px;
+  padding:10px 6px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+}
+
+/* ── ICONS ── */
+.desk-icon{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  width:76px;padding:4px;cursor:default;text-decoration:none;
+  border:1px solid transparent;
+}
+.desk-icon img{
+  width:48px;height:48px;
+  image-rendering:pixelated;image-rendering:crisp-edges;
+  display:block;
+}
+.desk-icon-label{
+  color:#fff;font-size:11px;text-align:center;
+  text-shadow:1px 1px 1px #000;
+  padding:1px 3px;line-height:1.3;
+  pointer-events:none;
+}
+.desk-icon.selected .desk-icon-label{
+  background:#000080;
+  outline:1px dotted #fff;
+}
+.desk-icon:focus{outline:none;}
+
+/* ── TASKBAR ── */
+#taskbar{
+  position:fixed;bottom:0;left:0;right:0;height:28px;
+  background:#c0c0c0;
+  border-top:2px solid #fff;
+  display:flex;align-items:center;gap:2px;padding:2px 3px;
+  z-index:500;
+}
+#start-btn{
+  height:22px;padding:0 6px;
+  background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-right:2px solid #808080;border-bottom:2px solid #808080;
+  font-weight:700;font-size:11px;cursor:pointer;
+  display:flex;align-items:center;gap:4px;letter-spacing:0;
+  font-family:Arial,sans-serif;
+}
+#start-btn:active{
+  border-top:2px solid #808080;border-left:2px solid #808080;
+  border-right:2px solid #fff;border-bottom:2px solid #fff;
+}
+#start-btn img{width:16px;height:16px;image-rendering:pixelated;}
+.taskbar-divider{width:1px;background:#808080;height:20px;margin:0 2px;box-shadow:1px 0 0 #fff;}
+#clock{
+  margin-left:auto;height:22px;padding:0 8px;
+  background:#c0c0c0;
+  border-top:1px solid #808080;border-left:1px solid #808080;
+  border-right:1px solid #fff;border-bottom:1px solid #fff;
+  display:flex;align-items:center;font-size:11px;
+  font-family:Arial,sans-serif;white-space:nowrap;
+}
+#back-taskbar{
+  height:22px;padding:0 8px;
+  background:#c0c0c0;
+  border-top:1px solid #808080;border-left:1px solid #808080;
+  border-right:1px solid #fff;border-bottom:1px solid #fff;
+  display:flex;align-items:center;font-size:11px;
+  font-family:Arial,sans-serif;text-decoration:none;color:#000;cursor:pointer;
+}
+#back-taskbar:hover{background:#d4d0c8;}
+
+/* ── WIN98 WINDOW (auth dialog) ── */
+.win-window{
+  background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-right:2px solid #808080;border-bottom:2px solid #808080;
+  min-width:280px;
+}
+.win-titlebar{
+  background:#000080;color:#fff;
+  padding:3px 4px;
+  display:flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:700;font-family:Arial,sans-serif;
+  user-select:none;
+}
+.win-titlebar-icon{font-size:12px;}
+.win-titlebar-close-area{margin-left:auto;display:flex;gap:2px;}
+.win-tbtn{
+  width:16px;height:14px;
+  background:#c0c0c0;
+  border-top:1px solid #fff;border-left:1px solid #fff;
+  border-right:1px solid #808080;border-bottom:1px solid #808080;
+  font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:#000;font-family:Arial,sans-serif;font-weight:700;
+}
+.win-tbtn:active{border-top:1px solid #808080;border-left:1px solid #808080;border-right:1px solid #fff;border-bottom:1px solid #fff;}
+.win-body{padding:16px 14px 12px;display:flex;flex-direction:column;gap:10px;}
+.win-label{font-size:11px;color:#000;font-family:Arial,sans-serif;}
+.win-separator{border:none;border-top:1px solid #808080;border-bottom:1px solid #fff;margin:2px 0;}
+.win-btn{
+  height:23px;padding:0 16px;min-width:75px;
+  background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-right:2px solid #808080;border-bottom:2px solid #808080;
+  font-size:11px;cursor:pointer;font-family:Arial,sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.win-btn:active{border-top:2px solid #808080;border-left:2px solid #808080;border-right:2px solid #fff;border-bottom:2px solid #fff;}
+.win-btn-row{display:flex;gap:6px;justify-content:center;}
+
+/* ── START MENU ── */
+#start-menu{
+  position:fixed;bottom:28px;left:2px;z-index:600;
+  background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-right:2px solid #808080;border-bottom:2px solid #808080;
+  display:none;flex-direction:row;
+  min-width:180px;
+}
+#start-menu.open{display:flex;}
+#start-menu-banner{
+  background:#808080;width:22px;flex-shrink:0;
+  display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:6px;
+  background:linear-gradient(to top,#000080,#1084d0);
+}
+#start-menu-banner span{
+  writing-mode:vertical-rl;transform:rotate(180deg);
+  color:#fff;font-size:13px;font-weight:700;
+  font-family:Arial,sans-serif;letter-spacing:1px;
+  text-shadow:1px 1px #000080;
+  opacity:0.85;
+}
+#start-menu-items{flex:1;display:flex;flex-direction:column;padding:2px 0;}
+.start-item{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 16px 4px 8px;
+  font-size:11px;font-family:Arial,sans-serif;color:#000;
+  cursor:pointer;white-space:nowrap;
+}
+.start-item:hover{background:#000080;color:#fff;}
+.start-item svg,.start-item img{width:16px;height:16px;flex-shrink:0;}
+.start-separator{border:none;border-top:1px solid #808080;border-bottom:1px solid #fff;margin:2px 4px;}
+
+/* ── SHUTDOWN SCREEN ── */
+#shutdown-screen{
+  position:fixed;inset:0;z-index:9999;background:#000;
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+#shutdown-screen.show{display:flex;}
+#shutdown-msg{
+  background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-right:2px solid #808080;border-bottom:2px solid #808080;
+  padding:24px 32px;text-align:center;
+  font-family:Arial,sans-serif;font-size:13px;
+}
+#shutdown-msg p{margin-top:10px;color:#000;}
+
+/* ── OVERLAY ── */
+#auth-overlay{
+  position:fixed;inset:0;bottom:28px;z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;
+}
+</style>
+</head>
+<body>
+
+<!-- ── DESKTOP ── -->
+<div id="desktop">
+  <a class="desk-icon" href="toddchan.html" ondblclick="navigate('toddchan.html')" onclick="selectIcon(this,event)">
+    <img src="toddchan.png" alt="toddchan" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect width=%2248%22 height=%2248%22 fill=%22%23000080%22/><text x=%2224%22 y=%2232%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2220%22>T</text></svg>'">
+    <div class="desk-icon-label">toddchan</div>
+  </a>
+  <a class="desk-icon" href="shitters.html" ondblclick="navigate('shitters.html')" onclick="selectIcon(this,event)">
+    <img src="shitters.png" alt="shitters" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect width=%2248%22 height=%2248%22 fill=%22%23800000%22/><text x=%2224%22 y=%2232%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2220%22>S</text></svg>'">
+    <div class="desk-icon-label">shitters</div>
+  </a>
+  <a class="desk-icon" href="worldoftodd.html" ondblclick="navigate('worldoftodd.html')" onclick="selectIcon(this,event)">
+    <img src="worldoftodd.png" alt="worldoftodd" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect width=%2248%22 height=%2248%22 fill=%22%23006400%22/><text x=%2224%22 y=%2232%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2220%22>W</text></svg>'">
+    <div class="desk-icon-label">worldoftodd</div>
+  </a>
+</div>
+
+<!-- ── START MENU ── -->
+<div id="start-menu">
+  <div id="start-menu-banner"><span>Todd OS</span></div>
+  <div id="start-menu-items">
+    <div class="start-item" onclick="shutDown()">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="8" width="14" height="7" fill="#c0c0c0" stroke="#808080" stroke-width="1"/>
+        <rect x="3" y="3" width="10" height="6" fill="#000080"/>
+        <rect x="5" y="10" width="6" height="2" fill="#808080"/>
+      </svg>
+      Shut Down...
+    </div>
+    <hr class="start-separator">
+    <div class="start-item" onclick="closeMenu()">
+      <svg viewBox="0 0 16 16" fill="#808080" xmlns="http://www.w3.org/2000/svg">
+        <text x="2" y="13" font-size="12" font-family="Arial">✕</text>
+      </svg>
+      Cancel
+    </div>
+  </div>
+</div>
+
+<!-- ── TASKBAR ── -->
+<div id="taskbar">
+  <button id="start-btn" onclick="toggleMenu()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="1" y="1" width="6" height="6" fill="#FF0000"/>
+      <rect x="9" y="1" width="6" height="6" fill="#00FF00"/>
+      <rect x="1" y="9" width="6" height="6" fill="#0000FF"/>
+      <rect x="9" y="9" width="6" height="6" fill="#FFD600"/>
+    </svg>
+    Start
+  </button>
+  <div class="taskbar-divider"></div>
+  <div id="clock"></div>
+</div>
+
+<!-- ── SHUTDOWN SCREEN ── -->
+<div id="shutdown-screen">
+  <div id="shutdown-msg">
+    <strong>Shutting down Todd OS...</strong>
+    <p>It is now safe to return to the lobby.</p>
+  </div>
+</div>
+
+<!-- ── AUTH DIALOG ── -->
+<div id="auth-overlay">
+  <div class="win-window" id="authWindow">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">🖥</span>
+      Todd's Witnesses
+      <div class="win-titlebar-close-area">
+        <div class="win-tbtn">_</div>
+        <div class="win-tbtn">□</div>
+        <div class="win-tbtn" onclick="authGuest()">✕</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="win-label">Who are you?</div>
+      <hr class="win-separator">
+      <div class="win-btn-row">
+        <button class="win-btn" onclick="authGoogle()">
+          <svg width="14" height="14" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Sign in with Google
+        </button>
+        <button class="win-btn" onclick="authGuest()">Enter as Guest</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://cfaqadeoxskwhebyirok.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── Start menu ──
+function toggleMenu() {
+  const m = document.getElementById('start-menu');
+  const btn = document.getElementById('start-btn');
+  const open = m.classList.toggle('open');
+  btn.style.borderTop    = open ? '2px solid #808080' : '2px solid #fff';
+  btn.style.borderLeft   = open ? '2px solid #808080' : '2px solid #fff';
+  btn.style.borderRight  = open ? '2px solid #fff'    : '2px solid #808080';
+  btn.style.borderBottom = open ? '2px solid #fff'    : '2px solid #808080';
+}
+function closeMenu() {
+  document.getElementById('start-menu').classList.remove('open');
+  const btn = document.getElementById('start-btn');
+  btn.style.cssText = '';
+}
+function shutDown() {
+  closeMenu();
+  const s = document.getElementById('shutdown-screen');
+  s.classList.add('show');
+  setTimeout(() => { window.location.href = 'index.html'; }, 2200);
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#start-menu') && !e.target.closest('#start-btn')) closeMenu();
+});
+
+// ── Clock ──
+function updateClock() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// ── Icon selection (single click selects, double click navigates) ──
+let lastClick = { el: null, time: 0 };
+function selectIcon(el, e) {
+  e.preventDefault();
+  document.querySelectorAll('.desk-icon').forEach(i => i.classList.remove('selected'));
+  const now = Date.now();
+  if (lastClick.el === el && now - lastClick.time < 500) {
+    navigate(el.href);
+    return;
+  }
+  el.classList.add('selected');
+  lastClick = { el, time: now };
+}
+function navigate(url) { window.location.href = url; }
+document.addEventListener('click', e => {
+  if (!e.target.closest('.desk-icon')) {
+    document.querySelectorAll('.desk-icon').forEach(i => i.classList.remove('selected'));
+    lastClick = { el: null, time: 0 };
+  }
+});
+
+// ── Auth ──
+function getGuestName() {
+  try {
+    let id = localStorage.getItem('todd_guest_id');
+    if (!id) {
+      const fp = [navigator.userAgent.length,screen.width,screen.height,screen.colorDepth,
+        new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,navigator.language.length
+      ].reduce((a,b)=>(a*31+b)&0xffff,0x4d32);
+      id = String(1000+(Math.abs(fp)%9000));
+      localStorage.setItem('todd_guest_id', id);
+    }
+    return 'guest' + id;
+  } catch(e) { return 'guest' + Math.floor(1000+Math.random()*9000); }
+}
+
+function showDesktop() {
+  document.getElementById('auth-overlay').style.display = 'none';
+}
+
+async function authGoogle() {
+  await supa.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+}
+
+function authGuest() {
+  localStorage.setItem('todd_authed', '1');
+  showDesktop();
+}
+
+async function init() {
+  if (window.location.hash.includes('access_token')) {
+    const { data: { session } } = await supa.auth.getSession();
+    if (session) {
+      localStorage.setItem('todd_authed', '1');
+      showDesktop();
+      history.replaceState(null, '', window.location.pathname);
+      return;
+    }
+  }
+  const { data: { session } } = await supa.auth.getSession();
+  if (session) { localStorage.setItem('todd_authed', '1'); showDesktop(); return; }
+  if (localStorage.getItem('todd_authed') === '1') { showDesktop(); return; }
+  document.getElementById('auth-overlay').style.display = 'flex';
+}
+
+init();
+</script>
+</body>
+</html>
