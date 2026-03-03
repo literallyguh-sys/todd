@@ -372,26 +372,31 @@ const bgMusic = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('music-btn');
 bgMusic.volume = 0.4;
 
+function setMusicUI(playing) {
+  musicBtn.classList.toggle('playing', playing);
+}
+
 function toggleMusic() {
   if (bgMusic.paused) {
-    bgMusic.play();
-    musicBtn.textContent = '♪ ON';
-    musicBtn.classList.add('playing');
+    bgMusic.play().catch(() => {});
+    setMusicUI(true);
   } else {
     bgMusic.pause();
-    musicBtn.textContent = '♪ OFF';
-    musicBtn.classList.remove('playing');
+    setMusicUI(false);
   }
 }
 
-// Autoplay on first interaction
-document.addEventListener('click', function startMusic() {
-  bgMusic.play().then(() => {
-    musicBtn.textContent = '♪ ON';
-    musicBtn.classList.add('playing');
-  }).catch(() => {});
-  document.removeEventListener('click', startMusic);
-}, { once: true });
+// Try to play immediately; if blocked, start on first interaction
+bgMusic.play().then(() => {
+  setMusicUI(true);
+}).catch(() => {
+  setMusicUI(false);
+  document.addEventListener('click', function startMusic(e) {
+    if (e.target.closest('#music-btn')) return; // let toggleMusic handle it
+    bgMusic.play().then(() => setMusicUI(true)).catch(() => {});
+    document.removeEventListener('click', startMusic);
+  });
+});
 </script>
 </body>
 </html>
