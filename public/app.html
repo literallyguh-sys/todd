@@ -832,8 +832,18 @@ const stage = new Konva.Stage({ container:'container', width:CANVAS_W, height:CA
 
 const bgLayer   = new Konva.Layer();
 const toddLayer = new Konva.Layer();
+const drawLayer = new Konva.Layer();
 stage.add(bgLayer);
 stage.add(toddLayer);
+stage.add(drawLayer);
+
+// ── Pencil state ──
+let pencilMode = false;
+let isPenciling = false;
+let currentPencilLine = null;
+
+// ── Text state ──
+let _textIdCounter = 0;
 
 const canvasBg = new Konva.Rect({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, fill:'rgba(34,34,34,0.5)', listening:false });
 bgLayer.add(canvasBg);
