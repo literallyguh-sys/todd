@@ -173,10 +173,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
     </div>
   </div>
 </div>
-<button id="lobby-login-btn" onclick="openLoginModal(true)">[ LOGIN ]</button>
-<button id="chat-fab" onclick="toggleMobileChat()">
-  <div class="lobby-live-dot"></div>CHAT
-</button>
+<div id="mobile-header-btns">
+  <button id="lobby-login-btn" onclick="openLoginModal(true)">[ LOGIN ]</button>
+  <button id="chat-fab" onclick="toggleMobileChat()"><div class="lobby-live-dot"></div>[ CHAT ]</button>
+</div>
 <div id="room-wrap">
   <div id="room-pan">
     <div id="room"></div>
