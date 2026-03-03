@@ -676,6 +676,27 @@ async function refreshPrices(){
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')location.href='index.html';});
 
+// ── Mobile header price ───────────────────────────────────────────────────────
+const TODD_PAIR = 'rt3p5zwosnnzdsuezbdialfazd2wgsoqvmnrlqtpljd';
+function fmtMobilePrice(p){
+  const n=parseFloat(p);
+  if(isNaN(n)) return '—';
+  if(n>=1)    return '$'+n.toFixed(4);
+  if(n>=0.01) return '$'+n.toFixed(6);
+  return '$'+n.toFixed(8);
+}
+async function fetchMobilePrice(){
+  const el=document.getElementById('mobile-price');
+  if(!el) return;
+  try{
+    const d=await fetch('https://api.dexscreener.com/latest/dex/pairs/solana/'+TODD_PAIR).then(r=>r.json());
+    const price=d?.pair?.priceUsd;
+    if(price) el.textContent=fmtMobilePrice(price);
+  }catch(e){}
+}
+fetchMobilePrice();
+setInterval(fetchMobilePrice,30000);
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 initChatName();
 updateLoginBtn();
