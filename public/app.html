@@ -283,11 +283,9 @@ header .subtitle {
 .toast {
   position:fixed;bottom:16px;left:50%;
   transform:translateX(-50%) translateY(60px);
-  background:#222;
-  border-top:1px solid #666;border-left:1px solid #666;
-  border-right:1px solid #111;border-bottom:1px solid #111;
-  color:var(--accent);font-family:'VT323',monospace;
-  font-size:16px;letter-spacing:1px;padding:6px 20px;
+  background:rgba(6,6,8,0.95);
+  border:1px solid rgba(255,255,255,0.2);
+  color:var(--accent); font-size:16px;letter-spacing:1px;padding:6px 20px;
   z-index:9999;transition:transform .15s steps(3);pointer-events:none;
 }
 .toast.show{transform:translateX(-50%) translateY(0);}
