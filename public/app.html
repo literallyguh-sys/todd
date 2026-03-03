@@ -1319,22 +1319,66 @@ stage.on('mousedown touchstart', ev => {
   }
 });
 stage.on('mouseup touchend', () => {
-  if (isErasing) {
-    isErasing = false;
-    pushHistory();  // snapshot after each erase stroke
+  if (isErasing) { isErasing = false; pushHistory(); }
+  if (isPenciling) {
+    isPenciling = false;
+    currentPencilLine = null;
+    pushHistory();
   }
 });
 stage.on('mousemove touchmove', () => {
-  if (!isErasing || !selectedGroup) return;
-  const pos = selectedGroup.getRelativePointerPosition();
-  selectedGroup.eraseLayer.add(new Konva.Circle({
-    x:pos.x, y:pos.y,
-    radius: parseInt(eraserSizeSlider.value),
-    fill:'#000', listening:false,
-    globalCompositeOperation:'destination-out'
-  }));
-  toddLayer.batchDraw();
+  if (isErasing && selectedGroup) {
+    const pos = selectedGroup.getRelativePointerPosition();
+    selectedGroup.eraseLayer.add(new Konva.Circle({
+      x:pos.x, y:pos.y,
+      radius: parseInt(eraserSizeSlider.value),
+      fill:'#000', listening:false,
+      globalCompositeOperation:'destination-out'
+    }));
+    toddLayer.batchDraw();
+  }
+  if (isPenciling && currentPencilLine) {
+    const pos = stage.getPointerPosition();
+    currentPencilLine.points(currentPencilLine.points().concat([pos.x, pos.y]));
+    drawLayer.batchDraw();
+  }
 });
+stage.on('mousedown touchstart', ev => {
+  if (!pencilMode) return;
+  isPenciling = true;
+  const pos = stage.getPointerPosition();
+  const size = parseInt(document.getElementById('pencilSize').value) || 3;
+  currentPencilLine = new Konva.Line({
+    stroke: '#FFD600', strokeWidth: size,
+    lineCap: 'round', lineJoin: 'round',
+    points: [pos.x, pos.y, pos.x, pos.y],
+    listening: false
+  });
+  drawLayer.add(currentPencilLine);
+  drawLayer.batchDraw();
+});
+
+// ── Pencil tool ──
+const pencilSizeSlider = document.getElementById('pencilSize');
+const pencilSizeVal    = document.getElementById('pencilSizeVal');
+pencilSizeSlider.addEventListener('input', () => { pencilSizeVal.textContent = pencilSizeSlider.value; });
+
+function togglePencil() {
+  pencilMode = !pencilMode;
+  if (pencilMode && eraserMode) toggleEraser();
+  const btn = document.getElementById('pencilBtn');
+  btn.classList.toggle('active', pencilMode);
+  btn.innerHTML = pencilMode
+    ? '<span class="btn-icon">✏️</span> Stop Pencil'
+    : '<span class="btn-icon">✏️</span> Pencil';
+  document.getElementById('pencilSizeRow').style.display = pencilMode ? 'flex' : 'none';
+  containerEl.classList.toggle('pencil-active', pencilMode);
+  if (pencilMode) {
+    transformer.nodes([]);
+    toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+  }
+  setStatus(pencilMode ? 'Pencil active — draw on canvas' : 'Ready');
+}
 
 // ── Clear all ──
 function clearAll() {
