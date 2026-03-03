@@ -534,6 +534,7 @@ header .subtitle {
 .admin-btn.delete:hover{background:rgba(255,58,58,0.08);border-color:rgba(255,58,58,0.5);}
 
 @media(max-width:900px){.chat-panel{display:none;}}
+@media(max-width:700px){#back-area,#authBtn{display:none;}}
 @media(max-width:600px){
   body{overflow:auto;}
   .app{flex-direction:column;overflow:auto;}
@@ -541,6 +542,8 @@ header .subtitle {
   .panel{flex:1;min-width:140px;}
   .canvas-wrap{padding:8px;justify-content:flex-start;}
 }
+#transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
+#transition.fade-out{opacity:1;pointer-events:all;}
 </style>
 </head>
 <body>
