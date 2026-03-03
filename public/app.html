@@ -1339,11 +1339,11 @@ stage.on('mousemove touchmove', () => {
 // ── Clear all ──
 function clearAll() {
   toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
-  
   if (background) { background.destroy(); background = null; bgBounds = null; }
   transformer.nodes([]);
   toddCount = 0;
-  bgLayer.draw(); toddLayer.draw(); 
+  drawLayer.destroyChildren();
+  bgLayer.draw(); toddLayer.draw(); drawLayer.draw();
   pushHistory();
   setStatus('Canvas cleared');
   showToast('Canvas cleared');
