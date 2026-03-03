@@ -217,13 +217,26 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 @keyframes spin{to{transform:rotate(360deg)}}
 
 #transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
+#mobile-bar{display:none;}
 
 @media(max-width:599px){
+  #mobile-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    position:fixed;top:0;left:0;right:0;height:44px;
+    background:rgba(0,0,0,0.88);border-bottom:1px solid rgba(255,255,255,0.1);
+    z-index:300;padding:0 12px;
+  }
+  #mobile-back{
+    color:#888;font-family:'VT323',monospace;font-size:16px;
+    letter-spacing:2px;text-decoration:none;
+  }
+  #mobile-back:hover{color:var(--accent);}
   #scanner{
-    right:0;
+    right:0;top:44px;
     padding:8px 8px 80px;
     overflow-y:auto;
   }
+  #back-btn{display:none;}
   #scanner-body{
     flex-direction:column;
     overflow:visible;
