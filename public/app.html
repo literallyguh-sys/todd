@@ -1368,7 +1368,7 @@ function exportImage() {
   tmp.height = crop.h;
   const ctx = tmp.getContext('2d');
 
-  [bgLayer, toddLayer].forEach(layer => {
+  [bgLayer, toddLayer, drawLayer].forEach(layer => {
     const src = layer.getCanvas()._canvas;
     ctx.drawImage(src, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
   });
@@ -2045,7 +2045,7 @@ function openPublishModal() {
   tmp.width = outW; tmp.height = outH;
   const ctx = tmp.getContext('2d');
   ctx.imageSmoothingQuality = 'high';
-  [bgLayer, toddLayer].forEach(layer => {
+  [bgLayer, toddLayer, drawLayer].forEach(layer => {
     ctx.drawImage(layer.getCanvas()._canvas, crop.x, crop.y, crop.w, crop.h, 0, 0, outW, outH);
   });
 
