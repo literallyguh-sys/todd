@@ -358,36 +358,6 @@ async function initLobbyName() {
 
 initLobbyName();
 
-// ── Music ──
-const bgMusic = document.getElementById('bgMusic');
-const musicBtn = document.getElementById('music-btn');
-bgMusic.volume = 0.4;
-
-function setMusicUI(playing) {
-  musicBtn.classList.toggle('playing', playing);
-}
-
-function toggleMusic() {
-  if (bgMusic.paused) {
-    bgMusic.play().catch(() => {});
-    setMusicUI(true);
-  } else {
-    bgMusic.pause();
-    setMusicUI(false);
-  }
-}
-
-// Try to play immediately; if blocked, start on first interaction
-bgMusic.play().then(() => {
-  setMusicUI(true);
-}).catch(() => {
-  setMusicUI(false);
-  document.addEventListener('click', function startMusic(e) {
-    if (e.target.closest('#music-btn')) return; // let toggleMusic handle it
-    bgMusic.play().then(() => setMusicUI(true)).catch(() => {});
-    document.removeEventListener('click', startMusic);
-  });
-});
 </script>
 </body>
 </html>
