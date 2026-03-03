@@ -126,11 +126,12 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   .hint{display:none;}
   #site-title{display:none;}
   #enter-hint{display:none;}
-  /* Full-width dark top bar */
+  /* Full-width dark top bar — matches app.html style */
   #mobile-header-btns{
-    position:fixed;top:0;left:0;right:0;height:48px;z-index:210;
+    position:fixed;top:0;left:0;right:0;height:44px;z-index:210;
     display:flex;align-items:center;
-    background:#1a1a1a;padding:0 10px;gap:8px;
+    background:rgba(0,0,0,0.88);border-bottom:1px solid rgba(255,255,255,0.1);
+    padding:0 12px;gap:8px;
   }
   .mhb-icon{
     display:flex;align-items:center;justify-content:center;
