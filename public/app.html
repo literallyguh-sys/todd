@@ -461,10 +461,49 @@ body {
 .admin-btn.delete:hover{background:rgba(255,58,58,0.08);border-color:rgba(255,58,58,0.5);}
 
 @media(max-width:700px){.chat-panel{display:none;}}
-@media(max-width:600px){
-  .app{right:0;}
-  .sidebar{width:180px;}
-  .canvas-wrap{padding:6px;}
+
+/* Hidden on desktop */
+#mobile-bar{display:none;}
+#sidebar-backdrop{display:none;}
+
+@media(max-width:599px){
+  /* Top bar */
+  #mobile-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    position:fixed;top:0;left:0;right:0;height:44px;
+    background:rgba(0,0,0,0.88);border-bottom:1px solid rgba(255,255,255,0.1);
+    z-index:300;padding:0 12px;
+  }
+  #mobile-back{
+    color:#888;font-family:'VT323',monospace;font-size:16px;
+    letter-spacing:2px;text-decoration:none;
+  }
+  #mobile-back:hover{color:var(--accent);}
+  #mobile-toggle{
+    background:transparent;border:1px solid rgba(255,255,255,0.2);
+    color:var(--accent);font-family:'VT323',monospace;font-size:16px;
+    letter-spacing:2px;padding:4px 12px;cursor:pointer;
+  }
+  /* App area pushed down below top bar, full width */
+  .app{top:44px;right:0;}
+  /* Sidebar: off-canvas by default */
+  #sidebar{
+    position:fixed;top:44px;left:0;bottom:0;width:220px;
+    transform:translateX(-100%);transition:transform 0.22s ease;
+    z-index:250;background:rgba(0,0,0,0.96);
+    border-right:1px solid rgba(255,255,255,0.12);
+  }
+  /* Sidebar open state */
+  .sidebar-open #sidebar{transform:translateX(0);}
+  /* Backdrop */
+  .sidebar-open #sidebar-backdrop{
+    display:block;position:fixed;inset:0;
+    background:rgba(0,0,0,0.45);z-index:240;
+  }
+  /* Canvas fill */
+  .canvas-wrap{padding:8px;}
+  /* Hide sidebar back btn — mobile-bar handles navigation */
+  #back-btn{display:none;}
 }
 #transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
 #transition.fade-out{opacity:1;pointer-events:all;}
