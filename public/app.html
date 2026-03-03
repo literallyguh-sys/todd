@@ -796,12 +796,11 @@ body {
 <script>
 // ── Canvas sizing ──
 function computeCanvasSize() {
-  const isMobile = window.innerWidth <= 600;
-  const headerH  = document.querySelector('header').offsetHeight || 57;
-  const pad = 32;
-  const w = isMobile ? window.innerWidth - pad : window.innerWidth - 220 - pad;
-  const h = isMobile ? window.innerHeight * 0.55 : window.innerHeight - headerH - pad;
-  return { w: Math.max(200, Math.floor(w)), h: Math.max(200, Math.floor(h)) };
+  const wrap = document.getElementById('editorView');
+  const pad  = 28;
+  const w = Math.max(200, Math.floor((wrap.clientWidth  || window.innerWidth  * 0.55) - pad));
+  const h = Math.max(200, Math.floor((wrap.clientHeight || window.innerHeight)        - pad));
+  return { w, h };
 }
 
 const sz = computeCanvasSize();
