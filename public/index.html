@@ -143,20 +143,20 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   </div>
 </div>
 <button id="lobby-login-btn" onclick="openLoginModal(true)">[ LOGIN ]</button>
-<div id="room"></div>
+<div id="room-wrap">
+  <div id="room"></div>
+  <div id="tv-hotspot" data-label="SCANNER" onclick="fadeNavigate('view.html')">
+    <div class="hint">[ CLICK TO VIEW ]</div>
+  </div>
+  <div id="computer-hotspot" data-label="DRAW" onclick="fadeNavigate('app.html')">
+    <div class="hint">[ CLICK TO ENTER ]</div>
+  </div>
+</div>
 <div id="transition"></div>
 
 <div id="site-title">
   <h1 data-text="TODD'S WITNESSES">TODD'S WITNESSES</h1>
   <p>enter the lobby</p>
-</div>
-
-<div id="tv-hotspot" data-label="SCANNER" onclick="fadeNavigate('hub.html')">
-  <div class="hint">[ CLICK TO VIEW ]</div>
-</div>
-
-<div id="computer-hotspot" data-label="SCANNER" onclick="fadeNavigate('view.html')">
-  <div class="hint">[ CLICK TO ENTER ]</div>
 </div>
 
 <div id="enter-hint">
