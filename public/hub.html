@@ -3,139 +3,192 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TODD'S WITNESSES</title>
-<link href="https://fonts.googleapis.com/css2?family=VT323&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<title>Todd's Witnesses</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;overflow:hidden;background:#060608;font-family:'VT323',monospace;}
-:root{--accent:#FFD600;--green:#00cc66;--red:#FF3A3A;}
+html,body{width:100%;height:100%;overflow:hidden;background:#008080;font-family:Arial,sans-serif;font-size:11px;}
 
-body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
-
-#room{position:fixed;inset:0;z-index:0;background-image:url('room.jpg');background-size:cover;background-position:center;}
-#room::after{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.82) 100%);}
-
-body{color:#e0e0e0;position:relative;z-index:1;}
-
-#transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
-
-/* ── BACK BUTTON ── */
-#back-btn{
-  position:fixed;top:0;left:0;z-index:200;
-  display:block;text-align:center;
-  background:transparent;color:#888;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-  border-right:1px solid rgba(255,255,255,0.1);
-  font-family:'VT323',monospace;font-size:16px;letter-spacing:2px;
-  padding:7px 20px;cursor:pointer;text-decoration:none;
+/* ── DESKTOP ── */
+#desktop{
+  position:fixed;inset:0;bottom:28px;
+  padding:10px 6px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
 }
-#back-btn:hover{background:rgba(255,255,255,0.05);color:var(--accent);}
 
-/* ── AUTH SCREEN ── */
-#auth-screen{
-  position:fixed;inset:0;z-index:10;
+/* ── ICONS ── */
+.desk-icon{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  width:76px;padding:4px;cursor:default;text-decoration:none;
+  border:1px solid transparent;
+}
+.desk-icon img{
+  width:48px;height:48px;
+  image-rendering:pixelated;image-rendering:crisp-edges;
+  display:block;
+}
+.desk-icon-label{
+  color:#fff;font-size:11px;text-align:center;
+  text-shadow:1px 1px 1px #000;
+  padding:1px 3px;line-height:1.3;
+  pointer-events:none;
+}
+.desk-icon.selected .desk-icon-label{
+  background:#000080;
+  outline:1px dotted #fff;
+}
+.desk-icon:focus{outline:none;}
+
+/* ── TASKBAR ── */
+#taskbar{
+  position:fixed;bottom:0;left:0;right:0;height:28px;
+  background:#c0c0c0;
+  border-top:2px solid #fff;
+  display:flex;align-items:center;gap:2px;padding:2px 3px;
+  z-index:500;
+}
+#start-btn{
+  height:22px;padding:0 6px;
+  background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-right:2px solid #808080;border-bottom:2px solid #808080;
+  font-weight:700;font-size:11px;cursor:pointer;
+  display:flex;align-items:center;gap:4px;letter-spacing:0;
+  font-family:Arial,sans-serif;
+}
+#start-btn:active{
+  border-top:2px solid #808080;border-left:2px solid #808080;
+  border-right:2px solid #fff;border-bottom:2px solid #fff;
+}
+#start-btn img{width:16px;height:16px;image-rendering:pixelated;}
+.taskbar-divider{width:1px;background:#808080;height:20px;margin:0 2px;box-shadow:1px 0 0 #fff;}
+#clock{
+  margin-left:auto;height:22px;padding:0 8px;
+  background:#c0c0c0;
+  border-top:1px solid #808080;border-left:1px solid #808080;
+  border-right:1px solid #fff;border-bottom:1px solid #fff;
+  display:flex;align-items:center;font-size:11px;
+  font-family:Arial,sans-serif;white-space:nowrap;
+}
+#back-taskbar{
+  height:22px;padding:0 8px;
+  background:#c0c0c0;
+  border-top:1px solid #808080;border-left:1px solid #808080;
+  border-right:1px solid #fff;border-bottom:1px solid #fff;
+  display:flex;align-items:center;font-size:11px;
+  font-family:Arial,sans-serif;text-decoration:none;color:#000;cursor:pointer;
+}
+#back-taskbar:hover{background:#d4d0c8;}
+
+/* ── WIN98 WINDOW (auth dialog) ── */
+.win-window{
+  background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-right:2px solid #808080;border-bottom:2px solid #808080;
+  min-width:280px;
+}
+.win-titlebar{
+  background:#000080;color:#fff;
+  padding:3px 4px;
+  display:flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:700;font-family:Arial,sans-serif;
+  user-select:none;
+}
+.win-titlebar-icon{font-size:12px;}
+.win-titlebar-close-area{margin-left:auto;display:flex;gap:2px;}
+.win-tbtn{
+  width:16px;height:14px;
+  background:#c0c0c0;
+  border-top:1px solid #fff;border-left:1px solid #fff;
+  border-right:1px solid #808080;border-bottom:1px solid #808080;
+  font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:#000;font-family:Arial,sans-serif;font-weight:700;
+}
+.win-tbtn:active{border-top:1px solid #808080;border-left:1px solid #808080;border-right:1px solid #fff;border-bottom:1px solid #fff;}
+.win-body{padding:16px 14px 12px;display:flex;flex-direction:column;gap:10px;}
+.win-label{font-size:11px;color:#000;font-family:Arial,sans-serif;}
+.win-separator{border:none;border-top:1px solid #808080;border-bottom:1px solid #fff;margin:2px 0;}
+.win-btn{
+  height:23px;padding:0 16px;min-width:75px;
+  background:#c0c0c0;
+  border-top:2px solid #fff;border-left:2px solid #fff;
+  border-right:2px solid #808080;border-bottom:2px solid #808080;
+  font-size:11px;cursor:pointer;font-family:Arial,sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.win-btn:active{border-top:2px solid #808080;border-left:2px solid #808080;border-right:2px solid #fff;border-bottom:2px solid #fff;}
+.win-btn-row{display:flex;gap:6px;justify-content:center;}
+
+/* ── OVERLAY ── */
+#auth-overlay{
+  position:fixed;inset:0;bottom:28px;z-index:100;
   display:flex;align-items:center;justify-content:center;
+  background:transparent;
 }
-.auth-box{
-  background:rgba(6,6,8,0.88);
-  border:1px solid rgba(255,255,255,0.12);
-  width:320px;
-  display:flex;flex-direction:column;align-items:center;
-  gap:16px;padding:32px 24px;
-}
-.auth-title{font-size:26px;color:var(--accent);letter-spacing:4px;text-align:center;}
-.auth-sub{font-size:15px;color:#444;letter-spacing:2px;}
-.auth-google-btn{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  background:#fff;color:#222;border:none;
-  padding:10px 16px;cursor:pointer;width:100%;
-  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
-}
-.auth-google-btn:hover{background:#f0f0f0;}
-.auth-divider{color:#333;font-size:14px;letter-spacing:2px;}
-.auth-guest-btn{
-  width:100%;background:transparent;
-  border:1px solid rgba(255,255,255,0.15);
-  color:#888;font-family:'VT323',monospace;font-size:20px;letter-spacing:2px;
-  padding:10px;cursor:pointer;
-}
-.auth-guest-btn:hover{border-color:var(--accent);color:var(--accent);}
-
-/* ── APP EXPLORER ── */
-#explorer{
-  position:fixed;inset:0;z-index:10;
-  display:none;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:48px;
-}
-.explorer-title{
-  font-size:13px;color:#333;letter-spacing:4px;
-  border-bottom:1px solid rgba(255,255,255,0.07);
-  padding-bottom:12px;width:320px;text-align:center;
-}
-.explorer-icons{display:flex;gap:24px;}
-.app-icon{
-  display:flex;flex-direction:column;align-items:center;gap:10px;
-  cursor:pointer;text-decoration:none;width:120px;
-}
-.app-icon-box{
-  width:110px;height:110px;
-  background:rgba(0,0,0,0.45);
-  border:1px solid rgba(255,255,255,0.1);
-  display:flex;align-items:center;justify-content:center;
-  font-size:42px;line-height:1;
-  transition:border-color .12s,background .12s;
-}
-.app-icon:hover .app-icon-box{
-  border-color:rgba(255,214,0,0.5);
-  background:rgba(255,214,0,0.06);
-}
-.app-icon-label{
-  font-size:14px;color:#666;letter-spacing:2px;text-align:center;line-height:1.3;
-  transition:color .12s;
-}
-.app-icon:hover .app-icon-label{color:var(--accent);}
 </style>
 </head>
 <body>
-<div id="room"></div>
-<div id="transition"></div>
-<a id="back-btn" href="index.html">← BACK</a>
 
-<!-- ── AUTH SCREEN ── -->
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-title">TODD'S WITNESSES</div>
-    <div class="auth-sub">WHO ARE YOU?</div>
-    <button class="auth-google-btn" onclick="authGoogle()">
-      <svg width="18" height="18" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Sign in with Google
-    </button>
-    <div class="auth-divider">— or —</div>
-    <button class="auth-guest-btn" onclick="authGuest()">[ ENTER AS GUEST ]</button>
-  </div>
+<!-- ── DESKTOP ── -->
+<div id="desktop">
+  <a class="desk-icon" href="toddchan.html" ondblclick="navigate('toddchan.html')" onclick="selectIcon(this,event)">
+    <img src="toddchan.png" alt="toddchan" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect width=%2248%22 height=%2248%22 fill=%22%23000080%22/><text x=%2224%22 y=%2232%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2220%22>T</text></svg>'">
+    <div class="desk-icon-label">toddchan</div>
+  </a>
+  <a class="desk-icon" href="shitters.html" ondblclick="navigate('shitters.html')" onclick="selectIcon(this,event)">
+    <img src="shitters.png" alt="shitters" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect width=%2248%22 height=%2248%22 fill=%22%23800000%22/><text x=%2224%22 y=%2232%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2220%22>S</text></svg>'">
+    <div class="desk-icon-label">shitters</div>
+  </a>
+  <a class="desk-icon" href="worldoftodd.html" ondblclick="navigate('worldoftodd.html')" onclick="selectIcon(this,event)">
+    <img src="worldoftodd.png" alt="worldoftodd" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect width=%2248%22 height=%2248%22 fill=%22%23006400%22/><text x=%2224%22 y=%2232%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2220%22>W</text></svg>'">
+    <div class="desk-icon-label">worldoftodd</div>
+  </a>
 </div>
 
-<!-- ── APP EXPLORER ── -->
-<div id="explorer">
-  <div class="explorer-title" id="explorerGreeting">TODD OS</div>
-  <div class="explorer-icons">
-    <a class="app-icon" href="view.html">
-      <div class="app-icon-box">⬡</div>
-      <div class="app-icon-label">TOKEN<br>SCANNER</div>
-    </a>
-    <a class="app-icon" href="forum.html">
-      <div class="app-icon-box">⬡</div>
-      <div class="app-icon-label">FORUM</div>
-    </a>
+<!-- ── TASKBAR ── -->
+<div id="taskbar">
+  <button id="start-btn">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="1" y="1" width="6" height="6" fill="#FF0000"/>
+      <rect x="9" y="1" width="6" height="6" fill="#00FF00"/>
+      <rect x="1" y="9" width="6" height="6" fill="#0000FF"/>
+      <rect x="9" y="9" width="6" height="6" fill="#FFD600"/>
+    </svg>
+    Start
+  </button>
+  <div class="taskbar-divider"></div>
+  <a id="back-taskbar" href="index.html">← Back to Lobby</a>
+  <div id="clock"></div>
+</div>
+
+<!-- ── AUTH DIALOG ── -->
+<div id="auth-overlay">
+  <div class="win-window" id="authWindow">
+    <div class="win-titlebar">
+      <span class="win-titlebar-icon">🖥</span>
+      Todd's Witnesses
+      <div class="win-titlebar-close-area">
+        <div class="win-tbtn">_</div>
+        <div class="win-tbtn">□</div>
+        <div class="win-tbtn" onclick="authGuest()">✕</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="win-label">Who are you?</div>
+      <hr class="win-separator">
+      <div class="win-btn-row">
+        <button class="win-btn" onclick="authGoogle()">
+          <svg width="14" height="14" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Sign in with Google
+        </button>
+        <button class="win-btn" onclick="authGuest()">Enter as Guest</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -144,6 +197,36 @@ const SUPA_URL = 'https://cfaqadeoxskwhebyirok.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+// ── Clock ──
+function updateClock() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// ── Icon selection (single click selects, double click navigates) ──
+let lastClick = { el: null, time: 0 };
+function selectIcon(el, e) {
+  e.preventDefault();
+  document.querySelectorAll('.desk-icon').forEach(i => i.classList.remove('selected'));
+  const now = Date.now();
+  if (lastClick.el === el && now - lastClick.time < 500) {
+    navigate(el.href);
+    return;
+  }
+  el.classList.add('selected');
+  lastClick = { el, time: now };
+}
+function navigate(url) { window.location.href = url; }
+document.addEventListener('click', e => {
+  if (!e.target.closest('.desk-icon')) {
+    document.querySelectorAll('.desk-icon').forEach(i => i.classList.remove('selected'));
+    lastClick = { el: null, time: 0 };
+  }
+});
+
+// ── Auth ──
 function getGuestName() {
   try {
     let id = localStorage.getItem('todd_guest_id');
@@ -158,14 +241,8 @@ function getGuestName() {
   } catch(e) { return 'guest' + Math.floor(1000+Math.random()*9000); }
 }
 
-function showExplorer(name) {
-  document.getElementById('auth-screen').style.display = 'none';
-  const ex = document.getElementById('explorer');
-  ex.style.display = 'flex';
-  if (name) {
-    document.getElementById('explorerGreeting').textContent =
-      'WELCOME, ' + name.toUpperCase().split(' ')[0].substring(0, 16);
-  }
+function showDesktop() {
+  document.getElementById('auth-overlay').style.display = 'none';
 }
 
 async function authGoogle() {
@@ -177,38 +254,23 @@ async function authGoogle() {
 
 function authGuest() {
   localStorage.setItem('todd_authed', '1');
-  showExplorer(getGuestName());
+  showDesktop();
 }
 
 async function init() {
-  // Handle OAuth redirect (hash contains access_token)
   if (window.location.hash.includes('access_token')) {
     const { data: { session } } = await supa.auth.getSession();
     if (session) {
       localStorage.setItem('todd_authed', '1');
-      const name = session.user.user_metadata?.full_name || session.user.email || '';
-      showExplorer(name);
+      showDesktop();
       history.replaceState(null, '', window.location.pathname);
       return;
     }
   }
-
-  // Already authenticated via Supabase
   const { data: { session } } = await supa.auth.getSession();
-  if (session) {
-    localStorage.setItem('todd_authed', '1');
-    showExplorer(session.user.user_metadata?.full_name || session.user.email || '');
-    return;
-  }
-
-  // Guest flag
-  if (localStorage.getItem('todd_authed') === '1') {
-    showExplorer(getGuestName());
-    return;
-  }
-
-  // Not logged in — show auth
-  document.getElementById('auth-screen').style.display = 'flex';
+  if (session) { localStorage.setItem('todd_authed', '1'); showDesktop(); return; }
+  if (localStorage.getItem('todd_authed') === '1') { showDesktop(); return; }
+  document.getElementById('auth-overlay').style.display = 'flex';
 }
 
 init();
