@@ -548,19 +548,19 @@ header .subtitle {
 </head>
 <body>
 <div id="room"></div>
+<div id="transition"></div>
+
+<!-- Fixed nav buttons (same pattern as view.html) -->
+<div id="back-area"><a id="back-btn" href="index.html">← BACK</a></div>
+<button id="authBtn" onclick="openAuthModal()"><span id="authBtnLabel">[ LOGIN ]</span></button>
 
 <header>
-  <!-- Back to lobby -->
-  <a class="back-to-lobby" href="index.html" title="Back to lobby">◀ LOBBY</a>
-
   <div class="header-title-wrap" onclick="switchTab('editor')">
     <h1 data-text="TODD'S WITNESSES">TODD'S WITNESSES</h1>
     <p class="subtitle">drag · resize · erase · publish · sigma</p>
   </div>
 
-  <!-- Social links -->
   <div class="header-links">
-    <!-- DexScreener -->
     <a class="header-link" href="https://dexscreener.com/solana/rt3p5zwosnnzdsuezbdialfazd2wgsoqvmnrlqtpljd" target="_blank" title="DexScreener">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#00cc66"/>
@@ -569,7 +569,6 @@ header .subtitle {
         <path d="M12 5v2M12 17v2M5 12h2M17 12h2" stroke="#00cc66" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
     </a>
-    <!-- X / Twitter -->
     <a class="header-link" href="https://x.com/i/communities/2024490509096407318" target="_blank" title="X Community">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="#e0e0e0">
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.261 5.636 5.903-5.636zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -578,20 +577,11 @@ header .subtitle {
   </div>
 
   <nav class="tabs">
-    <button class="tab active" id="tabEditor" onclick="switchTab('editor')">✏️ Editor</button>
-    <button class="tab" id="tabGallery" onclick="switchTab('gallery')">🖼 Gallery</button>
+    <button class="tab active" id="tabEditor" onclick="switchTab('editor')">EDITOR</button>
+    <button class="tab" id="tabGallery" onclick="switchTab('gallery')">GALLERY</button>
   </nav>
 
-  <!-- Auth button -->
-  <button class="auth-btn" id="authBtn" onclick="openAuthModal()">
-    <span id="authBtnLabel">⬡ LOGIN</span>
-  </button>
-
-  <div class="win-buttons">
-    <div class="win-btn-sm">_</div>
-    <div class="win-btn-sm">□</div>
-    <div class="win-btn-sm red" onclick="openAdmin()" title="Admin">✕</div>
-  </div>
+  <span class="admin-trigger" onclick="openAdmin()" title="Admin panel">[ ADMIN ]</span>
 </header>
 <div class="brainrot-ticker"><span>Do you want to face life? If yes, close this page. If no, create the most dogshit meme you can think of.</span></div>
 
