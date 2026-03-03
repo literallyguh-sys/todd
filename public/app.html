@@ -1986,6 +1986,7 @@ function switchTab(tab) {
   const isEditor = tab === 'editor';
   document.getElementById('editorView').style.display  = isEditor ? 'flex' : 'none';
   document.getElementById('galleryView').style.display = isEditor ? 'none'  : 'block';
+  document.getElementById('sidebarPanels').style.display = isEditor ? '' : 'none';
   document.getElementById('tabEditor').classList.toggle('active', isEditor);
   document.getElementById('tabGallery').classList.toggle('active', !isEditor);
   if (!isEditor) loadGallery();
