@@ -32,23 +32,15 @@ body {
 }
 
 
-/* ── FIXED NAV BUTTONS (same as view.html) ── */
-#back-area{position:fixed;left:24px;bottom:80px;z-index:200;}
+/* ── BACK BUTTON (top of sidebar) ── */
 #back-btn{
-  background:transparent;color:#888;border:2px solid #555;
-  font-family:'VT323',monospace;font-size:18px;letter-spacing:2px;
-  padding:8px 20px;cursor:pointer;text-decoration:none;display:inline-block;
+  display:block;text-align:center;flex-shrink:0;
+  background:transparent;color:#888;
+  border:1px solid rgba(255,255,255,0.1);
+  font-family:'VT323',monospace;font-size:16px;letter-spacing:2px;
+  padding:7px 0;cursor:pointer;text-decoration:none;
 }
-#back-btn:hover{border-color:var(--accent);color:var(--accent);}
-#authBtn{
-  position:fixed;left:24px;bottom:24px;z-index:200;
-  background:transparent;color:var(--accent);border:2px solid var(--accent);
-  font-family:'VT323',monospace;font-size:18px;letter-spacing:2px;
-  padding:8px 20px;cursor:pointer;
-}
-#authBtn:hover{background:var(--accent);color:#000;}
-#authBtn.logged-in{color:#00cc66;border-color:#00cc66;}
-#authBtn.logged-in:hover{background:#00cc66;color:#000;}
+#back-btn:hover{background:rgba(255,255,255,0.05);color:var(--accent);border-color:rgba(255,214,0,0.4);}
 .admin-trigger{font-size:13px;color:#333;letter-spacing:2px;cursor:pointer;margin-left:4px;white-space:nowrap;}
 .admin-trigger:hover{color:#666;}
 
