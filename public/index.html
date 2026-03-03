@@ -290,7 +290,10 @@ function updateLobbyLoginBtn() {
   const btn = document.getElementById('lobby-login-btn');
   if (!btn) return;
   if (isAuthed()) {
-    btn.textContent = '[ LOGGED IN ]';
+    const nameEl = document.getElementById('lobby-name-input');
+    const raw = nameEl ? nameEl.value.replace(' ✔', '').trim() : '';
+    const display = raw || getGuestName();
+    btn.textContent = '[ ' + display + ' ]';
     btn.onclick = lobbyLogout;
   } else {
     btn.textContent = '[ LOGIN ]';
