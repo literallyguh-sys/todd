@@ -76,30 +76,50 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 #transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
 #transition.fade-out{opacity:1;pointer-events:all;}
 
-@media(max-width:600px){
-  #site-title h1{font-size:34px;letter-spacing:3px;}
-  #room{background-position:20% center;}
-  #tv-hotspot{
-    left:2%;top:8%;width:26%;height:28%;
-    clip-path:none;
-    border:1px solid rgba(106,163,255,0.3);
-    display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;
+@media(max-width:599px){
+  /* Scroll layout: room image on top, chat below */
+  html,body{height:auto;overflow-y:auto;}
+  body{display:flex;flex-direction:column;min-height:100vh;}
+
+  /* Room image block — 16:9 aspect ratio box */
+  #room-wrap{position:relative;width:100%;padding-bottom:56.25%;flex-shrink:0;order:1;}
+  #room{position:absolute;inset:0;background-size:cover;background-position:center;}
+
+  /* Hotspots: absolute inside room-wrap, same % as desktop image coords */
+  #tv-hotspot,#computer-hotspot{
+    position:absolute;clip-path:none;
+    border:1px solid rgba(106,163,255,0.25);
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;
   }
-  #computer-hotspot{
-    left:14%;top:62%;width:30%;height:24%;
-    clip-path:none;
-    border:1px solid rgba(106,163,255,0.3);
-    display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;
-  }
+  #tv-hotspot{left:1.9%;top:7.5%;width:14%;height:29%;}
+  #computer-hotspot{left:23%;top:66%;width:15.5%;height:20%;}
   #tv-hotspot::after,#computer-hotspot::after{
     content:attr(data-label);
     position:static;background:none;
-    color:rgba(255,255,255,0.6);
-    font-family:'VT323',monospace;font-size:13px;letter-spacing:2px;
+    color:rgba(255,255,255,0.55);
+    font-family:'VT323',monospace;font-size:9px;letter-spacing:1px;
     text-shadow:0 1px 4px rgba(0,0,0,1);
   }
   .hint{display:none;}
-  #enter-hint{bottom:72px;}
+  #site-title{display:none;}
+  #enter-hint{display:none;}
+
+  /* Chat below room image */
+  #lobby-chat{
+    display:flex;order:2;
+    position:relative;right:auto;top:auto;
+    width:100%;flex:1;min-height:220px;
+    border-left:none;border-top:1px solid rgba(255,255,255,0.07);
+  }
+
+  /* Login button at bottom */
+  #lobby-login-btn{
+    order:3;position:relative;left:auto;bottom:auto;
+    display:block;width:100%;margin:0;
+    border-left:none;border-right:none;
+    border-top:1px solid rgba(255,214,0,0.18);
+    padding:12px 20px;text-align:center;
+  }
 }
 
 /* lobby-chat-overlay */
