@@ -275,6 +275,31 @@ const SUPA_URL = 'https://cfaqadeoxskwhebyirok.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+// ── Start menu ──
+function toggleMenu() {
+  const m = document.getElementById('start-menu');
+  const btn = document.getElementById('start-btn');
+  const open = m.classList.toggle('open');
+  btn.style.borderTop    = open ? '2px solid #808080' : '2px solid #fff';
+  btn.style.borderLeft   = open ? '2px solid #808080' : '2px solid #fff';
+  btn.style.borderRight  = open ? '2px solid #fff'    : '2px solid #808080';
+  btn.style.borderBottom = open ? '2px solid #fff'    : '2px solid #808080';
+}
+function closeMenu() {
+  document.getElementById('start-menu').classList.remove('open');
+  const btn = document.getElementById('start-btn');
+  btn.style.cssText = '';
+}
+function shutDown() {
+  closeMenu();
+  const s = document.getElementById('shutdown-screen');
+  s.classList.add('show');
+  setTimeout(() => { window.location.href = 'index.html'; }, 2200);
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#start-menu') && !e.target.closest('#start-btn')) closeMenu();
+});
+
 // ── Clock ──
 function updateClock() {
   document.getElementById('clock').textContent =
