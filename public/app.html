@@ -1250,21 +1250,106 @@ document.addEventListener('keydown', ev => {
 });
 
 // ── Eraser ──
+// ── Text tool ──
+function openTextModal() {
+  document.getElementById('textInput').value = '';
+  document.getElementById('textModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('textInput').focus(), 50);
+}
+function closeTextModal(ev) {
+  if (ev && ev.target !== document.getElementById('textModal')) return;
+  document.getElementById('textModal').style.display = 'none';
+}
+function confirmAddText() {
+  const txt = document.getElementById('textInput').value.trim();
+  document.getElementById('textModal').style.display = 'none';
+  if (!txt) return;
+  makeTextGroup(txt, CANVAS_W/2 - 80, CANVAS_H/2 - 20);
+  pushHistory();
+  showToast('Text added!');
+}
+document.getElementById('textInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmAddText();
+  if (e.key === 'Escape') { document.getElementById('textModal').style.display = 'none'; }
+});
+
+function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, scaleY, rotation, mirrored) {
+  const id = reuseId || ('text_' + (++_textIdCounter));
+  const textNode = new Konva.Text({
+    text: txt,
+    fontSize: fontSize || 36,
+    fontFamily: 'VT323, monospace',
+    fill: fill || '#FFD600',
+    letterSpacing: 1,
+    listening: true
+  });
+  const w = textNode.width();
+  const h = textNode.height();
+
+  const group = new Konva.Group({ x: startX, y: startY, draggable: true, scaleX: scaleX||1, scaleY: scaleY||1 });
+  group._toddId = id;
+  group._isText = true;
+  group._currentW = w;
+  group._currentH = h;
+  if (rotation) group.rotation(rotation);
+  if (mirrored) {
+    group._mirrored = true;
+    textNode.scaleX(-1);
+    textNode.x(w);
+  }
+
+  function refreshDelete() {
+    const sel = transformer.nodes().includes(group);
+    const show = sel && !eraserMode ? 'flex' : 'none';
+    document.getElementById('mirrorBtn').style.display = show;
+    document.getElementById('layerBtns').style.display = show;
+    document.getElementById('deleteToddBtn').style.display = show;
+  }
+  function removeItem() {
+    transformer.nodes([]);
+    group.destroy();
+    toddLayer.draw();
+    document.getElementById('mirrorBtn').style.display = 'none';
+    document.getElementById('layerBtns').style.display = 'none';
+    document.getElementById('deleteToddBtn').style.display = 'none';
+    setStatus('Ready');
+    pushHistory();
+  }
+  group.on('click tap', ev => {
+    if (eraserMode) return;
+    ev.cancelBubble = true;
+    transformer.nodes([group]);
+    refreshDelete();
+    toddLayer.draw();
+    setStatus('Text selected — Del to delete, drag handles to resize/rotate');
+  });
+  group.on('dragend', () => pushHistory());
+  group.on('transformend', () => { refreshDelete(); pushHistory(); });
+  group._refreshDelete = refreshDelete;
+  group._removeTodd = removeItem;
+
+  group.add(textNode);
+  toddLayer.add(group);
+  transformer.nodes([group]);
+  refreshDelete();
+  toddLayer.draw();
+  return group;
+}
+
 // ── Mirror / Flip horizontal ──
 function flipSelected() {
   const nodes = transformer.nodes();
   if (!nodes.length || !nodes[0]._toddId) return;
   const group = nodes[0];
-  // Toggle the mirrored flag
   group._mirrored = !group._mirrored;
-  const todd = group.findOne('Image');
-  if (group._mirrored) {
-    // Flip: scaleX = -1, offset so image stays in place
-    todd.scaleX(-1);
-    todd.x(group._currentW);
+  if (group._isText) {
+    const tn = group.findOne('Text');
+    if (group._mirrored) { tn.scaleX(-1); tn.x(group._currentW); }
+    else                  { tn.scaleX(1);  tn.x(0); }
   } else {
-    todd.scaleX(1);
-    todd.x(0);
+    const todd = group.findOne('Image');
+    if (group._mirrored) { todd.scaleX(-1); todd.x(group._currentW); }
+    else                  { todd.scaleX(1);  todd.x(0); }
   }
   toddLayer.draw();
   pushHistory();
