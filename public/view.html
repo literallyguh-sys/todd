@@ -119,15 +119,13 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 
 /* ── PROFILE STRIP (replaces header) ── */
 #new-ticker{
-  flex-shrink:0;height:54px;overflow:hidden;
+  flex-shrink:0;height:54px;overflow-x:auto;overflow-y:hidden;
   display:flex;align-items:center;flex-direction:row;gap:0;
   border-bottom:1px solid rgba(255,214,0,0.18);margin-bottom:8px;
 }
-#ticker-label{
-  font-size:18px;color:rgba(255,214,0,0.5);letter-spacing:3px;
-  padding:0 14px 0 2px;white-space:nowrap;flex-shrink:0;
-  border-right:1px solid rgba(255,214,0,0.15);
-}
+#new-ticker::-webkit-scrollbar{height:3px;}
+#new-ticker::-webkit-scrollbar-track{background:transparent;}
+#new-ticker::-webkit-scrollbar-thumb{background:rgba(255,214,0,0.3);}
 .ticker-entry{
   font-family:'VT323',monospace;font-size:17px;color:var(--accent);
   white-space:nowrap;padding:0 14px;flex-shrink:0;letter-spacing:1px;
