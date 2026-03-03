@@ -430,6 +430,36 @@ async function initLobbyName() {
 
 initLobbyName();
 
+// Mobile chat toggle
+function toggleMobileChat() {
+  document.getElementById('lobby-chat').classList.toggle('chat-open');
+}
+
+// Mobile lobby: touch-drag panning
+(function(){
+  if (window.innerWidth > 599) return;
+  const wrap = document.getElementById('room-wrap');
+  const pan  = document.getElementById('room-pan');
+  if (!wrap || !pan) return;
+  // Image rendered width when scaled to cover viewport height
+  const imgW = Math.ceil(window.innerHeight * (1920 / 1080));
+  pan.style.width = imgW + 'px';
+  const minX = -(imgW - window.innerWidth);
+  let curX = 0, startTouchX = 0, startPanX = 0;
+  function applyX(x) {
+    curX = Math.max(minX, Math.min(0, x));
+    pan.style.transform = 'translateX(' + curX + 'px)';
+  }
+  applyX(0);
+  wrap.addEventListener('touchstart', function(e) {
+    startTouchX = e.touches[0].clientX;
+    startPanX = curX;
+  }, { passive: true });
+  wrap.addEventListener('touchmove', function(e) {
+    applyX(startPanX + (e.touches[0].clientX - startTouchX));
+  }, { passive: true });
+})();
+
 </script>
 </body>
 </html>
