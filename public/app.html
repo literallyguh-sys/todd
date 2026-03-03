@@ -1289,6 +1289,13 @@ function moveLayer(dir) {
 }
 
 function toggleEraser() {
+  if (pencilMode) {
+    pencilMode = false;
+    document.getElementById('pencilBtn').classList.remove('active');
+    document.getElementById('pencilBtn').innerHTML = '<span class="btn-icon">✏️</span> Pencil';
+    document.getElementById('pencilSizeRow').style.display = 'none';
+    containerEl.classList.remove('pencil-active');
+  }
   eraserMode = !eraserMode;
   const btn     = document.getElementById('eraserBtn');
   const sizeRow = document.getElementById('eraserSizeRow');
