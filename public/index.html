@@ -209,20 +209,6 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   #lobby-name-input{display:none;}
 }
 </style>
-<script>(function(){
-  var REF_W=1920,REF_H=1080;
-  function s(){
-    var z=window.innerWidth/REF_W;
-    document.documentElement.style.zoom=z;
-    var r=document.getElementById('room');
-    if(r){
-      r.style.width=(window.innerWidth/z)+'px';
-      r.style.height=(window.innerHeight/z)+'px';
-      r.style.right='auto';r.style.bottom='auto';
-    }
-  }
-  s();window.addEventListener('resize',s);
-})();</script>
 </head>
 <body>
 <div id="lobby-chat">
