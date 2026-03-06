@@ -536,6 +536,7 @@ async function sendMsg() {
   const name=(_currentUser?.username)?_currentUser.username:(ne.value||'').trim()||getGuestName();
   const text=(me.value||'').trim();
   if(!text) return;
+  if(!antiSpam()) return;
   me.value='';
   try {
     await fetch(`${SUPA_URL}/rest/v1/chat_messages`,{
