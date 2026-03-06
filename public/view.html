@@ -414,7 +414,7 @@ async function initChatName() {
       const u = JSON.parse(raw);
       if (u && u.username) {
         _currentUser = u;
-        el.value = u.username + ' ✔';
+        el.value = u.username;
         el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
         showIconPicker(u.icon||'1');
         updateLoginBtn(); return;
@@ -438,7 +438,7 @@ async function initChatName() {
             if (username) {
               _currentUser = {username,userId:user.id,email:user.email,verified:true,icon};
               try{localStorage.setItem('todd_user_data',JSON.stringify(_currentUser));}catch(e){}
-              el.value = username + ' ✔';
+              el.value = username;
               el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
               showIconPicker(icon);
               updateLoginBtn(); return;
