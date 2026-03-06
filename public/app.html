@@ -1786,13 +1786,15 @@ function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+const VALID_ICONS=['guest','1','2','3'];
 function appendChatMsg(msg) {
   const box = document.getElementById('chatMessages');
   const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
   const el = document.createElement('div');
   el.className = 'chat-msg';
   const color = nameColor(msg.name);
-  el.innerHTML = `<span class="chat-msg-name" style="color:${color}">${escapeHtml(msg.name)}:</span> <span class="chat-msg-text">${escapeHtml(msg.text)}</span>`;
+  const icon = VALID_ICONS.includes(msg.icon) ? msg.icon : 'guest';
+  el.innerHTML = `<img class="chat-icon" src="Icons/${icon}.png" alt=""><span class="chat-msg-name" style="color:${color}">${escapeHtml(msg.name)}:</span> <span class="chat-msg-text">${escapeHtml(msg.text)}</span>`;
   box.appendChild(el);
   // trim to max
   while (box.children.length > CHAT_MAX) box.removeChild(box.firstChild);
