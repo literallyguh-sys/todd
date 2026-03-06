@@ -13,7 +13,8 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "Bash(curl:*)",
-      "WebFetch(domain:api.dexscreener.com)"
+      "WebFetch(domain:api.dexscreener.com)",
+      "WebFetch(domain:dexscreener.com)"
     ]
   }
 }
