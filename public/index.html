@@ -24,10 +24,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 .top-social-link{opacity:0.65;transition:opacity 0.2s;display:flex;align-items:center;}
 .top-social-link:hover{opacity:1;}
 @media(max-width:599px){#top-social{display:none;}}
-#phone-nav{position:fixed;left:20px;top:120px;display:flex;flex-direction:column;align-items:center;gap:12px;z-index:50;}
+#phone-nav{position:fixed;left:20px;top:120px;bottom:90px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;z-index:50;}
 .phone-nav-icon{display:flex;align-items:center;cursor:pointer;text-decoration:none;}
-.phone-nav-icon img{width:320px;height:320px;object-fit:contain;transition:transform 0.2s ease,filter 0.2s ease;}
-.phone-nav-icon:hover img{transform:scale(1.18);filter:drop-shadow(0 0 40px rgba(255,214,0,0.9));}
+.phone-nav-icon img{width:256px;height:256px;object-fit:contain;transition:transform 0.2s ease,filter 0.2s ease;}
+.phone-nav-icon:hover img{transform:scale(1.18);filter:drop-shadow(0 0 32px rgba(255,214,0,0.9));}
 @media(max-width:599px){#phone-nav{display:none;}}
 #site-title h1{font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:6px;color:#FFD600;
   line-height:1;text-shadow:3px 3px 0 #000;animation:glitch-base 7s infinite;position:relative;display:inline-block;}
