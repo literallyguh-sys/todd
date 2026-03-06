@@ -436,6 +436,7 @@ function lbToggleAvatarPicker(){var picker=document.getElementById('lb-pu-picker
 function lbUpdateIconSelection(icon){document.querySelectorAll('.lb-icon-opt').forEach(function(el){el.classList.toggle('selected',el.dataset.icon===icon);});}
 async function lbSelectIcon(icon){var VALID=['1','2','3'];if(!VALID.includes(icon))return;lbUpdateIconSelection(icon);var img=document.getElementById('lb-pu-avatar-img');if(img)img.src='Icons/'+icon+'.png';try{var u=JSON.parse(localStorage.getItem('todd_user_data')||'null');if(u){u.icon=icon;localStorage.setItem('todd_user_data',JSON.stringify(u));}}catch(e){}var token=lbGetStoredToken();if(!token)return;try{var uRes=await fetch(SUPA_URL+'/auth/v1/user',{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token}});if(uRes.ok){var user=await uRes.json();if(user&&user.id){await fetch(SUPA_URL+'/rest/v1/usernames?user_id=eq.'+encodeURIComponent(user.id),{method:'PATCH',headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({icon:icon})});}}}catch(e){}}
 lbLoadChat();lbSubscribeChat();
+setTimeout(function(){lbAppendMsg({name:'BUYALERT',text:'Ab3f...9kL2 bought 4.5M tokens for $500 \u00b7 MC: $300K'});},800);
 
 function lbGetStoredToken() {
   try {
