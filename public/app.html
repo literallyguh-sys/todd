@@ -1864,6 +1864,7 @@ async function sendChatMsg() {
     : (nameEl.value || '').trim() || getGuestName();
   const text   = (msgEl.value || '').trim();
   if (!text) return;
+  if (!antiSpam()) return;
 
   msgEl.value = '';
 
