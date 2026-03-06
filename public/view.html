@@ -386,7 +386,7 @@ function updateLoginBtn() {
   const btn = document.getElementById('login-btn');
   if (_currentUser?.username) {
     btn.textContent = '[ ' + _currentUser.username + ' ]';
-    btn.onclick = doLogout;
+    btn.onclick = openUserPopup;
   } else if (getStoredToken() || localStorage.getItem('todd_authed')==='1') {
     btn.textContent = '[ LOGGED IN ]';
     btn.onclick = doLogout;
@@ -397,6 +397,7 @@ function updateLoginBtn() {
 }
 
 function doLogout() {
+  closeUserPopup();
   localStorage.removeItem('todd_authed');
   localStorage.removeItem('todd_user_data');
   const k = Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
@@ -417,7 +418,6 @@ async function initChatName() {
         _currentUser = u;
         el.value = u.username;
         el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
-        showIconPicker(u.icon||'1');
         updateLoginBtn(); return;
       }
     }
@@ -441,7 +441,6 @@ async function initChatName() {
               try{localStorage.setItem('todd_user_data',JSON.stringify(_currentUser));}catch(e){}
               el.value = username;
               el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
-              showIconPicker(icon);
               updateLoginBtn(); return;
             }
           }
