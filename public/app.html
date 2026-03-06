@@ -1789,7 +1789,7 @@ function appendChatMsg(msg) {
   el.className = 'chat-msg';
   const color = nameColor(msg.name);
   const icon = VALID_ICONS.includes(msg.icon) ? msg.icon : 'guest';
-  el.innerHTML = `<img class="chat-icon" src="Icons/${icon}.png" alt=""><span class="chat-msg-name" style="color:${color}">${escapeHtml(msg.name)}:</span> <span class="chat-msg-text">${escapeHtml(msg.text)}</span>`;
+  el.innerHTML = `<img class="chat-icon" src="Icons/${icon}.png" alt=""><span class="chat-msg-name" style="color:${color}">${escapeHtml(cleanName(msg.name))}:</span> <span class="chat-msg-text">${escapeHtml(msg.text)}</span>`;
   box.appendChild(el);
   // trim to max
   while (box.children.length > CHAT_MAX) box.removeChild(box.firstChild);
