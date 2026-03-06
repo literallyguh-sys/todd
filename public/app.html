@@ -1784,6 +1784,15 @@ function appendChatMsg(msg) {
   const box = document.getElementById('chatMessages');
   const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
   const el = document.createElement('div');
+  if (msg.name === 'BUYALERT') {
+    el.className = 'chat-msg buy-alert';
+    el.innerHTML = `<span class="buy-lbl">[BUY]</span> <span class="buy-txt">${escapeHtml(msg.text)}</span>`;
+    box.appendChild(el);
+    while (box.children.length > CHAT_MAX) box.removeChild(box.firstChild);
+    if (atBottom) box.scrollTop = box.scrollHeight;
+    updateViewerCount();
+    return;
+  }
   el.className = 'chat-msg';
   const color = nameColor(msg.name);
   const icon = VALID_ICONS.includes(msg.icon) ? msg.icon : 'guest';
