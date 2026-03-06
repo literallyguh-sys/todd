@@ -494,7 +494,7 @@ function appendMsg(msg) {
   const el=document.createElement('div');
   el.className='chat-msg';
   const icon=VALID_ICONS.includes(msg.icon)?msg.icon:'guest';
-  el.innerHTML=`<img class="chat-icon" src="Icons/${icon}.png" alt=""><span class="chat-msg-name" style="color:${nameColor(msg.name)}">${escHtml(msg.name)}:</span> <span class="chat-msg-text">${escHtml(msg.text)}</span>`;
+  el.innerHTML=`<img class="chat-icon" src="Icons/${icon}.png" alt=""><span class="chat-msg-name" style="color:${nameColor(msg.name)}">${escHtml(cleanName(msg.name))}:</span> <span class="chat-msg-text">${escHtml(msg.text)}</span>`;
   box.appendChild(el);
   while(box.children.length>CHAT_MAX) box.removeChild(box.firstChild);
   if(atBottom) box.scrollTop=box.scrollHeight;
