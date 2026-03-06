@@ -235,7 +235,17 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.261 5.636 5.903-5.636zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
     </svg>
   </a>
-  <button id="lobby-login-btn" onclick="openLoginModal(true)">[ LOGIN ]</button>
+  <div id="bottom-bar">
+    <button id="lobby-login-btn" onclick="openLoginModal(true)">[ LOGIN ]</button>
+    <div id="top-social">
+      <a class="top-social-link" href="https://dexscreener.com/solana/rt3p5zwosnnzdsuezbdialfazd2wgsoqvmnrlqtpljd" target="_blank" title="DexScreener">
+        <img src="/Icons/SVG/dex.png" style="display:block;height:36px;width:auto;">
+      </a>
+      <a class="top-social-link" href="https://x.com/i/communities/2024490509096407318" target="_blank" title="X Community">
+        <img src="/Icons/SVG/x.png" style="display:block;height:36px;width:auto;">
+      </a>
+    </div>
+  </div>
   <button id="chat-fab" onclick="toggleMobileChat()"><div class="lobby-live-dot"></div>[ CHAT ]</button>
 </div>
 <div id="room-wrap">
