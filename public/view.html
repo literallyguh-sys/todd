@@ -488,7 +488,7 @@ function appendMsg(msg) {
 
 async function loadChat() {
   try {
-    const r=await fetch(`${SUPA_URL}/rest/v1/chat_messages?select=id,name,text,created_at&order=created_at.asc&limit=80`,
+    const r=await fetch(`${SUPA_URL}/rest/v1/chat_messages?select=id,name,text,icon,created_at&order=created_at.asc&limit=80`,
       {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}});
     const msgs=await r.json();
     const box=document.getElementById('chat-messages');
@@ -525,7 +525,7 @@ async function sendMsg() {
     await fetch(`${SUPA_URL}/rest/v1/chat_messages`,{
       method:'POST',
       headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},
-      body:JSON.stringify({name,text})
+      body:JSON.stringify({name,text,icon:_currentUser?.icon||'guest'})
     });
   } catch(e){}
 }
