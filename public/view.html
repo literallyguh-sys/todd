@@ -538,7 +538,7 @@ async function sendMsg() {
     await fetch(`${SUPA_URL}/rest/v1/chat_messages`,{
       method:'POST',
       headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},
-      body:JSON.stringify({name,text,icon:_currentUser?.icon||'guest'})
+      body:JSON.stringify({name,text,icon:_currentUser?.icon||(_currentUser?.username?'1':'guest')})
     });
   } catch(e){}
 }
