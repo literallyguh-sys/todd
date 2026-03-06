@@ -723,6 +723,10 @@ async function processBuyTx(signature, priceUsd, mcapUsd) {
   if (!tx) return;
   const pre  = tx.meta?.preTokenBalances  || [];
   const post = tx.meta?.postTokenBalances || [];
+  const preBalances  = tx.meta?.preBalances  || [];
+  const postBalances = tx.meta?.postBalances || [];
+  const solSpent = Math.abs((preBalances[0] - postBalances[0]) / 1e9);
+
   const preMap = {};
   for (const tb of pre) {
     if (tb.mint === buyTokenMint) preMap[tb.accountIndex] = tb.uiTokenAmount?.uiAmount || 0;
@@ -735,9 +739,7 @@ async function processBuyTx(signature, priceUsd, mcapUsd) {
     if (diff <= 0) continue;
     const usdVal = diff * priceUsd;
     if (usdVal < MIN_BUY_USD) continue;
-    const wallet = tb.owner || 'unknown';
-    const short  = wallet.length > 8 ? wallet.slice(0,4) + '...' + wallet.slice(-4) : wallet;
-    const text   = `${short} bought ${fmtTokenAmt(diff)} tokens for ${fmtUsdAmt(usdVal)} · MC: ${fmtUsdAmt(mcapUsd)}`;
+    const text = `bought ${fmtTokenAmt(diff)} tokens for ${solSpent.toFixed(2)} SOL · MC: ${fmtUsdAmt(mcapUsd)}`;
     console.log('[buy] Alert:', text);
     await supabase.from('chat_messages').insert({ name: 'BUYALERT', text, icon: 'system' });
   }
