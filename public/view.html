@@ -384,7 +384,7 @@ function authGuest() {
 function updateLoginBtn() {
   const btn = document.getElementById('login-btn');
   if (_currentUser?.username) {
-    btn.textContent = '[ ' + _currentUser.username + ' ✔ ]';
+    btn.textContent = '[ ' + _currentUser.username + ' ]';
     btn.onclick = doLogout;
   } else if (getStoredToken() || localStorage.getItem('todd_authed')==='1') {
     btn.textContent = '[ LOGGED IN ]';

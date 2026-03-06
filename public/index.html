@@ -304,7 +304,7 @@ function updateLobbyLoginBtn() {
   if (!btn) return;
   if (isAuthed()) {
     const nameEl = document.getElementById('lobby-name-input');
-    const raw = nameEl ? nameEl.value.replace(' ✔', '').trim() : '';
+    const raw = nameEl ? nameEl.value.trim() : '';
     const display = raw || getGuestName();
     btn.textContent = '[ ' + display + ' ]';
     btn.onclick = lobbyLogout;
@@ -429,7 +429,7 @@ async function initLobbyName() {
     const raw = localStorage.getItem('todd_user_data');
     if (raw) {
       const u = JSON.parse(raw);
-      if (u && u.username) { lbSetNameField(u.username + ' ✔', true); lbShowIconPicker(u.icon||'1'); return; }
+      if (u && u.username) { lbSetNameField(u.username, true); lbShowIconPicker(u.icon||'1'); return; }
     }
   } catch(e) {}
 
@@ -453,7 +453,7 @@ async function initLobbyName() {
             const icon = (rows[0] && rows[0].icon) || '1';
             if (username) {
               try { localStorage.setItem('todd_user_data', JSON.stringify({ username, userId: user.id, email: user.email, verified: true, icon })); } catch(e) {}
-              lbSetNameField(username + ' ✔', true);
+              lbSetNameField(username, true);
               lbShowIconPicker(icon);
               return;
             }
