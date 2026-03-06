@@ -1939,7 +1939,7 @@ async function fetchUsername(userId, token) {
     );
     if (res.ok) {
       const rows = await res.json();
-      return rows[0]?.username || null;
+      return rows[0] || null;
     }
   } catch(e){}
   return null;
