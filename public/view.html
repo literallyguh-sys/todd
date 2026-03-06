@@ -433,11 +433,13 @@ async function initChatName() {
           if (rr.ok) {
             const rows = await rr.json();
             const username = rows[0]?.username;
+            const icon = rows[0]?.icon || '1';
             if (username) {
-              _currentUser = {username,userId:user.id,email:user.email,verified:true};
+              _currentUser = {username,userId:user.id,email:user.email,verified:true,icon};
               try{localStorage.setItem('todd_user_data',JSON.stringify(_currentUser));}catch(e){}
               el.value = username + ' ✔';
               el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
+              showIconPicker(icon);
               updateLoginBtn(); return;
             }
           }
