@@ -463,7 +463,7 @@ function authGuest(){
 function updateLoginBtn(){
   const btn=document.getElementById('login-btn');
   if(_currentUser?.username){
-    btn.textContent='[ '+_currentUser.username+' ✔ ]';
+    btn.textContent='[ '+_currentUser.username+' ]';
     btn.onclick=doLogout;
   }else if(getStoredToken()||localStorage.getItem('todd_authed')==='1'){
     btn.textContent='[ LOGGED IN ]';
@@ -492,7 +492,7 @@ async function initChatName(){
       const u=JSON.parse(raw);
       if(u&&u.username){
         _currentUser=u;
-        el.value=u.username+' ✔';
+        el.value=u.username;
         el.readOnly=true;el.style.color='#006400';
         updateLoginBtn();return;
       }
@@ -513,7 +513,7 @@ async function initChatName(){
             if(username){
               _currentUser={username,userId:user.id,email:user.email,verified:true};
               try{localStorage.setItem('todd_user_data',JSON.stringify(_currentUser));}catch(e){}
-              el.value=username+' ✔';
+              el.value=username;
               el.readOnly=true;el.style.color='#006400';
               updateLoginBtn();return;
             }
@@ -590,7 +590,7 @@ function subscribeChat(){
 async function sendMsg(){
   const ne=document.getElementById('chat-name-input');
   const me=document.getElementById('chat-msg-input');
-  const name=(_currentUser?.username)?_currentUser.username+' ✔':(ne.value||'').trim()||getGuestName();
+  const name=(_currentUser?.username)?_currentUser.username:(ne.value||'').trim()||getGuestName();
   const text=(me.value||'').trim();
   if(!text)return;
   me.value='';
