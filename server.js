@@ -754,6 +754,9 @@ app.listen(PORT, () => {
   runScan();
   setInterval(runScan, SCAN_INTERVAL);
 
+  // Buy alert poller — check for $300+ buys every 15 seconds
+  initBuyAlert().then(() => setInterval(checkBuys, 15 * 1000));
+
   // Price refresh — update mcap/h1 for listed tokens every 5 seconds
   setInterval(refreshPrices, 5000);
 
