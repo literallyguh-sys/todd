@@ -416,6 +416,7 @@ async function initChatName() {
         _currentUser = u;
         el.value = u.username + ' ✔';
         el.readOnly = true; el.style.color = '#00cc66'; el.style.borderColor = '#00cc66';
+        showIconPicker(u.icon||'1');
         updateLoginBtn(); return;
       }
     }
