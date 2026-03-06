@@ -19,6 +19,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.55) 100%);}
 
 #site-title{position:fixed;top:28px;left:36px;z-index:10;pointer-events:none;}
+#top-social{position:fixed;top:28px;left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:20px;}
+.top-social-link{opacity:0.65;transition:opacity 0.2s;display:flex;align-items:center;}
+.top-social-link:hover{opacity:1;}
+@media(max-width:599px){#top-social{display:none;}}
 #site-title h1{font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:6px;color:#FFD600;
   line-height:1;text-shadow:3px 3px 0 #000;animation:glitch-base 7s infinite;position:relative;display:inline-block;}
 #site-title h1::before,#site-title h1::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;letter-spacing:inherit;}
