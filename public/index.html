@@ -426,7 +426,7 @@ async function initLobbyName() {
     const raw = localStorage.getItem('todd_user_data');
     if (raw) {
       const u = JSON.parse(raw);
-      if (u && u.username) { lbSetNameField(u.username + ' ✔', true); return; }
+      if (u && u.username) { lbSetNameField(u.username + ' ✔', true); lbShowIconPicker(u.icon||'1'); return; }
     }
   } catch(e) {}
 
