@@ -19,7 +19,8 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.55) 100%);}
 
 #site-title{position:fixed;top:28px;left:36px;z-index:10;pointer-events:none;}
-#top-social{position:fixed;bottom:24px;left:200px;z-index:10;display:flex;align-items:center;gap:12px;}
+#bottom-bar{position:fixed;left:24px;bottom:24px;display:flex;align-items:center;gap:12px;z-index:200;}
+#top-social{display:flex;align-items:center;gap:12px;}
 .top-social-link{opacity:0.65;transition:opacity 0.2s;display:flex;align-items:center;}
 .top-social-link:hover{opacity:1;}
 @media(max-width:599px){#top-social{display:none;}}
