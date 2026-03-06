@@ -1946,6 +1946,10 @@ async function fetchUsername(userId, token) {
   return null;
 }
 
+function showIconPicker(currentIcon){const row=document.getElementById('icon-picker-row');if(row)row.style.display='flex';updateIconSelection(currentIcon);}
+function updateIconSelection(icon){document.querySelectorAll('.icon-opt').forEach(el=>el.classList.toggle('selected',el.dataset.icon===icon));}
+async function selectIcon(icon){const VALID=['1','2','3'];if(!VALID.includes(icon))return;updateIconSelection(icon);if(_currentUser)_currentUser.icon=icon;try{const u=JSON.parse(localStorage.getItem('todd_user_data')||'null');if(u){u.icon=icon;localStorage.setItem('todd_user_data',JSON.stringify(u));}}catch(e){}const token=getStoredAccessToken();if(!token)return;try{const ur=await fetch(`${SUPA_URL}/auth/v1/user`,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}});if(ur.ok){const user=await ur.json();if(user?.id){await fetch(`${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(user.id)}`,{method:'PATCH',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({icon})});}}}catch(e){}}
+
 async function checkAuthSession() {
   // First check cached user
   try {
