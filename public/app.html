@@ -2158,6 +2158,7 @@ function openAuthModal() {
       </button>`;
   }
   document.getElementById('authModal').style.display = 'flex';
+  if (_currentUser?.username) updateIconSelection(_currentUser.icon || '1');
 }
 
 function closeAuthModal(e) {
