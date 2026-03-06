@@ -1898,6 +1898,7 @@ function updateAuthUI() {
     nameInput.style.color = '#00cc66';
     nameInput.style.borderColor = '#00cc66';
     nameInput.title = _currentUser.username;
+    showIconPicker(_currentUser.icon || '1');
   } else {
     const guestName = getGuestName();
     nameInput.value = guestName;
