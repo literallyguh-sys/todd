@@ -1780,6 +1780,8 @@ function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function cleanName(n){return String(n).replace(/\s*✔\s*$/,'').trim();}
+const msgTimes=[];
+function antiSpam(){const now=Date.now();msgTimes.splice(0,msgTimes.length,...msgTimes.filter(t=>now-t<10000));if(msgTimes.length>=5){const box=document.getElementById('chatMessages');const el=document.createElement('div');el.style.cssText='font-size:15px;color:#FF3A3A;padding:2px 4px;letter-spacing:1px;';el.textContent='— slow down — max 5 messages per 10 seconds';box.appendChild(el);box.scrollTop=box.scrollHeight;setTimeout(()=>{if(el.parentNode)el.parentNode.removeChild(el);},3000);return false;}msgTimes.push(now);return true;}
 
 const VALID_ICONS=['guest','1','2','3'];
 function appendChatMsg(msg) {
