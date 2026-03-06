@@ -1863,7 +1863,7 @@ async function sendChatMsg() {
   const nameEl = document.getElementById('chatNameInput');
   const msgEl  = document.getElementById('chatMsgInput');
   const name   = (_currentUser?.username)
-    ? _currentUser.username + ' ✔'
+    ? _currentUser.username
     : (nameEl.value || '').trim() || getGuestName();
   const text   = (msgEl.value || '').trim();
   if (!text) return;
@@ -1879,7 +1879,7 @@ async function sendChatMsg() {
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({ name, text })
+      body: JSON.stringify({ name, text, icon: _currentUser?.icon || 'guest' })
     });
   } catch(e) { console.error('Chat send error:', e); }
 }
