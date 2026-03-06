@@ -447,9 +447,11 @@ async function initLobbyName() {
           if (rRes.ok) {
             const rows = await rRes.json();
             const username = rows[0] && rows[0].username;
+            const icon = (rows[0] && rows[0].icon) || '1';
             if (username) {
-              try { localStorage.setItem('todd_user_data', JSON.stringify({ username, userId: user.id, email: user.email, verified: true })); } catch(e) {}
+              try { localStorage.setItem('todd_user_data', JSON.stringify({ username, userId: user.id, email: user.email, verified: true, icon })); } catch(e) {}
               lbSetNameField(username + ' ✔', true);
+              lbShowIconPicker(icon);
               return;
             }
           }
