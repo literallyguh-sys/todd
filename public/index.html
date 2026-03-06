@@ -187,6 +187,12 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   </div>
   <div id="lobby-chat-messages"></div>
   <div id="lobby-chat-input-area">
+    <div id="lb-icon-picker-row" style="display:none;align-items:center;gap:6px;padding-bottom:4px;">
+      <span style="font-size:11px;color:#555;letter-spacing:1px;">ICON:</span>
+      <img src="Icons/1.png" class="lb-icon-opt" data-icon="1" onclick="lbSelectIcon('1')" alt="">
+      <img src="Icons/2.png" class="lb-icon-opt" data-icon="2" onclick="lbSelectIcon('2')" alt="">
+      <img src="Icons/3.png" class="lb-icon-opt" data-icon="3" onclick="lbSelectIcon('3')" alt="">
+    </div>
     <input type="text" id="lobby-name-input" placeholder="Your name" maxlength="20">
     <div id="lobby-chat-bottom">
       <input type="text" id="lobby-msg-input" placeholder="Say something..." maxlength="200">
