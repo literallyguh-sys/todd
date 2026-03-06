@@ -1965,10 +1965,11 @@ async function checkAuthSession() {
     if (res.ok) {
       const user = await res.json();
       if (user?.id) {
-        const username = await fetchUsername(user.id, token);
+        const row = await fetchUsername(user.id, token);
+        const username = row?.username || null;
         if (username) {
           // Has username — fully set up
-          _currentUser = { username, email: user.email, userId: user.id, avatar: user.user_metadata?.avatar_url||null, verified: true };
+          _currentUser = { username, icon: row.icon || '1', email: user.email, userId: user.id, avatar: user.user_metadata?.avatar_url||null, verified: true };
           localStorage.setItem('todd_user_data', JSON.stringify(_currentUser));
           updateAuthUI();
         } else {
