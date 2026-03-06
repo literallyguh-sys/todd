@@ -1873,7 +1873,7 @@ async function sendChatMsg() {
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({ name, text, icon: _currentUser?.icon || 'guest' })
+      body: JSON.stringify({ name, text, icon: _currentUser?.icon || (_currentUser?.username ? '1' : 'guest') })
     });
   } catch(e) { console.error('Chat send error:', e); }
 }
