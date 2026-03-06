@@ -1779,6 +1779,7 @@ function nameColor(name) {
 function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function cleanName(n){return String(n).replace(/\s*✔\s*$/,'').trim();}
 
 const VALID_ICONS=['guest','1','2','3'];
 function appendChatMsg(msg) {
