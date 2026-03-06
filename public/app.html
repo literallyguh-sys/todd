@@ -2130,8 +2130,16 @@ function openAuthModal() {
       <div class="auth-modal-title">⬡ ACCOUNT</div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
         ${_currentUser.avatar ? `<img src="${_currentUser.avatar}" style="width:48px;height:48px;border-radius:50%;border:2px solid #00cc66;">` : '<div style="font-size:36px">👤</div>'}
-        <div style="font-family:'VT323',monospace;font-size:24px;color:#fff;">${escHtml(_currentUser.username)} <span style="color:#00cc66;font-size:14px;">✔ verified</span></div>
+        <div style="font-family:'VT323',monospace;font-size:24px;color:#fff;">${escHtml(_currentUser.username)}</div>
         <div style="font-family:'VT323',monospace;font-size:12px;color:#444;">signed in with Google</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#555;letter-spacing:1px;margin-bottom:6px;">AVATAR</div>
+        <div style="display:flex;gap:6px;" id="auth-icon-picker">
+          <img src="Icons/1.png" class="icon-opt" data-icon="1" onclick="selectIcon('1')" alt="">
+          <img src="Icons/2.png" class="icon-opt" data-icon="2" onclick="selectIcon('2')" alt="">
+          <img src="Icons/3.png" class="icon-opt" data-icon="3" onclick="selectIcon('3')" alt="">
+        </div>
       </div>
       <button class="btn danger" style="width:100%;justify-content:center;" onclick="signOut()">Sign Out</button>`;
   } else if (_currentUser) {
