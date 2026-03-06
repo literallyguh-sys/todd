@@ -428,7 +428,7 @@ async function initChatName() {
       if (ur.ok) {
         const user = await ur.json();
         if (user?.id) {
-          const rr = await fetch(`${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(user.id)}&select=username&limit=1`,
+          const rr = await fetch(`${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(user.id)}&select=username,icon&limit=1`,
             {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+token}});
           if (rr.ok) {
             const rows = await rr.json();
