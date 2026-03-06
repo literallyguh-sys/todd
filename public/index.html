@@ -441,7 +441,7 @@ async function initLobbyName() {
         const user = await uRes.json();
         if (user && user.id) {
           const rRes = await fetch(
-            SUPA_URL + '/rest/v1/usernames?user_id=eq.' + encodeURIComponent(user.id) + '&select=username&limit=1',
+            SUPA_URL + '/rest/v1/usernames?user_id=eq.' + encodeURIComponent(user.id) + '&select=username,icon&limit=1',
             { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + token } }
           );
           if (rRes.ok) {
