@@ -636,6 +636,113 @@ app.get('/api/ticker', (req, res) => {
   res.json(tickerCache.map(e => ({ ...e, ago: srvAgo(now - e.seenAt) })));
 });
 
+// ── Buy Alert System ─────────────────────────────────────────────────────────
+const BUY_TOKEN_ADDRESS = 'rt3p5zwosnnzdsuezbdialfazd2wgsoqvmnrlqtpljd';
+const PUBLIC_RPC_URL    = 'https://api.mainnet-beta.solana.com';
+const MIN_BUY_USD       = 300;
+let buyLastSig   = null;
+let buyPairAddr  = null;
+let buyTokenMint = null;
+
+async function publicRpc(method, params) {
+  const r = await fetch(PUBLIC_RPC_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })
+  });
+  if (!r.ok) throw new Error('RPC HTTP ' + r.status);
+  const json = await r.json();
+  if (json.error) throw new Error('RPC: ' + JSON.stringify(json.error));
+  return json.result;
+}
+
+function fmtTokenAmt(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(1).replace(/\.0$/,'') + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'') + 'K';
+  return Math.round(n).toString();
+}
+
+function fmtUsdAmt(n) {
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M';
+  if (n >= 1e3) return '$' + Math.round(n/1e3) + 'K';
+  return '$' + Math.round(n);
+}
+
+async function initBuyAlert() {
+  try {
+    const r = await fetch(`${DS_API}/latest/dex/tokens/${BUY_TOKEN_ADDRESS}`);
+    const d = await r.json();
+    const pair = (d.pairs || []).find(p => p.chainId === 'solana') || d.pairs?.[0];
+    if (!pair) throw new Error('No pair found for token');
+    buyTokenMint = pair.baseToken?.address || BUY_TOKEN_ADDRESS;
+    buyPairAddr  = pair.pairAddress;
+    if (!buyPairAddr) throw new Error('No pair address');
+    console.log(`[buy] Pair: ${buyPairAddr.slice(0,8)}... Mint: ${buyTokenMint.slice(0,8)}...`);
+    const sigs = await publicRpc('getSignaturesForAddress', [buyPairAddr, { limit: 1, commitment: 'confirmed' }]);
+    buyLastSig = sigs?.[0]?.signature || null;
+    console.log(`[buy] Ready. Bookmark: ${buyLastSig?.slice(0,8) || 'none'}`);
+  } catch (e) {
+    console.warn('[buy] Init failed:', e.message);
+  }
+}
+
+async function checkBuys() {
+  if (!buyLastSig || !buyPairAddr || !buyTokenMint) return;
+  try {
+    const sigs = await publicRpc('getSignaturesForAddress', [
+      buyPairAddr, { limit: 15, until: buyLastSig, commitment: 'confirmed' }
+    ]);
+    if (!sigs || sigs.length === 0) return;
+    buyLastSig = sigs[0].signature;
+
+    const pr = await fetch(`${DS_API}/latest/dex/tokens/${BUY_TOKEN_ADDRESS}`);
+    const pd = await pr.json();
+    const pair = (pd.pairs || []).find(p => p.chainId === 'solana') || pd.pairs?.[0];
+    if (!pair) return;
+    const priceUsd = parseFloat(pair.priceUsd || '0');
+    const mcapUsd  = pair.fdv || pair.marketCap || 0;
+    if (!priceUsd) return;
+
+    for (const sig of [...sigs].reverse()) {
+      if (sig.err) continue;
+      try {
+        await processBuyTx(sig.signature, priceUsd, mcapUsd);
+        await scanDelay(350);
+      } catch (e) { console.warn('[buy] tx error:', e.message); }
+    }
+  } catch (e) {
+    console.warn('[buy] poll error:', e.message);
+  }
+}
+
+async function processBuyTx(signature, priceUsd, mcapUsd) {
+  const tx = await publicRpc('getTransaction', [
+    signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }
+  ]);
+  if (!tx) return;
+  const pre  = tx.meta?.preTokenBalances  || [];
+  const post = tx.meta?.postTokenBalances || [];
+  const preMap = {};
+  for (const tb of pre) {
+    if (tb.mint === buyTokenMint) preMap[tb.accountIndex] = tb.uiTokenAmount?.uiAmount || 0;
+  }
+  for (const tb of post) {
+    if (tb.mint !== buyTokenMint) continue;
+    const preAmt  = preMap[tb.accountIndex] ?? 0;
+    const postAmt = tb.uiTokenAmount?.uiAmount || 0;
+    const diff    = postAmt - preAmt;
+    if (diff <= 0) continue;
+    const usdVal = diff * priceUsd;
+    if (usdVal < MIN_BUY_USD) continue;
+    const wallet = tb.owner || 'unknown';
+    const short  = wallet.length > 8 ? wallet.slice(0,4) + '...' + wallet.slice(-4) : wallet;
+    const text   = `${short} bought ${fmtTokenAmt(diff)} tokens for ${fmtUsdAmt(usdVal)} · MC: ${fmtUsdAmt(mcapUsd)}`;
+    console.log('[buy] Alert:', text);
+    await supabase.from('chat_messages').insert({ name: 'BUYALERT', text, icon: 'system' });
+  }
+}
+
 // ── Catch-all: serve the app ──
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
