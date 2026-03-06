@@ -1934,7 +1934,7 @@ function getStoredAccessToken() {
 async function fetchUsername(userId, token) {
   try {
     const res = await fetch(
-      `${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(userId)}&select=username&limit=1`,
+      `${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(userId)}&select=username,icon&limit=1`,
       { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` } }
     );
     if (res.ok) {
