@@ -520,7 +520,7 @@ function subscribeChat() {
 async function sendMsg() {
   const ne=document.getElementById('chat-name-input');
   const me=document.getElementById('chat-msg-input');
-  const name=(_currentUser?.username)?_currentUser.username+' ✔':(ne.value||'').trim()||getGuestName();
+  const name=(_currentUser?.username)?_currentUser.username:(ne.value||'').trim()||getGuestName();
   const text=(me.value||'').trim();
   if(!text) return;
   me.value='';
