@@ -404,6 +404,7 @@ var LB_NAME_COLORS = ["#ff7eb3","#7eb3ff","#7effb3","#ffb37e","#d07eff","#ff7e7e
 var LB_CHAT_MAX = 80;
 function lbNameColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))&0xffffffff;return LB_NAME_COLORS[Math.abs(h)%LB_NAME_COLORS.length];}
 function lbEscHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function lbCleanName(n){return String(n).replace(/\s*✔\s*$/,'').trim();}
 var LB_VALID_ICONS=['guest','1','2','3'];
 function lbAppendMsg(msg){var box=document.getElementById("lobby-chat-messages");var atBot=box.scrollHeight-box.scrollTop-box.clientHeight<80;var el=document.createElement("div");el.className="lb-chat-msg";var c=lbNameColor(msg.name);var icon=LB_VALID_ICONS.includes(msg.icon)?msg.icon:'guest';el.innerHTML="<img class='lb-chat-icon' src='Icons/"+icon+".png' alt=''><span class=lb-chat-msg-name style=color:"+c+">"+lbEscHtml(msg.name)+":</span> <span class=lb-chat-msg-text>"+lbEscHtml(msg.text)+"</span>";box.appendChild(el);while(box.children.length>LB_CHAT_MAX)box.removeChild(box.firstChild);if(atBot)box.scrollTop=box.scrollHeight;}
 async function lbLoadChat(){try{var res=await fetch(SUPA_URL+"/rest/v1/chat_messages?select=id,name,text,icon,created_at&order=created_at.asc&limit=80",{headers:{apikey:SUPA_KEY,Authorization:"Bearer "+SUPA_KEY}});var msgs=await res.json();var box=document.getElementById("lobby-chat-messages");box.innerHTML="";if(Array.isArray(msgs))msgs.forEach(lbAppendMsg);box.scrollTop=box.scrollHeight;}catch(e){}}
