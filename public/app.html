@@ -1238,12 +1238,12 @@ function restoreState(snap) {
   // Restore items (todds + text) — support both old (snap.todds) and new (snap.items) format
   (snap.items || snap.todds || []).forEach(td => {
     if (td.type === 'text') {
-      makeTextGroup(td.text, td.x, td.y, td.id, td.fontSize, td.fill, td.scaleX, td.scaleY, td.rotation, td.mirrored);
+      makeTextGroup(td.text, td.x, td.y, td.id, td.fontSize, td.fill, td.scaleX, td.scaleY, td.rotation, td.mirrored, false);
     } else {
       const img = new Image();
       img.onload = () => {
         toddCount++;
-        const group = makeToddGroup(img, td.w, td.h, td.x, td.y, td.id);
+        const group = makeToddGroup(img, td.w, td.h, td.x, td.y, td.id, false);
         if (td.rotation) group.rotation(td.rotation);
         if (td.mirrored) {
           group._mirrored = true;
