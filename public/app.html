@@ -691,6 +691,10 @@ body.chat-open #chatTab{
   </div>
 
   <div class="canvas-wrap" id="editorView">
+    <div id="canvas-top-bar">
+      <button class="ctb-btn" onclick="undo()" title="Undo (Ctrl+Z)">↩ UNDO</button>
+      <button class="ctb-btn" onclick="redo()" title="Redo (Ctrl+Y)">REDO ↪</button>
+    </div>
     <div id="container"></div>
     <div class="statusbar">
       <div class="status-dot" id="statusDot"></div>
