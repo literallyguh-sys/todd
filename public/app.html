@@ -1141,9 +1141,12 @@ function snapshotState() {
   const strokes = drawLayer.find('Line').map(l => ({
     points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth()
   }));
+  const fillNode = drawLayer.findOne('Image');
+  const fillSrc  = fillNode ? fillNode.image().src : null;
   return {
     items,
     strokes,
+    fillSrc,
     bgSrc:    background ? background.image().src : null,
     bgBounds: bgBounds ? {...bgBounds} : null
   };
