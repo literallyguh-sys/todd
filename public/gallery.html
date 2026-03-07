@@ -422,9 +422,9 @@ async function loadGallery() {
   }
 }
 
-function openLightbox(e, postId) {
-  e.stopPropagation();
-  const post = _galleryPosts.find(p => String(p.id) === String(postId));
+let _currentPostIdx = 0;
+function lbShowPost(idx) {
+  const post = _galleryPosts[idx];
   if (!post) return;
   const myVotes = (() => { try { return JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) { return {}; } })();
   const myVote = myVotes[post.id] || null;
@@ -435,12 +435,38 @@ function openLightbox(e, postId) {
   document.getElementById('lightboxVotes').innerHTML = `
     <button class="vote-btn up ${myVote==='up'?'voted-up':''}" onclick="vote('${post.id}','up')">👍 <span id="lbup_${post.id}">${post.votes_up}</span></button>
     <button class="vote-btn down ${myVote==='down'?'voted-down':''}" onclick="vote('${post.id}','down')">👎 <span id="lbdn_${post.id}">${post.votes_down}</span></button>`;
+}
+function openLightbox(e, postId) {
+  e.stopPropagation();
+  const idx = _galleryPosts.findIndex(p => String(p.id) === String(postId));
+  if (idx < 0) return;
+  _currentPostIdx = idx;
+  lbShowPost(idx);
   document.getElementById('lightbox').style.display = 'flex';
+  document.getElementById('bottom-bar').style.display = 'none';
 }
 function closeLightbox(e) {
   if (e && e.target !== document.getElementById('lightbox') && !e.target.classList.contains('lightbox-close')) return;
   document.getElementById('lightbox').style.display = 'none';
+  document.getElementById('bottom-bar').style.display = '';
 }
+function lbPrev() {
+  if (!_galleryPosts.length) return;
+  _currentPostIdx = (_currentPostIdx - 1 + _galleryPosts.length) % _galleryPosts.length;
+  lbShowPost(_currentPostIdx);
+}
+function lbNext() {
+  if (!_galleryPosts.length) return;
+  _currentPostIdx = (_currentPostIdx + 1) % _galleryPosts.length;
+  lbShowPost(_currentPostIdx);
+}
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('lightbox').style.display !== 'none') {
+    if (e.key === 'ArrowLeft') lbPrev();
+    else if (e.key === 'ArrowRight') lbNext();
+    else if (e.key === 'Escape') { document.getElementById('lightbox').style.display = 'none'; document.getElementById('bottom-bar').style.display = ''; }
+  }
+});
 function updateLightboxVotes(postId) {
   const upCard = document.getElementById('up_' + postId);
   const dnCard = document.getElementById('dn_' + postId);
