@@ -1266,7 +1266,7 @@ function refreshLayerPanel() {
   if (!list) return;
   // All groups in visual order, reversed so top layer is first
   const groups = Array.from(toddLayer.getChildren()).filter(n => n._toddId).reverse();
-  if (!groups.length) {
+  if (!groups.length && !background) {
     list.innerHTML = '<div class="layer-empty">No layers yet</div>';
     return;
   }
