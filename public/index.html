@@ -120,10 +120,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 #lobby-login-btn{background:transparent;color:#FFD600;border:2px solid #FFD600;font-family:VT323,monospace;font-size:18px;letter-spacing:2px;padding:8px 20px;cursor:pointer;}
 #lobby-login-btn:hover{background:#FFD600;color:#000;}
 
-#layout{position:relative;width:100%;min-width:1920px;height:100vh;transform:translate(0,0);overflow:hidden;}
-
 @media(max-width:599px){
-  #layout{transform:none;min-width:0;height:auto;overflow:visible;}
   html,body{height:100%;overflow:hidden;}
   #room-wrap{position:fixed;inset:0;z-index:5;overflow:hidden;}
   #room-pan{position:absolute;top:0;left:0;height:100%;will-change:transform;user-select:none;}
@@ -187,7 +184,6 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
     <div id="room"></div>
   </div>
 </div>
-<div id="layout">
 <div id="lobby-chat">
   <div id="lobby-chat-title">
     <div class="lobby-live-dot"></div>
