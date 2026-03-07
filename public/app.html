@@ -2093,6 +2093,7 @@ function closePublishModal(e) {
   if (e && e.target !== document.getElementById('publishModal')) return;
   document.getElementById('publishModal').style.display = 'none';
   _publishDataURL = null;
+  _publishBlob = null;
 }
 
 async function publishToGallery() {
