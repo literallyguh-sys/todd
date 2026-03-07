@@ -1404,9 +1404,20 @@ function restoreState(snap) {
   });
   drawLayer.draw();
 
+  // Pre-calculate ALL async loads before starting any (prevents race conditions)
+  const items = snap.items || snap.todds || [];
+  const toddAsyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text').length;
+  const bgNeedsLoad = !!(snap.bgSrc && snap.bgBounds && (!background || background.image().src !== snap.bgSrc));
+  let totalAsync = toddAsyncCount + (bgNeedsLoad ? 1 : 0);
+  let asyncDone = 0;
+  function _onAsyncDone() {
+    asyncDone++;
+    if (asyncDone === totalAsync) refreshLayerPanel();
+  }
+
   // Restore background
   if (snap.bgSrc && snap.bgBounds) {
-    if (!background || background.image().src !== snap.bgSrc) {
+    if (bgNeedsLoad) {
       if (background) background.destroy();
       const img = new Image();
       img.onload = () => {
@@ -1418,28 +1429,21 @@ function restoreState(snap) {
         canvasBg.moveToBottom();
         bgLayer.draw();
         applyDrawLayerClip();
-        refreshLayerPanel();
+        _onAsyncDone();
       };
       img.src = snap.bgSrc;
     } else {
       bgBounds = {...snap.bgBounds};
       applyDrawLayerClip();
-      refreshLayerPanel();
     }
   } else if (!snap.bgSrc) {
     if (background) { background.destroy(); background = null; bgBounds = null; }
     canvasBg.visible(true);
     applyDrawLayerClip();
     bgLayer.draw();
-    refreshLayerPanel();
   }
 
   _activeLayer = null;
-  // Count how many async image loads are needed so we refresh exactly once when all finish
-  const items = snap.items || snap.todds || [];
-  const asyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text').length;
-  let asyncDone = 0;
-
   items.forEach(td => {
     const restoreStrokes = (group) => {
       (td.strokes || []).forEach(s => {
@@ -1479,8 +1483,7 @@ function restoreState(snap) {
         });
         restoreStrokes(group);
         toddLayer.draw();
-        asyncDone++;
-        if (asyncDone === asyncCount) refreshLayerPanel(); // refresh once when all images loaded
+        _onAsyncDone();
       };
       img.src = td.src;
     }
@@ -1488,8 +1491,7 @@ function restoreState(snap) {
 
   updateUndoRedoBtns();
   setStatus('Ready');
-  // If no async loads needed (only empty layers / text), refresh now
-  if (asyncCount === 0) refreshLayerPanel();
+  if (totalAsync === 0) refreshLayerPanel();
 }
 
 function undo() {
