@@ -1232,6 +1232,7 @@ function restoreState(snap) {
     }
   } else if (!snap.bgSrc) {
     if (background) { background.destroy(); background = null; bgBounds = null; }
+    canvasBg.visible(true);
     bgLayer.draw();
   }
 
