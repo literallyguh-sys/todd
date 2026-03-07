@@ -1530,11 +1530,8 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   };
   g.on('click tap', ev => {
     ev.cancelBubble = true;
-    if (!moveMode) { refreshLayerPanel(); return; } // panel is the only selection in draw modes
-    _activeLayer = g;
-    refreshDelete();
+    // Canvas clicks never change the active layer — use the panel to select layers
     refreshLayerPanel();
-    setStatus('Layer selected');
   });
   g.on('mousedown touchstart', ev => {
     if (!moveMode) return;
