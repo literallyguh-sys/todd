@@ -1419,11 +1419,46 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ── Clamp: Todd can go anywhere as long as a portion stays visible on canvas ──
+// ── Clamp: Todd stays within bgBounds (or canvas if no bg) ──
 function clampToBg(group, w, h) {
-  const margin = 20; // minimum pixels that must remain visible
-  group.x(Math.min(CANVAS_W - margin, Math.max(margin - w, group.x())));
-  group.y(Math.min(CANVAS_H - margin, Math.max(margin - h, group.y())));
+  const margin = 20;
+  const bx = bgBounds ? bgBounds.x : 0;
+  const by = bgBounds ? bgBounds.y : 0;
+  const bw = bgBounds ? bgBounds.w : CANVAS_W;
+  const bh = bgBounds ? bgBounds.h : CANVAS_H;
+  group.x(Math.min(bx + bw - margin, Math.max(bx + margin - w, group.x())));
+  group.y(Math.min(by + bh - margin, Math.max(by + margin - h, group.y())));
+}
+
+// ── Returns a dragBoundFunc that clamps to bgBounds ──
+function makeDragBound(getW, getH) {
+  return function(pos) {
+    const margin = 20;
+    const scale  = stage.scaleX();
+    const sp     = stage.position();
+    const bx = bgBounds ? bgBounds.x : 0;
+    const by = bgBounds ? bgBounds.y : 0;
+    const bw = bgBounds ? bgBounds.w : CANVAS_W;
+    const bh = bgBounds ? bgBounds.h : CANVAS_H;
+    const w  = getW(), h = getH();
+    const minX = (bx + margin - w) * scale + sp.x;
+    const maxX = (bx + bw - margin) * scale + sp.x;
+    const minY = (by + margin - h) * scale + sp.y;
+    const maxY = (by + bh - margin) * scale + sp.y;
+    return {
+      x: Math.min(maxX, Math.max(minX, pos.x)),
+      y: Math.min(maxY, Math.max(minY, pos.y))
+    };
+  };
+}
+
+// ── Apply / clear drawLayer clip based on current bgBounds ──
+function applyDrawLayerClip() {
+  if (bgBounds) {
+    drawLayer.clip({ x: bgBounds.x, y: bgBounds.y, width: bgBounds.w, height: bgBounds.h });
+  } else {
+    drawLayer.clip({ x: 0, y: 0, width: CANVAS_W, height: CANVAS_H });
+  }
 }
 
 // ── Core function to build a Todd group (used by addTodd and restoreState) ──
