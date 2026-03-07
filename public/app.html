@@ -2096,6 +2096,34 @@ function clearAll() {
 // ── Export ──
 let _pendingDownloadURL = null;
 
+// ── Canvas size modal ──
+function openCanvasModal() {
+  document.getElementById('canvasWInput').value = CANVAS_W;
+  document.getElementById('canvasHInput').value = CANVAS_H;
+  document.getElementById('canvasModal').style.display = 'flex';
+}
+function closeCanvasModal(e) {
+  if (e && e.target !== document.getElementById('canvasModal')) return;
+  document.getElementById('canvasModal').style.display = 'none';
+}
+function setCanvasPreset(w, h) {
+  document.getElementById('canvasWInput').value = w;
+  document.getElementById('canvasHInput').value = h;
+}
+function applyCanvasSize() {
+  const w = Math.max(200, Math.min(1920, parseInt(document.getElementById('canvasWInput').value) || CANVAS_W));
+  const h = Math.max(200, Math.min(1080, parseInt(document.getElementById('canvasHInput').value) || CANVAS_H));
+  CANVAS_W = w; CANVAS_H = h;
+  containerEl.style.width  = w + 'px';
+  containerEl.style.height = h + 'px';
+  stage.width(w); stage.height(h);
+  canvasBg.width(w); canvasBg.height(h);
+  applyDrawLayerClip();
+  bgLayer.draw(); toddLayer.draw(); drawLayer.draw();
+  document.getElementById('canvasModal').style.display = 'none';
+  showToast('Canvas: ' + w + '×' + h);
+}
+
 async function exportImage() {
   // Hide transformer
   transformer.nodes([]);
