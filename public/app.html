@@ -21,6 +21,8 @@ html{min-width:1920px;overflow-x:auto;overflow-y:hidden;}
 
 
 #room{position:fixed;inset:0;z-index:0;background-image:url('app.jpg');background-size:cover;background-position:center;}
+#room::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
 #room::after{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.82) 100%);}
 
