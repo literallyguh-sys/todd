@@ -1349,6 +1349,16 @@ function layerRemove(id) {
   else if (g) { g.destroy(); toddLayer.draw(); pushHistory(); }
 }
 
+function removeBackground() {
+  if (!background) return;
+  background.destroy(); background = null; bgBounds = null;
+  canvasBg.visible(true);
+  applyDrawLayerClip();
+  bgLayer.draw();
+  refreshLayerPanel();
+  pushHistory();
+}
+
 function restoreState(snap) {
   toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
   transformer.nodes([]);
