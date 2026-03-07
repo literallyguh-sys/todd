@@ -1359,6 +1359,15 @@ function layerRemove(id) {
   else if (g) { g.destroy(); toddLayer.draw(); pushHistory(); }
 }
 
+function layerToggleVisible(id) {
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
+  if (!g) return;
+  g.visible(!g.visible());
+  toddLayer.draw();
+  refreshLayerPanel();
+  pushHistory();
+}
+
 function removeBackground() {
   if (!background) return;
   background.destroy(); background = null; bgBounds = null;
