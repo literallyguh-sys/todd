@@ -1112,6 +1112,26 @@ function toggleChat() {
 }
 
 
+// ── Floating toolbar drag ──
+(function() {
+  const ft   = document.getElementById('floatToolbar');
+  const drag = document.getElementById('ftDrag');
+  let dragging = false, ox = 0, oy = 0;
+  drag.addEventListener('mousedown', e => {
+    dragging = true;
+    ox = e.clientX - ft.offsetLeft;
+    oy = e.clientY - ft.offsetTop;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    ft.style.left  = (e.clientX - ox) + 'px';
+    ft.style.top   = (e.clientY - oy) + 'px';
+    ft.style.right = 'auto';
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+})();
+
 // ── Pencil state ──
 let pencilMode = false;
 let isPenciling = false;
