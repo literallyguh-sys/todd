@@ -1931,11 +1931,20 @@ stage.on('mousedown touchstart', ev => {
   else { drawLayer.add(currentPencilLine); drawLayer.batchDraw(); }
 });
 
-// ── Fill tool ──
+// ── Stage background click: fill or deselect ──
 stage.on('click tap', () => {
-  if (!fillMode) return;
-  const pos = stage.getRelativePointerPosition();
-  doBucketFill(Math.round(pos.x), Math.round(pos.y));
+  if (fillMode) {
+    const pos = stage.getRelativePointerPosition();
+    doBucketFill(Math.round(pos.x), Math.round(pos.y));
+    return;
+  }
+  // Click on empty canvas — deselect active layer
+  _activeLayer = null;
+  transformer.nodes([]);
+  document.getElementById('mirrorBtn').style.display = 'none';
+  document.getElementById('layerBtns').style.display = 'none';
+  document.getElementById('deleteToddBtn').style.display = 'none';
+  refreshLayerPanel();
 });
 
 function _floodFill(data, sx, sy, fR, fG, fB, w, h, tol) {
