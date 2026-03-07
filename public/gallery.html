@@ -351,8 +351,13 @@ async function loadGallery() {
   try {
     let myVotes = {};
     try { myVotes = JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) {}
-    const res = await fetch(`${SUPA_URL}/rest/v1/gallery_posts?select=id,name,message,image,created_at,votes_up,votes_down&order=created_at.desc&limit=100&approved=eq.true`, {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+    const token = lbGetStoredToken();
+    const authHeader = token ? `Bearer ${token}` : `Bearer ${SUPA_KEY}`;
+    const filter = _isAdmin
+      ? `${SUPA_URL}/rest/v1/gallery_posts?select=id,name,message,image,created_at,votes_up,votes_down,approved&order=created_at.desc&limit=100`
+      : `${SUPA_URL}/rest/v1/gallery_posts?select=id,name,message,image,created_at,votes_up,votes_down&order=created_at.desc&limit=100&approved=eq.true`;
+    const res = await fetch(filter, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': authHeader }
     });
     const posts = await res.json();
     if (!Array.isArray(posts) || !posts.length) { grid.innerHTML = ''; return; }
@@ -362,11 +367,12 @@ async function loadGallery() {
     posts.forEach(post => {
       const date = new Date(post.created_at).toLocaleDateString();
       const myVote = myVotes[post.id] || null;
+      const isPending = _isAdmin && !post.approved;
       const card = document.createElement('div');
-      card.className = 'gallery-card';
+      card.className = 'gallery-card' + (isPending ? ' pending' : '');
       card.id = 'card_' + post.id;
       card.innerHTML = `
-        <div class="gallery-card-titlebar">📁 ${escHtml(post.name)}</div>
+        <div class="gallery-card-titlebar">📁 ${escHtml(post.name)}${isPending ? '<span class="pending-tag">PENDING</span>' : ''}</div>
         <img src="${post.image}" alt="Todd by ${escHtml(post.name)}" loading="lazy" onclick="openLightbox(event,'${post.id}')">
         <div class="gallery-card-body">
           <div class="gallery-card-msg">${post.message ? '"' + escHtml(post.message) + '"' : ''}</div>
@@ -377,7 +383,11 @@ async function loadGallery() {
             </div>
             <span class="gallery-card-date">${date}</span>
           </div>
-        </div>`;
+        </div>
+        ${_isAdmin ? `<div class="admin-bar">
+          ${isPending ? `<button class="admin-btn approve" onclick="event.stopPropagation();adminApprove('${post.id}')">✔ APPROVE</button>` : `<span style="font-size:13px;color:#005500;padding:2px 6px;font-family:VT323,monospace;">✔ LIVE</span>`}
+          <button class="admin-btn del" onclick="event.stopPropagation();adminDelete('${post.id}')">✕ DELETE</button>
+        </div>` : ''}`;
       grid.appendChild(card);
     });
   } catch(err) {
@@ -452,7 +462,6 @@ async function vote(postId, dir) {
   updateLightboxVotes(postId);
 }
 
-loadGallery();
 </script>
 
 <div id="lb-user-popup" style="display:none;">
