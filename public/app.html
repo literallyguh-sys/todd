@@ -97,7 +97,8 @@ body {
 .sidebar-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
 
 /* ── LAYOUT ── */
-.app{position:fixed;left:0;top:0;right:calc(23% + 10px);bottom:0;display:flex;overflow:hidden;}
+.app{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;overflow:hidden;transition:right .25s ease;}
+body.chat-open .app{right:calc(23% + 10px);}
 
 /* ── SIDEBAR ── */
 .sidebar {
