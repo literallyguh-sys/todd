@@ -1474,10 +1474,6 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   g.add(sg);
 
   function refreshDelete() {
-    const active = _activeLayer === g;
-    document.getElementById('mirrorBtn').style.display = 'none';
-    document.getElementById('layerBtns').style.display = active ? 'flex' : 'none';
-    document.getElementById('deleteToddBtn').style.display = active ? 'flex' : 'none';
   }
   g._refreshDelete = refreshDelete;
   g._removeTodd = () => {
