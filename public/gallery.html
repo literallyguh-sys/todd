@@ -60,15 +60,15 @@ html,body{width:100%;height:100%;background:#060608;font-family:'VT323',monospac
 .pending-tag{font-size:11px;color:#888;margin-left:auto;letter-spacing:1px;}
 
 /* Lightbox */
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:200;padding:14px;}
-.lightbox-box{background:rgba(6,6,8,0.96);border:2px solid rgba(255,255,255,0.15);width:96%;max-width:900px;max-height:96%;display:flex;flex-direction:column;overflow:hidden;animation:lb-in .12s ease-out;}
-@keyframes lb-in{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:flex;flex-direction:column;z-index:200;}
+.lightbox-box{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;animation:lb-in .12s ease-out;}
+@keyframes lb-in{from{opacity:0}to{opacity:1}}
 .lightbox-titlebar{background:transparent;border-bottom:1px solid rgba(255,255,255,0.1);color:#ddd;font-size:15px;padding:4px 10px;display:flex;align-items:center;letter-spacing:1px;flex-shrink:0;}
 .lightbox-close{margin-left:auto;background:transparent;color:#888;font-size:12px;padding:1px 7px;cursor:pointer;border:1px solid rgba(255,255,255,0.15);letter-spacing:1px;}
 .lightbox-close:hover{border-color:#FF3A3A;color:#FF3A3A;}
 .lightbox-img-wrap{background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:1;min-height:0;}
-.lightbox-img-wrap img{max-width:100%;max-height:75vh;object-fit:contain;display:block;}
-.lightbox-footer{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.08);overflow-y:auto;flex-shrink:0;max-height:140px;background:transparent;}
+.lightbox-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;display:block;}
+.lightbox-footer{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.08);overflow-y:auto;flex-shrink:0;max-height:120px;background:transparent;}
 .lightbox-msg{font-size:15px;color:#ccc;line-height:1.5;white-space:pre-wrap;word-break:break-word;margin-bottom:8px;}
 .lightbox-meta{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.07);padding-top:6px;margin-top:2px;}
 
