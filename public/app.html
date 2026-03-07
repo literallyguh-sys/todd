@@ -539,9 +539,39 @@ body.chat-open #chatTab{
 
 /* ── TOOL COLOR / SIZE in sidebar ── */
 #ftColor{
-  flex:1;height:22px;cursor:pointer;background:transparent;
-  border:1px solid rgba(255,255,255,0.15);padding:0;
+  width:22px;height:18px;padding:0;cursor:pointer;background:transparent;
+  border:1px solid rgba(255,255,255,0.15);
 }
+.color-palette-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin:4px 0;}
+.swatch{
+  width:100%;aspect-ratio:1;cursor:pointer;
+  border:1px solid rgba(0,0,0,0.35);transition:transform .1s;
+}
+.swatch:hover{transform:scale(1.18);position:relative;z-index:1;}
+.swatch.active{outline:2px solid #fff;outline-offset:1px;}
+
+/* ── FLOATING TOOLBAR ── */
+#floatToolbar{
+  position:fixed;left:214px;top:60px;z-index:200;
+  background:rgba(6,6,8,0.92);border:1px solid rgba(255,255,255,0.18);
+  user-select:none;
+}
+#ftDrag{
+  background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.1);
+  padding:4px 6px;cursor:grab;font-size:11px;color:#444;
+  letter-spacing:1px;text-align:center;white-space:nowrap;
+}
+#ftDrag:active{cursor:grabbing;}
+#ftBody{display:flex;flex-direction:column;padding:4px;gap:2px;}
+.ft-btn{
+  width:36px;height:36px;background:transparent;
+  border:1px solid transparent;color:#777;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'VT323',monospace;
+}
+.ft-btn:hover{background:rgba(255,255,255,0.07);color:#ccc;border-color:rgba(255,255,255,0.1);}
+.ft-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(255,214,0,0.07);}
+@media(max-width:599px){#floatToolbar{display:none;}}
 
 /* ── LAYER PANEL ── */
 #layerList{display:flex;flex-direction:column;gap:2px;max-height:220px;overflow-y:auto;}
