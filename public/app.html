@@ -1221,6 +1221,8 @@ function restoreState(snap) {
 
   updateUndoRedoBtns();
   setStatus('Ready');
+  // Layer panel refreshes after async image loads via makeToddGroup/makeTextGroup
+  setTimeout(refreshLayerPanel, 50);
 }
 
 function undo() {
