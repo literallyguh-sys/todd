@@ -1392,6 +1392,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
     transformer.nodes([group]);
     refreshDelete();
     toddLayer.draw();
+    refreshLayerPanel();
     setStatus('Todd selected — Del to delete, drag handles to resize/rotate');
   });
 
