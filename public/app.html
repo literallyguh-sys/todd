@@ -1318,10 +1318,14 @@ function refreshLayerPanel() {
       <button class="layer-act del" onclick="event.stopPropagation();layerRemove('${g._toddId}')" title="Delete">×</button>`;
 
     item.addEventListener('click', () => {
-      if (eraserMode) return;
-      transformer.nodes([g]);
+      _activeLayer = g;
       g._refreshDelete && g._refreshDelete();
-      toddLayer.draw();
+      if (moveMode) {
+        transformer.nodes([g]);
+        toddLayer.draw();
+      } else {
+        transformer.nodes([]);
+      }
       refreshLayerPanel();
     });
     list.appendChild(item);
