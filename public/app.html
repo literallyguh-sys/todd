@@ -728,8 +728,11 @@ body.chat-open #chatTab{
 
 </div>
 
+<!-- Chat tab (open/close handle) -->
+<div id="chatTab" onclick="toggleChat()">CHAT</div>
+
 <!-- Chat panel — fixed right overlay, same as index.html lobby chat -->
-<aside class="chat-panel" id="chatPanel">
+<aside class="chat-panel chat-hidden" id="chatPanel">
   <div class="chat-titlebar">
     <div class="chat-live-dot"></div>
     <span>LIVE CHAT</span>
