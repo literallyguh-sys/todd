@@ -1142,6 +1142,74 @@ function updateUndoRedoBtns() {
   document.getElementById('redoBtn').style.opacity = historyIndex >= history.length - 1 ? '0.4' : '1';
 }
 
+function refreshLayerPanel() {
+  const list = document.getElementById('layerList');
+  if (!list) return;
+  // All groups in visual order (toddLayer children), reversed so top layer is first
+  const groups = toddLayer.getChildren().filter(n => n._toddId).slice().reverse();
+  if (!groups.length) {
+    list.innerHTML = '<div class="layer-empty">No layers yet</div>';
+    return;
+  }
+  list.innerHTML = '';
+  groups.forEach(g => {
+    const isSel = transformer.nodes().includes(g);
+    const item  = document.createElement('div');
+    item.className = 'layer-item' + (isSel ? ' layer-selected' : '');
+
+    // Thumbnail
+    let thumbHtml;
+    if (g._isText) {
+      const fill = g.findOne('Text')?.fill() || '#FFD600';
+      thumbHtml = `<span class="layer-thumb-icon" style="color:${fill}">T</span>`;
+    } else {
+      const src = srcCache[g._toddId];
+      thumbHtml = src
+        ? `<img class="layer-thumb" src="${src}">`
+        : `<span class="layer-thumb-icon">🖼</span>`;
+    }
+
+    // Name
+    let name;
+    if (g._isText) {
+      const txt = g.findOne('Text')?.text() || '';
+      name = 'Text: ' + (txt.length > 9 ? txt.slice(0,9) + '…' : txt);
+    } else {
+      name = 'Layer ' + g._toddId.replace(/[^0-9]/g,'');
+    }
+
+    item.innerHTML = `${thumbHtml}
+      <span class="layer-name">${name}</span>
+      <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','up')"   title="Bring forward">▲</button>
+      <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','down')" title="Send backward">▼</button>
+      <button class="layer-act del" onclick="event.stopPropagation();layerRemove('${g._toddId}')" title="Delete">×</button>`;
+
+    item.addEventListener('click', () => {
+      if (eraserMode) return;
+      transformer.nodes([g]);
+      g._refreshDelete && g._refreshDelete();
+      toddLayer.draw();
+      refreshLayerPanel();
+    });
+    list.appendChild(item);
+  });
+}
+
+function layerMove(id, dir) {
+  const g = toddLayer.getChildren().find(n => n._toddId === id);
+  if (!g) return;
+  dir === 'up' ? g.moveUp() : g.moveDown();
+  transformer.moveToTop();
+  toddLayer.draw();
+  pushHistory();
+}
+
+function layerRemove(id) {
+  const g = toddLayer.getChildren().find(n => n._toddId === id);
+  if (g && g._removeTodd) g._removeTodd();
+  else if (g) { g.destroy(); toddLayer.draw(); pushHistory(); }
+}
+
 function restoreState(snap) {
   toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
   transformer.nodes([]);
