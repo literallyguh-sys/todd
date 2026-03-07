@@ -1486,7 +1486,7 @@ function addEmptyLayer() {
 }
 
 function _restoreEmptyLayer(td) {
-  _makeEmptyLayerGroup(td.id, td.x, td.y, td.w, td.h);
+  return _makeEmptyLayerGroup(td.id, td.x, td.y, td.w, td.h);
 }
 
 // ── Clamp: Todd stays within bgBounds (or canvas if no bg) ──
