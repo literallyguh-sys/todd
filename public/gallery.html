@@ -159,7 +159,9 @@ html,body{width:100%;height:100%;background:#060608;font-family:'VT323',monospac
       <div class="lightbox-close" onclick="closeLightbox()">✕</div>
     </div>
     <div class="lightbox-img-wrap">
+      <button class="lb-nav lb-prev" onclick="event.stopPropagation();lbPrev()">◄</button>
       <img id="lightboxImg" src="" alt="">
+      <button class="lb-nav lb-next" onclick="event.stopPropagation();lbNext()">►</button>
     </div>
     <div class="lightbox-footer">
       <div class="lightbox-msg" id="lightboxMsg"></div>
