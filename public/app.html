@@ -1945,28 +1945,29 @@ stage.on('mousemove touchmove', () => {
   }
 });
 stage.on('mousedown touchstart', ev => {
+  if (!_inCanvas()) return; // outside canvas — don't draw
   if (lineMode) {
-    const rpos = _activeLayer ? _activeLayer.getRelativePointerPosition() : stage.getRelativePointerPosition();
+    if (!_activeLayer) { showToast('Select a layer first'); return; }
+    const rpos = _activeLayer.getRelativePointerPosition();
     _lineStart = { x: rpos.x, y: rpos.y };
     _previewLine = new Konva.Line({
       stroke: _toolColor, strokeWidth: _toolSize,
       lineCap: 'round', points: [rpos.x, rpos.y, rpos.x, rpos.y], listening: false
     });
-    if (_activeLayer) { _activeLayer._strokeGroup.add(_previewLine); toddLayer.batchDraw(); }
-    else { drawLayer.add(_previewLine); drawLayer.batchDraw(); }
+    _activeLayer._strokeGroup.add(_previewLine); toddLayer.batchDraw();
     return;
   }
   if (!pencilMode) return;
+  if (!_activeLayer) { showToast('Select a layer first'); return; }
   isPenciling = true;
-  const rpos = _activeLayer ? _activeLayer.getRelativePointerPosition() : stage.getRelativePointerPosition();
+  const rpos = _activeLayer.getRelativePointerPosition();
   currentPencilLine = new Konva.Line({
     stroke: _toolColor, strokeWidth: _toolSize,
     lineCap: 'round', lineJoin: 'round',
     points: [rpos.x, rpos.y, rpos.x, rpos.y],
     listening: false
   });
-  if (_activeLayer) { _activeLayer._strokeGroup.add(currentPencilLine); toddLayer.batchDraw(); }
-  else { drawLayer.add(currentPencilLine); drawLayer.batchDraw(); }
+  _activeLayer._strokeGroup.add(currentPencilLine); toddLayer.batchDraw();
 });
 
 // ── Stage background click: fill or deselect ──
