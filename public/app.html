@@ -1212,7 +1212,7 @@ function snapshotState() {
       ? g._strokeGroup.find('Line').map(l => ({ points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth() }))
       : [];
     if (g._isEmptyLayer) {
-      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes });
+      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes, visible: g.visible() });
     } else if (g._isText) {
       const tn = g.findOne('Text');
       items.push({
