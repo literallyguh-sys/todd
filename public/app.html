@@ -1247,8 +1247,8 @@ function updateUndoRedoBtns() {
 function refreshLayerPanel() {
   const list = document.getElementById('layerList');
   if (!list) return;
-  // All groups in visual order (toddLayer children), reversed so top layer is first
-  const groups = toddLayer.getChildren().filter(n => n._toddId).slice().reverse();
+  // All groups in visual order, reversed so top layer is first
+  const groups = Array.from(toddLayer.getChildren()).filter(n => n._toddId).reverse();
   if (!groups.length) {
     list.innerHTML = '<div class="layer-empty">No layers yet</div>';
     return;
