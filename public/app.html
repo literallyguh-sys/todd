@@ -1815,6 +1815,15 @@ stage.on('mouseup touchend', () => {
   _endMoveDrag();
 });
 stage.on('mousemove touchmove', () => {
+  if (_moveTarget) {
+    const pos = stage.getRelativePointerPosition();
+    if (pos) {
+      _moveTarget.x(pos.x - _moveOffset.x);
+      _moveTarget.y(pos.y - _moveOffset.y);
+      _moveMoved = true;
+      toddLayer.batchDraw();
+    }
+  }
   if (isErasing && selectedGroup) {
     const pos = selectedGroup.getRelativePointerPosition();
     selectedGroup.eraseLayer.add(new Konva.Circle({
