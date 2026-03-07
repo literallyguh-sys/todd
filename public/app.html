@@ -1812,6 +1812,7 @@ stage.on('mouseup touchend', () => {
     _lineStart = null;
     pushHistory();
   }
+  _endMoveDrag();
 });
 stage.on('mousemove touchmove', () => {
   if (isErasing && selectedGroup) {
