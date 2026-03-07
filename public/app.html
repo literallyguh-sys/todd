@@ -1929,6 +1929,7 @@ function clearAll() {
   toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
   if (background) { background.destroy(); background = null; bgBounds = null; }
   canvasBg.visible(true);
+  applyDrawLayerClip();
   transformer.nodes([]);
   toddCount = 0;
   drawLayer.destroyChildren();
