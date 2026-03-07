@@ -1785,7 +1785,7 @@ function addTodd(src) {
 
 // ── Deselect ──
 stage.on('click tap', ev => {
-  if (eraserMode) return;
+  if (pencilMode || lineMode || eraserMode || moveMode || fillMode) return;
   if (ev.target === stage) {
     transformer.nodes([]);   // clear FIRST so refreshDelete sees no selection
     selectedGroup = null;
