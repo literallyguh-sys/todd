@@ -1603,32 +1603,7 @@ function moveLayer(dir) {
   pushHistory();
 }
 
-function toggleEraser() {
-  if (pencilMode) {
-    pencilMode = false;
-    document.getElementById('pencilBtn').classList.remove('active');
-    document.getElementById('pencilBtn').innerHTML = '<span class="btn-icon">✏️</span> Pencil';
-    document.getElementById('pencilSizeRow').style.display = 'none';
-    containerEl.classList.remove('pencil-active');
-  }
-  eraserMode = !eraserMode;
-  const btn     = document.getElementById('eraserBtn');
-  const sizeRow = document.getElementById('eraserSizeRow');
-  btn.classList.toggle('active', eraserMode);
-  btn.innerHTML = eraserMode
-    ? '<span class="btn-icon">✏️</span> Select Mode'
-    : '<span class="btn-icon">🧹</span> Eraser Mode';
-  sizeRow.style.display = eraserMode ? 'flex' : 'none';
-  containerEl.classList.toggle('eraser-active', eraserMode);
-  const mdbEraser = document.getElementById('mdb-eraser');
-  if (mdbEraser) mdbEraser.classList.toggle('active', eraserMode);
-  transformer.nodes([]);
-  toddLayer.find('Group').forEach(g => {
-    g.draggable(!eraserMode);
-    if (g._refreshDelete) g._refreshDelete();
-  });
-  setStatus(eraserMode ? 'Eraser active — paint over a Todd' : 'Ready', eraserMode);
-}
+function toggleEraser() { setActiveTool(_activeTool === 'eraser' ? null : 'eraser'); }
 
 const eraserSizeSlider = document.getElementById('eraserSize');
 const eraserSizeVal    = document.getElementById('eraserSizeVal');
