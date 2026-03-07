@@ -609,28 +609,58 @@ body.chat-open #chatTab{
     <div class="panel" id="panel-tools">
       <p class="panel-title">Tools</p>
       <div class="control-group">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-          <button class="btn" id="pencilBtn" onclick="setActiveTool('pencil')" title="Pencil">✏ Pencil</button>
-          <button class="btn" id="textBtn"   onclick="openTextModal()"         title="Text">T Text</button>
-          <button class="btn" id="lineBtn"   onclick="setActiveTool('line')"   title="Draw Line">╲ Line</button>
-          <button class="btn" id="fillBtn"   onclick="setActiveTool('fill')"   title="Bucket Fill">▓ Fill</button>
-          <button class="btn" id="eraserBtn" onclick="setActiveTool('eraser')" title="Eraser" style="grid-column:1/-1">⌫ Eraser</button>
-        </div>
+        <button class="btn" id="pencilBtn" onclick="setActiveTool('pencil')">
+          <span class="btn-icon">✏️</span> Pencil
+        </button>
         <div class="slider-row" id="pencilSizeRow" style="display:none">
           <span>Size</span>
           <input type="range" id="pencilSize" min="1" max="40" value="3" oninput="setToolSize(this.value);pencilSizeVal.textContent=this.value">
           <span id="pencilSizeVal">3</span>
         </div>
+        <button class="btn" id="textBtn" onclick="openTextModal()">
+          <span class="btn-icon">T</span> Add Text
+        </button>
+        <button class="btn" id="lineBtn" onclick="setActiveTool('line')">
+          <span class="btn-icon">╲</span> Draw Line
+        </button>
+        <button class="btn" id="fillBtn" onclick="setActiveTool('fill')">
+          <span class="btn-icon">▓</span> Bucket Fill
+        </button>
+        <button class="btn" id="eraserBtn" onclick="setActiveTool('eraser')">
+          <span class="btn-icon">🧹</span> Eraser Mode
+        </button>
         <div class="slider-row" id="eraserSizeRow" style="display:none">
           <span>Size</span>
           <input type="range" id="eraserSize" min="4" max="60" value="18">
           <span id="eraserSizeVal">18</span>
         </div>
-        <div class="slider-row">
-          <span>Color</span>
-          <input type="color" id="ftColor" value="#FFD600" onchange="setToolColor(this.value)">
+        <!-- Color palette -->
+        <div style="display:flex;align-items:center;gap:5px;margin-top:2px">
+          <span style="font-size:12px;color:#555;letter-spacing:1px">COLOR</span>
+          <span id="activeColorSwatch" style="width:18px;height:18px;background:#FFD600;border:1px solid rgba(255,255,255,0.25);flex-shrink:0;margin-left:auto"></span>
+          <input type="color" id="ftColor" value="#FFD600" title="Custom color"
+            onchange="setToolColor(this.value)"
+            style="width:22px;height:18px;padding:0;border:1px solid rgba(255,255,255,0.15);background:transparent;cursor:pointer">
         </div>
-        <!-- ftSize hidden — kept for JS compat, pencilSize is the visible slider -->
+        <div class="color-palette-grid">
+          <div class="swatch" data-color="#000000" style="background:#000000" onclick="setToolColor('#000000')" title="Black"></div>
+          <div class="swatch" data-color="#444444" style="background:#444444" onclick="setToolColor('#444444')" title="Dark grey"></div>
+          <div class="swatch" data-color="#888888" style="background:#888888" onclick="setToolColor('#888888')" title="Grey"></div>
+          <div class="swatch" data-color="#CCCCCC" style="background:#CCCCCC" onclick="setToolColor('#CCCCCC')" title="Light grey"></div>
+          <div class="swatch" data-color="#FFFFFF" style="background:#FFFFFF" onclick="setToolColor('#FFFFFF')" title="White"></div>
+          <div class="swatch" data-color="#FFD600" style="background:#FFD600" onclick="setToolColor('#FFD600')" title="Yellow" class="swatch active"></div>
+          <div class="swatch" data-color="#FF6B00" style="background:#FF6B00" onclick="setToolColor('#FF6B00')" title="Orange"></div>
+          <div class="swatch" data-color="#FF3A3A" style="background:#FF3A3A" onclick="setToolColor('#FF3A3A')" title="Red"></div>
+          <div class="swatch" data-color="#FF69B4" style="background:#FF69B4" onclick="setToolColor('#FF69B4')" title="Pink"></div>
+          <div class="swatch" data-color="#9945FF" style="background:#9945FF" onclick="setToolColor('#9945FF')" title="Purple"></div>
+          <div class="swatch" data-color="#3B82F6" style="background:#3B82F6" onclick="setToolColor('#3B82F6')" title="Blue"></div>
+          <div class="swatch" data-color="#00BFFF" style="background:#00BFFF" onclick="setToolColor('#00BFFF')" title="Cyan"></div>
+          <div class="swatch" data-color="#00cc66" style="background:#00cc66" onclick="setToolColor('#00cc66')" title="Green"></div>
+          <div class="swatch" data-color="#40E0D0" style="background:#40E0D0" onclick="setToolColor('#40E0D0')" title="Teal"></div>
+          <div class="swatch" data-color="#8B4513" style="background:#8B4513" onclick="setToolColor('#8B4513')" title="Brown"></div>
+          <div class="swatch" data-color="#F4A460" style="background:#F4A460" onclick="setToolColor('#F4A460')" title="Sand"></div>
+        </div>
+        <!-- ftSize hidden — kept for JS compat -->
         <input type="range" id="ftSize" style="display:none" min="1" max="40" value="3" oninput="setToolSize(this.value)">
       </div>
     </div>
