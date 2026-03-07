@@ -1667,13 +1667,8 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
 
   group.on('click tap', ev => {
     ev.cancelBubble = true;
-    if (!moveMode) { refreshLayerPanel(); return; } // panel is the only selection in draw modes
-    _activeLayer = group;
-    transformer.nodes([group]);
-    refreshDelete();
-    toddLayer.draw();
+    // Canvas clicks never change the active layer — use the panel to select layers
     refreshLayerPanel();
-    setStatus('Move — drag to reposition');
   });
 
   group.on('mousedown touchstart', ev => {
