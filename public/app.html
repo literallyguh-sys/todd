@@ -1769,10 +1769,12 @@ function addTodd(src) {
     const initH = nat >= 1 ? Math.round(200 / nat) : 200;
     const sx0 = bgBounds ? bgBounds.x + 20 : CANVAS_W/2 - 100;
     const sy0 = bgBounds ? bgBounds.y + 20 : CANVAS_H/2 - 100;
-    makeToddGroup(img, initW, initH,
+    const g = makeToddGroup(img, initW, initH,
       sx0 + (Math.random()-0.5)*40,
       sy0 + (Math.random()-0.5)*40
     );
+    _activeLayer = g;
+    if (!moveMode) transformer.nodes([]); // don't show resize handles in draw mode
     pushHistory();
     setStatus(`Todd added! ${toddCount} on canvas`);
     showToast('Todd added! ✓');
