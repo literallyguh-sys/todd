@@ -1995,6 +1995,7 @@ stage.on('mousemove touchmove', () => {
   }
 });
 stage.on('mousedown touchstart', ev => {
+  if (ev.evt && ev.evt.button === 1) return; // ignore middle mouse — don't draw while panning
   if (!_inCanvas()) return; // outside canvas — don't draw
   // In move mode: clicking canvas drags the active layer (needed for empty layers with no hit area)
   if (moveMode) {
