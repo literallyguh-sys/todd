@@ -1467,13 +1467,14 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
 
 
   group.on('click tap', ev => {
-    if (eraserMode) return;
     ev.cancelBubble = true;
+    _activeLayer = group;
+    if (eraserMode) { refreshLayerPanel(); return; }
     transformer.nodes([group]);
     refreshDelete();
     toddLayer.draw();
     refreshLayerPanel();
-    setStatus(moveMode ? 'Move — drag to reposition' : 'Todd selected — Del to delete, drag handles to resize/rotate');
+    setStatus(moveMode ? 'Move — drag to reposition' : 'Selected — drag handles to resize/rotate');
   });
 
   group.on('mousedown touchstart', ev => {
