@@ -1650,6 +1650,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
 
   group.on('click tap', ev => {
     ev.cancelBubble = true;
+    if (!moveMode && _activeLayer && _activeLayer !== group) { refreshLayerPanel(); return; }
     _activeLayer = group;
     if (!moveMode) { refreshLayerPanel(); return; }
     transformer.nodes([group]);
@@ -1661,6 +1662,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
 
   group.on('mousedown touchstart', ev => {
     if (!moveMode) return;
+    if (group !== _activeLayer) return;
     ev.cancelBubble = true;
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
