@@ -2015,6 +2015,12 @@ stage.on('mousedown touchstart', ev => {
         return;
       }
       if (_activeLayer) {
+        // Don't drag active layer when user clicked on a different group (let click select it)
+        let node = ev.target;
+        while (node) {
+          if (node._toddId && node !== _activeLayer) return;
+          node = node.getParent ? node.getParent() : null;
+        }
         _moveTarget = _activeLayer;
         _moveOffset = { x: pos.x - _activeLayer.x(), y: pos.y - _activeLayer.y() };
         _moveMoved = false;
