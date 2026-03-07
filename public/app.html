@@ -1298,7 +1298,7 @@ function refreshLayerPanel() {
 }
 
 function layerMove(id, dir) {
-  const g = toddLayer.getChildren().find(n => n._toddId === id);
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
   if (!g) return;
   dir === 'up' ? g.moveUp() : g.moveDown();
   transformer.moveToTop();
@@ -1307,7 +1307,7 @@ function layerMove(id, dir) {
 }
 
 function layerRemove(id) {
-  const g = toddLayer.getChildren().find(n => n._toddId === id);
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
   if (g && g._removeTodd) g._removeTodd();
   else if (g) { g.destroy(); toddLayer.draw(); pushHistory(); }
 }
