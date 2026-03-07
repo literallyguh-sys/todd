@@ -2042,30 +2042,24 @@ async function openPublishModal() {
     ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y), w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
     : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
-  // Account for Konva's device pixel ratio — _canvas physical size = logical * dpr
-  const _dpr = bgLayer.getCanvas()._canvas.width / CANVAS_W;
-
   // Preview: small JPEG for modal display only
   const PREV_W = 600;
-  const ps = Math.min(1, PREV_W / crop.w);
-  const pW = Math.round(crop.w * ps), pH = Math.round(crop.h * ps);
-  const prev = document.createElement('canvas');
-  prev.width = pW; prev.height = pH;
-  const pCtx = prev.getContext('2d');
-  pCtx.imageSmoothingQuality = 'high';
-  [bgLayer, toddLayer, drawLayer].forEach(l => pCtx.drawImage(l.getCanvas()._canvas, crop.x * _dpr, crop.y * _dpr, crop.w * _dpr, crop.h * _dpr, 0, 0, pW, pH));
-  _publishDataURL = prev.toDataURL('image/jpeg', 0.8);
+  _publishDataURL = await new Promise(resolve => stage.toDataURL({
+    x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+    pixelRatio: Math.min(1, PREV_W / crop.w),
+    mimeType: 'image/jpeg', quality: 0.8,
+    callback: resolve
+  }));
 
-  // Upload blob: full-res PNG (max 1600px, lossless)
-  const MAX_W = 1600;
-  const s = Math.min(1, MAX_W / crop.w);
-  const outW = Math.round(crop.w * s), outH = Math.round(crop.h * s);
-  const tmp = document.createElement('canvas');
-  tmp.width = outW; tmp.height = outH;
-  const ctx = tmp.getContext('2d');
-  ctx.imageSmoothingQuality = 'high';
-  [bgLayer, toddLayer, drawLayer].forEach(l => ctx.drawImage(l.getCanvas()._canvas, crop.x * _dpr, crop.y * _dpr, crop.w * _dpr, crop.h * _dpr, 0, 0, outW, outH));
-  _publishBlob = await new Promise(resolve => tmp.toBlob(resolve, 'image/png'));
+  // Upload blob: render at original image resolution (max 2400px wide), lossless PNG
+  const origW = background?.image()?.naturalWidth || CANVAS_W;
+  const uploadRatio = Math.min(origW, 2400) / crop.w;
+  _publishBlob = await new Promise(resolve => stage.toBlob({
+    x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+    pixelRatio: uploadRatio,
+    mimeType: 'image/png',
+    callback: resolve
+  }));
 
   const prevEl = document.getElementById('modalPreview');
   prevEl.innerHTML = '';
