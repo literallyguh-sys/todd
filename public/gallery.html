@@ -315,9 +315,16 @@ async function adminDelete(postId) {
   const token = lbGetStoredToken();
   if (!_isAdmin || !token) return;
   try {
+    const post = _galleryPosts.find(p => String(p.id) === String(postId));
     await fetch(`${SUPA_URL}/rest/v1/gallery_posts?id=eq.${postId}`, {
       method:'DELETE', headers:{apikey:SUPA_KEY, Authorization:'Bearer '+token, Prefer:'return=minimal'}
     });
+    if (post?.image && post.image.includes('/storage/v1/object/public/gallery/')) {
+      const filename = post.image.split('/storage/v1/object/public/gallery/')[1];
+      await fetch(`${SUPA_URL}/storage/v1/object/gallery/${filename}`, {
+        method:'DELETE', headers:{apikey:SUPA_KEY, Authorization:'Bearer '+token}
+      });
+    }
     loadGallery();
   } catch(e) {}
 }
