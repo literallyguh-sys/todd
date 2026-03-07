@@ -1230,7 +1230,7 @@ function snapshotState() {
         x: g.x(), y: g.y(), w: g._currentW, h: g._currentH,
         rotation: g.rotation(), mirrored: g._mirrored || false,
         eraseCircles: g.eraseLayer.getChildren().map(c => ({ x:c.x(), y:c.y(), r:c.radius() })),
-        strokes: layerStrokes
+        strokes: layerStrokes, visible: g.visible()
       });
     }
   });
