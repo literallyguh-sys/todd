@@ -1073,7 +1073,7 @@ function setActiveTool(tool) {
   if (same) { setStatus('Ready'); return; } // toggle off
 
   _activeTool = tool;
-  document.getElementById(tool+'Btn')?.classList.add('active');
+  document.getElementById('ft-' + tool)?.classList.add('active');
 
   switch (tool) {
     case 'pencil':
