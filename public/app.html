@@ -1499,6 +1499,7 @@ function exportImage() {
         w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
     : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
+  const _dpr = bgLayer.getCanvas()._canvas.width / CANVAS_W;
   const tmp = document.createElement('canvas');
   tmp.width  = crop.w;
   tmp.height = crop.h;
@@ -1506,7 +1507,7 @@ function exportImage() {
 
   [bgLayer, toddLayer, drawLayer].forEach(layer => {
     const src = layer.getCanvas()._canvas;
-    ctx.drawImage(src, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
+    ctx.drawImage(src, crop.x * _dpr, crop.y * _dpr, crop.w * _dpr, crop.h * _dpr, 0, 0, crop.w, crop.h);
   });
 
   _pendingDownloadURL = tmp.toDataURL('image/png');
