@@ -1519,12 +1519,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   });
 
   group.on('dragend', () => {
-    clampToBg(group, currentW, currentH);
     pushHistory();
-  });
-
-  group.on('dragmove', () => {
-    clampToBg(group, currentW, currentH);
   });
 
   group.on('click tap', ev => {
