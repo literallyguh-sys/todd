@@ -1220,7 +1220,8 @@ function snapshotState() {
         text: tn.text(), fill: tn.fill(), fontSize: tn.fontSize(),
         x: g.x(), y: g.y(), rotation: g.rotation(),
         scaleX: g.scaleX(), scaleY: g.scaleY(),
-        mirrored: g._mirrored || false, strokes: layerStrokes
+        mirrored: g._mirrored || false, strokes: layerStrokes,
+        visible: g.visible()
       });
     } else {
       items.push({
