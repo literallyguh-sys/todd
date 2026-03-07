@@ -1750,9 +1750,18 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
     refreshDelete();
     toddLayer.draw();
     refreshLayerPanel();
-    setStatus('Text selected — Del to delete, drag handles to resize/rotate');
+    setStatus(moveMode ? 'Move — drag to reposition' : 'Text selected — Del to delete, drag handles to resize/rotate');
   });
-  group.on('dragend', () => pushHistory());
+  group.on('mousedown touchstart', ev => {
+    if (!moveMode) return;
+    ev.cancelBubble = true;
+    const pos = stage.getRelativePointerPosition();
+    if (!pos) return;
+    _moveTarget = group;
+    _moveOffset = { x: pos.x - group.x(), y: pos.y - group.y() };
+    _moveMoved  = false;
+    containerEl.style.cursor = 'grabbing';
+  });
   group.on('transformend', () => { refreshDelete(); pushHistory(); });
   group._refreshDelete = refreshDelete;
   group._removeTodd = removeItem;
