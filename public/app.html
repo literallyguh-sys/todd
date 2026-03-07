@@ -1447,15 +1447,18 @@ function restoreState(snap) {
     };
     if (td.type === 'layer') {
       const g = _restoreEmptyLayer(td);
+      if (td.visible === false) g.visible(false);
       restoreStrokes(g);
     } else if (td.type === 'text') {
       const g = makeTextGroup(td.text, td.x, td.y, td.id, td.fontSize, td.fill, td.scaleX, td.scaleY, td.rotation, td.mirrored, false);
+      if (td.visible === false) g.visible(false);
       restoreStrokes(g);
     } else {
       const img = new Image();
       img.onload = () => {
         toddCount++;
         const group = makeToddGroup(img, td.w, td.h, td.x, td.y, td.id, false);
+        if (td.visible === false) group.visible(false);
         if (td.rotation) group.rotation(td.rotation);
         if (td.mirrored) {
           group._mirrored = true;
