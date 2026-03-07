@@ -1488,7 +1488,7 @@ function clearAll() {
 // ── Export ──
 let _pendingDownloadURL = null;
 
-function exportImage() {
+async function exportImage() {
   // Hide transformer
   transformer.nodes([]);
   toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
@@ -1499,18 +1499,14 @@ function exportImage() {
         w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
     : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
-  const _dpr = bgLayer.getCanvas()._canvas.width / CANVAS_W;
-  const tmp = document.createElement('canvas');
-  tmp.width  = crop.w;
-  tmp.height = crop.h;
-  const ctx = tmp.getContext('2d');
-
-  [bgLayer, toddLayer, drawLayer].forEach(layer => {
-    const src = layer.getCanvas()._canvas;
-    ctx.drawImage(src, crop.x * _dpr, crop.y * _dpr, crop.w * _dpr, crop.h * _dpr, 0, 0, crop.w, crop.h);
-  });
-
-  _pendingDownloadURL = tmp.toDataURL('image/png');
+  const origW = background?.image()?.naturalWidth || CANVAS_W;
+  const exportRatio = Math.min(origW, 2400) / crop.w;
+  _pendingDownloadURL = await new Promise(resolve => stage.toDataURL({
+    x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+    pixelRatio: exportRatio,
+    mimeType: 'image/png',
+    callback: resolve
+  }));
 
   // Show confirm modal
   document.getElementById('dlConfirmPath').textContent = '~/Downloads/todd-masterpiece.png';
