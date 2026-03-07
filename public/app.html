@@ -899,12 +899,13 @@ body.chat-open #chatTab{
 <script>
 // ── Canvas sizing ──
 function computeCanvasSize() {
-  const wrap = document.getElementById('editorView');
-  const W = wrap.clientWidth  || (window.innerWidth  - 190);
-  const H = wrap.clientHeight || window.innerHeight;
+  // Use viewport math — wrap.clientWidth is 0 at inline-script execution time
+  const W = window.innerWidth  - 190; // viewport minus sidebar
+  const H = window.innerHeight;
+  // Reserve ~52px for top-bar (26px) + statusbar (20px) + two 3px gaps
   return {
-    w: Math.max(200, Math.floor(W - 12)),
-    h: Math.max(200, Math.floor(H - 80))
+    w: Math.max(200, W),
+    h: Math.max(200, H - 52)
   };
 }
 
