@@ -609,51 +609,49 @@ body.chat-open #chatTab{
     <div class="panel" id="panel-tools">
       <p class="panel-title">Tools</p>
       <div class="control-group">
-        <button class="btn" id="pencilBtn" onclick="togglePencil()">
-          <span class="btn-icon">✏️</span> Pencil
-        </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <button class="btn" id="pencilBtn" onclick="setActiveTool('pencil')" title="Pencil">✏ Pencil</button>
+          <button class="btn" id="textBtn"   onclick="openTextModal()"         title="Text">T Text</button>
+          <button class="btn" id="lineBtn"   onclick="setActiveTool('line')"   title="Draw Line">╲ Line</button>
+          <button class="btn" id="fillBtn"   onclick="setActiveTool('fill')"   title="Bucket Fill">▓ Fill</button>
+          <button class="btn" id="eraserBtn" onclick="setActiveTool('eraser')" title="Eraser" style="grid-column:1/-1">⌫ Eraser</button>
+        </div>
         <div class="slider-row" id="pencilSizeRow" style="display:none">
           <span>Size</span>
-          <input type="range" id="pencilSize" min="1" max="24" value="3">
+          <input type="range" id="pencilSize" min="1" max="40" value="3" oninput="setToolSize(this.value);pencilSizeVal.textContent=this.value">
           <span id="pencilSizeVal">3</span>
         </div>
-        <button class="btn" id="textBtn" onclick="openTextModal()">
-          <span class="btn-icon">T</span> Add Text
-        </button>
-        <button class="btn" id="eraserBtn" onclick="toggleEraser()">
-          <span class="btn-icon">🧹</span> Eraser Mode
-        </button>
         <div class="slider-row" id="eraserSizeRow" style="display:none">
           <span>Size</span>
           <input type="range" id="eraserSize" min="4" max="60" value="18">
           <span id="eraserSizeVal">18</span>
         </div>
+        <div class="slider-row">
+          <span>Color</span>
+          <input type="color" id="ftColor" value="#FFD600" onchange="setToolColor(this.value)">
+        </div>
+        <!-- ftSize hidden — kept for JS compat, pencilSize is the visible slider -->
+        <input type="range" id="ftSize" style="display:none" min="1" max="40" value="3" oninput="setToolSize(this.value)">
+      </div>
+    </div>
 
-        <button class="btn" id="mirrorBtn" onclick="flipSelected()" style="display:none">
-          <span class="btn-icon">↔️</span> Mirror
-        </button>
-        <button class="btn danger" id="deleteToddBtn" onclick="deleteSelected()" style="display:none">
-          <span class="btn-icon">🗑️</span> Delete
-        </button>
-        <div id="layerBtns" style="display:none;flex-direction:row;gap:6px">
-          <button class="btn" onclick="moveLayer('up')" style="flex:1;width:auto;justify-content:center;padding:8px 4px" title="Bring forward">
-            <span class="btn-icon">⬆️</span> Forward
-          </button>
-          <button class="btn" onclick="moveLayer('down')" style="flex:1;width:auto;justify-content:center;padding:8px 4px" title="Send backward">
-            <span class="btn-icon">⬇️</span> Back
-          </button>
+    <!-- ── LAYERS PANEL ── -->
+    <div class="panel" id="panel-layers">
+      <p class="panel-title">Layers</p>
+      <div id="layerList">
+        <div class="layer-empty">No layers yet</div>
+      </div>
+      <!-- Context actions: shown by refreshDelete() when item is selected -->
+      <div style="margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.07)">
+        <div style="display:flex;gap:4px;margin-bottom:4px">
+          <button class="btn" id="mirrorBtn" onclick="flipSelected()" style="display:none;flex:1;width:auto;justify-content:center;padding:5px 4px;font-size:13px">↔ Mirror</button>
+          <button class="btn danger" id="deleteToddBtn" onclick="deleteSelected()" style="display:none;flex:1;width:auto;justify-content:center;padding:5px 4px;font-size:13px">× Del</button>
         </div>
-        <div style="display:flex;gap:6px">
-          <button class="btn" id="undoBtn" onclick="undo()" style="flex:1;width:auto;justify-content:center" title="Undo (Ctrl+Z)">
-            <span class="btn-icon">↩</span> Undo
-          </button>
-          <button class="btn" id="redoBtn" onclick="redo()" style="flex:1;width:auto;justify-content:center" title="Redo (Ctrl+Y)">
-            Redo <span class="btn-icon">↪</span>
-          </button>
+        <div id="layerBtns" style="display:none;flex-direction:row;gap:4px;margin-bottom:4px">
+          <button class="btn" onclick="moveLayer('up')"   style="flex:1;width:auto;justify-content:center;padding:5px 4px;font-size:12px">▲ Fwd</button>
+          <button class="btn" onclick="moveLayer('down')" style="flex:1;width:auto;justify-content:center;padding:5px 4px;font-size:12px">▼ Back</button>
         </div>
-        <button class="btn danger" onclick="clearAll()">
-          <span class="btn-icon">🗑️</span> Clear All
-        </button>
+        <button class="btn danger" onclick="clearAll()" style="width:100%">🗑 Clear All</button>
       </div>
     </div>
 
