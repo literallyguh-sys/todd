@@ -1713,7 +1713,9 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   group._refreshDelete = refreshDelete;
   group._removeTodd = removeItem;
 
-  group.add(textNode);
+  const textStrokeGroup = new Konva.Group({ listening: false });
+  group._strokeGroup = textStrokeGroup;
+  group.add(textNode, textStrokeGroup);
   toddLayer.add(group);
   if (autoSelect) transformer.nodes([group]);
   refreshDelete();
