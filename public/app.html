@@ -642,7 +642,7 @@ body.chat-open #chatTab{
       <div id="layerList">
         <div class="layer-empty">No layers yet</div>
       </div>
-      <!-- Context actions: shown by refreshDelete() when item is selected -->
+      <!-- Context actions -->
       <div style="margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.07)">
         <div style="display:flex;gap:4px;margin-bottom:4px">
           <button class="btn" id="mirrorBtn" onclick="flipSelected()" style="display:none;flex:1;width:auto;justify-content:center;padding:5px 4px;font-size:13px">↔ Mirror</button>
@@ -652,7 +652,7 @@ body.chat-open #chatTab{
           <button class="btn" onclick="moveLayer('up')"   style="flex:1;width:auto;justify-content:center;padding:5px 4px;font-size:12px">▲ Fwd</button>
           <button class="btn" onclick="moveLayer('down')" style="flex:1;width:auto;justify-content:center;padding:5px 4px;font-size:12px">▼ Back</button>
         </div>
-        <button class="btn danger" onclick="clearAll()" style="width:100%">🗑 Clear All</button>
+        <button class="btn" onclick="addEmptyLayer()" style="width:100%">+ New Layer</button>
       </div>
     </div>
 
