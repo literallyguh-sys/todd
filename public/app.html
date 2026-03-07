@@ -1679,6 +1679,7 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
     document.getElementById('deleteToddBtn').style.display = show;
   }
   function removeItem() {
+    if (_activeLayer === group) _activeLayer = null;
     transformer.nodes([]);
     group.destroy();
     toddLayer.draw();
@@ -1689,8 +1690,9 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
     pushHistory();
   }
   group.on('click tap', ev => {
-    if (eraserMode) return;
     ev.cancelBubble = true;
+    _activeLayer = group;
+    if (eraserMode) { refreshLayerPanel(); return; }
     transformer.nodes([group]);
     refreshDelete();
     toddLayer.draw();
