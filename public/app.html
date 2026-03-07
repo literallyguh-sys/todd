@@ -1056,10 +1056,9 @@ function setActiveTool(tool) {
   _activeTool = null;
   containerEl.classList.remove('pencil-active','eraser-active');
   containerEl.style.cursor = '';
+  _moveTarget = null; _moveMoved = false;
   toddLayer.find('Group').forEach(g => {
     if (!g._toddId) return;
-    g.stopDrag();
-    g.draggable(false);
     if (g._refreshDelete) g._refreshDelete();
   });
   ['pencilBtn','eraserBtn','lineBtn','fillBtn'].forEach(id =>
