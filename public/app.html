@@ -1349,14 +1349,17 @@ function restoreState(snap) {
         canvasBg.visible(false);
         canvasBg.moveToBottom();
         bgLayer.draw();
+        applyDrawLayerClip();
       };
       img.src = snap.bgSrc;
     } else {
       bgBounds = {...snap.bgBounds};
+      applyDrawLayerClip();
     }
   } else if (!snap.bgSrc) {
     if (background) { background.destroy(); background = null; bgBounds = null; }
     canvasBg.visible(true);
+    applyDrawLayerClip();
     bgLayer.draw();
   }
 
