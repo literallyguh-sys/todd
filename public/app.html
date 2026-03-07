@@ -1527,7 +1527,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
     ev.cancelBubble = true;
     // In move mode, deselect the previous group
     if (moveMode) {
-      transformer.nodes().forEach(n => { if (n._toddId && n !== group) n.draggable(false); });
+      transformer.nodes().forEach(n => { if (n._toddId && n !== group) { n.stopDrag(); n.draggable(false); } });
     }
     transformer.nodes([group]);
     if (moveMode) group.draggable(true);
