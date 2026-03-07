@@ -1879,9 +1879,8 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   }
   group.on('click tap', ev => {
     ev.cancelBubble = true;
-    if (!moveMode && _activeLayer && _activeLayer !== group) { refreshLayerPanel(); return; }
+    if (!moveMode) { refreshLayerPanel(); return; } // panel is the only selection in draw modes
     _activeLayer = group;
-    if (!moveMode) { refreshLayerPanel(); return; }
     transformer.nodes([group]);
     refreshDelete();
     toddLayer.draw();
