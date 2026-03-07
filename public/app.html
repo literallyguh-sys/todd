@@ -982,14 +982,10 @@ function setActiveTool(tool) {
   document.getElementById('eraserSizeRow').style.display = 'none';
   document.getElementById('mdb-pencil')?.classList.remove('active');
   document.getElementById('mdb-eraser')?.classList.remove('active');
-  ['pencil','text','line','fill','eraser'].forEach(t =>
-    document.getElementById('ft-'+t)?.classList.remove('active')
-  );
-
   if (same) { setStatus('Ready'); return; } // toggle off
 
   _activeTool = tool;
-  document.getElementById('ft-'+tool)?.classList.add('active');
+  document.getElementById(tool+'Btn')?.classList.add('active');
 
   switch (tool) {
     case 'pencil':
@@ -997,7 +993,6 @@ function setActiveTool(tool) {
       containerEl.classList.add('pencil-active');
       transformer.nodes([]);
       toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
-      document.getElementById('pencilBtn')?.classList.add('active');
       document.getElementById('pencilSizeRow').style.display = 'flex';
       document.getElementById('mdb-pencil')?.classList.add('active');
       setStatus('Pencil — draw on canvas');
@@ -1010,7 +1005,6 @@ function setActiveTool(tool) {
         g.draggable(false);
         if (g._refreshDelete) g._refreshDelete();
       });
-      document.getElementById('eraserBtn')?.classList.add('active');
       document.getElementById('eraserSizeRow').style.display = 'flex';
       document.getElementById('mdb-eraser')?.classList.add('active');
       setStatus('Eraser — paint over a Todd', true);
@@ -1020,6 +1014,7 @@ function setActiveTool(tool) {
       containerEl.classList.add('pencil-active');
       transformer.nodes([]);
       toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      document.getElementById('pencilSizeRow').style.display = 'flex';
       setStatus('Line — click and drag');
       break;
     case 'fill':
@@ -1027,11 +1022,11 @@ function setActiveTool(tool) {
       containerEl.style.cursor = 'cell';
       transformer.nodes([]);
       toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      document.getElementById('pencilSizeRow').style.display = 'flex';
       setStatus('Fill — click to flood fill');
       break;
     case 'text':
       _activeTool = null;
-      document.getElementById('ft-text')?.classList.remove('active');
       openTextModal();
       break;
   }
