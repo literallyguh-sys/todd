@@ -1397,17 +1397,20 @@ function restoreState(snap) {
         canvasBg.moveToBottom();
         bgLayer.draw();
         applyDrawLayerClip();
+        refreshLayerPanel();
       };
       img.src = snap.bgSrc;
     } else {
       bgBounds = {...snap.bgBounds};
       applyDrawLayerClip();
+      refreshLayerPanel();
     }
   } else if (!snap.bgSrc) {
     if (background) { background.destroy(); background = null; bgBounds = null; }
     canvasBg.visible(true);
     applyDrawLayerClip();
     bgLayer.draw();
+    refreshLayerPanel();
   }
 
   _activeLayer = null;
