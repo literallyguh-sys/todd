@@ -1371,7 +1371,8 @@ function restoreState(snap) {
       });
     };
     if (td.type === 'layer') {
-      _restoreEmptyLayer(td);
+      const g = _restoreEmptyLayer(td);
+      restoreStrokes(g);
     } else if (td.type === 'text') {
       const g = makeTextGroup(td.text, td.x, td.y, td.id, td.fontSize, td.fill, td.scaleX, td.scaleY, td.rotation, td.mirrored, false);
       restoreStrokes(g);
