@@ -1115,7 +1115,6 @@ function setActiveTool(tool) {
       break;
     case 'move':
       moveMode = true;
-      document.getElementById('ft-move')?.classList.add('active');
       containerEl.style.cursor = 'grab';
       setStatus('Move — click a layer then drag it');
       break;
