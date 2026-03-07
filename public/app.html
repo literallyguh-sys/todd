@@ -1774,6 +1774,7 @@ function addTodd(src) {
     _activeLayer = g;
     if (!moveMode) transformer.nodes([]); // don't show resize handles in draw mode
     pushHistory();
+    requestAnimationFrame(refreshLayerPanel); // ensure panel is visible after async img.onload
     setStatus(`Todd added! ${toddCount} on canvas`);
     showToast('Todd added! ✓');
   };
