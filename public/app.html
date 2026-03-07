@@ -1970,6 +1970,7 @@ stage.on('click tap', () => {
     doBucketFill(Math.round(pos.x), Math.round(pos.y));
     return;
   }
+  if (pencilMode || lineMode || eraserMode) return; // keep active layer while drawing
   // Click on empty canvas — deselect active layer
   _activeLayer = null;
   transformer.nodes([]);
