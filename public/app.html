@@ -1395,6 +1395,65 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+// ── Empty (blank drawing) layer ──
+function _makeEmptyLayerGroup(id, x, y, w, h) {
+  const g = new Konva.Group({ x, y, draggable: false });
+  g._toddId = id;
+  g._isEmptyLayer = true;
+  g._currentW = w;
+  g._currentH = h;
+  const sg = new Konva.Group({ listening: false });
+  g._strokeGroup = sg;
+  g.add(sg);
+
+  function refreshDelete() {
+    const active = _activeLayer === g;
+    document.getElementById('mirrorBtn').style.display = 'none';
+    document.getElementById('layerBtns').style.display = active ? 'flex' : 'none';
+    document.getElementById('deleteToddBtn').style.display = active ? 'flex' : 'none';
+  }
+  g._refreshDelete = refreshDelete;
+  g._removeTodd = () => {
+    if (_activeLayer === g) _activeLayer = null;
+    g.destroy(); toddLayer.draw(); refreshLayerPanel(); pushHistory();
+  };
+  g.on('click tap', ev => {
+    ev.cancelBubble = true;
+    _activeLayer = g;
+    refreshDelete();
+    refreshLayerPanel();
+    setStatus('Layer selected');
+  });
+  g.on('mousedown touchstart', ev => {
+    if (!moveMode) return;
+    ev.cancelBubble = true;
+    const pos = stage.getRelativePointerPosition();
+    if (!pos) return;
+    _moveTarget = g;
+    _moveOffset = { x: pos.x - g.x(), y: pos.y - g.y() };
+    _moveMoved = false;
+    containerEl.style.cursor = 'grabbing';
+  });
+  toddLayer.add(g);
+  return g;
+}
+
+function addEmptyLayer() {
+  const id = 'layer_' + (++_toddIdCounter);
+  const bx = bgBounds ? bgBounds.x : 0, by = bgBounds ? bgBounds.y : 0;
+  const bw = bgBounds ? bgBounds.w : CANVAS_W, bh = bgBounds ? bgBounds.h : CANVAS_H;
+  const g = _makeEmptyLayerGroup(id, bx, by, bw, bh);
+  _activeLayer = g;
+  refreshLayerPanel();
+  toddLayer.draw();
+  pushHistory();
+  showToast('Layer added');
+}
+
+function _restoreEmptyLayer(td) {
+  _makeEmptyLayerGroup(td.id, td.x, td.y, td.w, td.h);
+}
+
 // ── Clamp: Todd stays within bgBounds (or canvas if no bg) ──
 function clampToBg(group, w, h) {
   const margin = 20;
