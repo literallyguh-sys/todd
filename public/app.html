@@ -1173,8 +1173,16 @@ function restoreState(snap) {
   transformer.nodes([]);
   toddCount = 0;
 
-  // Restore pencil strokes
+  // Restore draw layer
   drawLayer.destroyChildren();
+  if (snap.fillSrc) {
+    const fi = new Image();
+    fi.onload = () => {
+      const kf = new Konva.Image({ image:fi, x:0, y:0, width:CANVAS_W, height:CANVAS_H, listening:false });
+      drawLayer.add(kf); kf.moveToBottom(); drawLayer.batchDraw();
+    };
+    fi.src = snap.fillSrc;
+  }
   (snap.strokes || []).forEach(s => {
     drawLayer.add(new Konva.Line({
       stroke: s.stroke, strokeWidth: s.strokeWidth,
