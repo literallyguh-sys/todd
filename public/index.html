@@ -28,12 +28,11 @@ html,body{width:100%;height:100%;background:#060608;font-family:'VT323',monospac
 .top-social-link{opacity:0.65;transition:opacity 0.2s;display:flex;align-items:center;}
 .top-social-link:hover{opacity:1;}
 @media(max-width:599px){#top-social{display:none;}}
-#site-title h1{font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:6px;color:#FFD600;
+#site-title h1{font-family:'VT323',monospace;font-size:52px;letter-spacing:6px;color:#FFD600;
   line-height:1;text-shadow:3px 3px 0 #000;animation:glitch-base 7s infinite;position:relative;display:inline-block;}
 #site-title h1::before,#site-title h1::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;letter-spacing:inherit;}
 #site-title h1::before{color:#ff003c;animation:glitch-r 7s infinite;clip-path:polygon(0 15%,100% 15%,100% 38%,0 38%);}
 #site-title h1::after{color:#00f5ff;animation:glitch-b 7s infinite;clip-path:polygon(0 62%,100% 62%,100% 82%,0 82%);}
-#site-title p{font-size:14px;letter-spacing:4px;color:rgba(255,255,255,0.3);margin-top:2px;text-transform:uppercase;}
 
 @keyframes glitch-base{0%,89%,100%{transform:none;opacity:1}90%{transform:skewX(-3deg) translateX(2px);opacity:.9}91%{transform:skewX(2deg) translateX(-2px)}92%{transform:none}93%{transform:translateX(3px) skewX(-1deg);opacity:.95}94%,95%{transform:none}}
 @keyframes glitch-r{0%,89%,100%{transform:none;opacity:0}90%{transform:translateX(-4px);opacity:.8}91%{transform:translateX(3px);opacity:.5}92%,95%{opacity:0}93%{transform:translateX(-5px);opacity:.6}}
