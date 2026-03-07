@@ -2030,8 +2030,9 @@ function switchTab(tab) {
 
 // ── Publish modal ──
 let _publishDataURL = null;
+let _publishBlob = null;
 
-function openPublishModal() {
+async function openPublishModal() {
   transformer.nodes([]);
   toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
   toddLayer.draw();
@@ -2040,29 +2041,33 @@ function openPublishModal() {
     ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y), w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
     : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
-  // Scale down to max 800px wide to keep base64 small enough for Supabase
-  const MAX_W = 800;
-  const scale = Math.min(1, MAX_W / crop.w);
-  const outW  = Math.round(crop.w * scale);
-  const outH  = Math.round(crop.h * scale);
+  // Preview: small JPEG for modal display only
+  const PREV_W = 600;
+  const ps = Math.min(1, PREV_W / crop.w);
+  const pW = Math.round(crop.w * ps), pH = Math.round(crop.h * ps);
+  const prev = document.createElement('canvas');
+  prev.width = pW; prev.height = pH;
+  const pCtx = prev.getContext('2d');
+  pCtx.imageSmoothingQuality = 'high';
+  [bgLayer, toddLayer, drawLayer].forEach(l => pCtx.drawImage(l.getCanvas()._canvas, crop.x, crop.y, crop.w, crop.h, 0, 0, pW, pH));
+  _publishDataURL = prev.toDataURL('image/jpeg', 0.8);
 
+  // Upload blob: full-res PNG (max 1600px, lossless)
+  const MAX_W = 1600;
+  const s = Math.min(1, MAX_W / crop.w);
+  const outW = Math.round(crop.w * s), outH = Math.round(crop.h * s);
   const tmp = document.createElement('canvas');
   tmp.width = outW; tmp.height = outH;
   const ctx = tmp.getContext('2d');
   ctx.imageSmoothingQuality = 'high';
-  [bgLayer, toddLayer, drawLayer].forEach(layer => {
-    ctx.drawImage(layer.getCanvas()._canvas, crop.x, crop.y, crop.w, crop.h, 0, 0, outW, outH);
-  });
+  [bgLayer, toddLayer, drawLayer].forEach(l => ctx.drawImage(l.getCanvas()._canvas, crop.x, crop.y, crop.w, crop.h, 0, 0, outW, outH));
+  _publishBlob = await new Promise(resolve => tmp.toBlob(resolve, 'image/png'));
 
-  // Quality 0.72 + scaled down keeps it well under 500KB base64
-  _publishDataURL = tmp.toDataURL('image/jpeg', 0.72);
-  console.log('Image base64 size (KB):', Math.round(_publishDataURL.length / 1024));
-
-  const prev = document.getElementById('modalPreview');
-  prev.innerHTML = '';
+  const prevEl = document.getElementById('modalPreview');
+  prevEl.innerHTML = '';
   const img = document.createElement('img');
   img.src = _publishDataURL;
-  prev.appendChild(img);
+  prevEl.appendChild(img);
 
   // Reset to form view
   document.getElementById('modalFormView').style.display = '';
