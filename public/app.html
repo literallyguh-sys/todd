@@ -1132,6 +1132,7 @@ function pushHistory() {
   if (history.length > MAX_HISTORY) history.shift();
   historyIndex = history.length - 1;
   updateUndoRedoBtns();
+  refreshLayerPanel();
 }
 
 function updateUndoRedoBtns() {
