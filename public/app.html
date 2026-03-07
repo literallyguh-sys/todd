@@ -1301,7 +1301,7 @@ function clampToBg(group, w, h) {
 
 // ── Core function to build a Todd group (used by addTodd and restoreState) ──
 let _toddIdCounter = 0;
-function makeToddGroup(img, initW, initH, startX, startY, reuseId) {
+function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = true) {
   let currentW = initW;
   let currentH = initH;
   const id = reuseId || ('todd_' + (++_toddIdCounter));
