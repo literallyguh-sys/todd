@@ -1321,6 +1321,17 @@ function refreshLayerPanel() {
     });
     list.appendChild(item);
   });
+
+  // Background is always the bottom-most layer
+  if (background) {
+    const bgItem = document.createElement('div');
+    bgItem.className = 'layer-item';
+    bgItem.style.opacity = '0.6';
+    bgItem.innerHTML = `<span class="layer-thumb-icon" style="color:#888">▨</span>
+      <span class="layer-name">Background</span>
+      <button class="layer-act del" onclick="event.stopPropagation();removeBackground()" title="Remove background">×</button>`;
+    list.appendChild(bgItem);
+  }
 }
 
 function layerMove(id, dir) {
