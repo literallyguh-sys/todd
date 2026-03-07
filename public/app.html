@@ -2041,6 +2041,9 @@ async function openPublishModal() {
     ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y), w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
     : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
+  // Account for Konva's device pixel ratio — _canvas physical size = logical * dpr
+  const _dpr = bgLayer.getCanvas()._canvas.width / CANVAS_W;
+
   // Preview: small JPEG for modal display only
   const PREV_W = 600;
   const ps = Math.min(1, PREV_W / crop.w);
@@ -2049,7 +2052,7 @@ async function openPublishModal() {
   prev.width = pW; prev.height = pH;
   const pCtx = prev.getContext('2d');
   pCtx.imageSmoothingQuality = 'high';
-  [bgLayer, toddLayer, drawLayer].forEach(l => pCtx.drawImage(l.getCanvas()._canvas, crop.x, crop.y, crop.w, crop.h, 0, 0, pW, pH));
+  [bgLayer, toddLayer, drawLayer].forEach(l => pCtx.drawImage(l.getCanvas()._canvas, crop.x * _dpr, crop.y * _dpr, crop.w * _dpr, crop.h * _dpr, 0, 0, pW, pH));
   _publishDataURL = prev.toDataURL('image/jpeg', 0.8);
 
   // Upload blob: full-res PNG (max 1600px, lossless)
@@ -2060,7 +2063,7 @@ async function openPublishModal() {
   tmp.width = outW; tmp.height = outH;
   const ctx = tmp.getContext('2d');
   ctx.imageSmoothingQuality = 'high';
-  [bgLayer, toddLayer, drawLayer].forEach(l => ctx.drawImage(l.getCanvas()._canvas, crop.x, crop.y, crop.w, crop.h, 0, 0, outW, outH));
+  [bgLayer, toddLayer, drawLayer].forEach(l => ctx.drawImage(l.getCanvas()._canvas, crop.x * _dpr, crop.y * _dpr, crop.w * _dpr, crop.h * _dpr, 0, 0, outW, outH));
   _publishBlob = await new Promise(resolve => tmp.toBlob(resolve, 'image/png'));
 
   const prevEl = document.getElementById('modalPreview');
