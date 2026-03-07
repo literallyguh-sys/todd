@@ -1808,11 +1808,6 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   }
 
   function refreshDelete() {
-    const sel = transformer.nodes().includes(group);
-    const show = sel && !eraserMode ? 'flex' : 'none';
-    document.getElementById('mirrorBtn').style.display = show;
-    document.getElementById('layerBtns').style.display = show;
-    document.getElementById('deleteToddBtn').style.display = show;
   }
   function removeItem() {
     if (_activeLayer === group) _activeLayer = null;
