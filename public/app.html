@@ -2074,10 +2074,9 @@ stage.on('click tap', () => {
     doBucketFill(Math.round(pos.x), Math.round(pos.y));
     return;
   }
-  if (pencilMode || lineMode || eraserMode) return; // keep active layer while drawing
-  // Click on empty canvas — deselect transformer; only clear active drawing layer in move mode
+  // In any active tool mode, don't deselect the layer on canvas click
+  if (pencilMode || lineMode || eraserMode || moveMode) return;
   transformer.nodes([]);
-  if (moveMode) { _activeLayer = null; _bgSelected = false; }
   refreshLayerPanel();
 });
 
