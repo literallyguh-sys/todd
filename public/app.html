@@ -1707,7 +1707,10 @@ async function doBucketFill(lx, ly) {
 // ── Pencil tool ──
 const pencilSizeSlider = document.getElementById('pencilSize');
 const pencilSizeVal    = document.getElementById('pencilSizeVal');
-pencilSizeSlider.addEventListener('input', () => { pencilSizeVal.textContent = pencilSizeSlider.value; });
+pencilSizeSlider.addEventListener('input', () => {
+  pencilSizeVal.textContent = pencilSizeSlider.value;
+  setToolSize(pencilSizeSlider.value);
+});
 
 function togglePencil() { setActiveTool(_activeTool === 'pencil' ? null : 'pencil'); }
 
