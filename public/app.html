@@ -1449,27 +1449,6 @@ function clampToBg(group, w, h) {
   group.y(Math.min(by + bh - margin, Math.max(by + margin - h, group.y())));
 }
 
-// ── Returns a dragBoundFunc that clamps to bgBounds ──
-function makeDragBound(getW, getH) {
-  return function(pos) {
-    const margin = 20;
-    const scale  = stage.scaleX();
-    const sp     = stage.position();
-    const bx = bgBounds ? bgBounds.x : 0;
-    const by = bgBounds ? bgBounds.y : 0;
-    const bw = bgBounds ? bgBounds.w : CANVAS_W;
-    const bh = bgBounds ? bgBounds.h : CANVAS_H;
-    const w  = getW(), h = getH();
-    const minX = (bx + margin - w) * scale + sp.x;
-    const maxX = (bx + bw - margin) * scale + sp.x;
-    const minY = (by + margin - h) * scale + sp.y;
-    const maxY = (by + bh - margin) * scale + sp.y;
-    return {
-      x: Math.min(maxX, Math.max(minX, pos.x)),
-      y: Math.min(maxY, Math.max(minY, pos.y))
-    };
-  };
-}
 
 // ── Apply / clear drawLayer clip based on current bgBounds ──
 function applyDrawLayerClip() {
