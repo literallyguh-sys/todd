@@ -1475,6 +1475,7 @@ function restoreState(snap) {
         });
         restoreStrokes(group);
         toddLayer.draw();
+        refreshLayerPanel(); // refresh as each image finishes loading
       };
       img.src = td.src;
     }
@@ -1482,8 +1483,8 @@ function restoreState(snap) {
 
   updateUndoRedoBtns();
   setStatus('Ready');
-  // Layer panel refreshes after async image loads via makeToddGroup/makeTextGroup
-  setTimeout(refreshLayerPanel, 50);
+  // Refresh immediately for synchronous items (empty layers, text); todd groups refresh via img.onload above
+  refreshLayerPanel();
 }
 
 function undo() {
