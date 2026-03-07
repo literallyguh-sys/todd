@@ -1489,6 +1489,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   });
 
   function removeTodd() {
+    if (_activeLayer === group) _activeLayer = null;
     transformer.nodes([]);
     group.destroy();
     toddLayer.draw();
@@ -1500,8 +1501,10 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
     pushHistory();
   }
 
-  group.add(todd, eraseLayer);
+  // render order: image → strokes → erase (so erase covers both)
+  group.add(todd, strokeGroup, eraseLayer);
   group.eraseLayer       = eraseLayer;
+  group._strokeGroup     = strokeGroup;
   group._refreshDelete   = refreshDelete;
   group._removeTodd      = removeTodd;
   group._currentW        = currentW;
