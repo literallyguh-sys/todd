@@ -1429,8 +1429,8 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
 
   const todd = new Konva.Image({ image:img, width:currentW, height:currentH });
 
-  const eraseLayer = new Konva.Group({ listening:false });
-  eraseLayer.clip({ x:0, y:0, width:currentW, height:currentH });
+  const strokeGroup = new Konva.Group({ listening:false });
+  const eraseLayer  = new Konva.Group({ listening:false });
 
   function refreshDelete() {
     const sel = transformer.nodes().includes(group);
