@@ -1437,8 +1437,12 @@ function restoreState(snap) {
   }
 
   _activeLayer = null;
-  // Restore items
-  (snap.items || snap.todds || []).forEach(td => {
+  // Count how many async image loads are needed so we refresh exactly once when all finish
+  const items = snap.items || snap.todds || [];
+  const asyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text').length;
+  let asyncDone = 0;
+
+  items.forEach(td => {
     const restoreStrokes = (group) => {
       (td.strokes || []).forEach(s => {
         group._strokeGroup.add(new Konva.Line({
@@ -1477,7 +1481,8 @@ function restoreState(snap) {
         });
         restoreStrokes(group);
         toddLayer.draw();
-        refreshLayerPanel(); // refresh as each image finishes loading
+        asyncDone++;
+        if (asyncDone === asyncCount) refreshLayerPanel(); // refresh once when all images loaded
       };
       img.src = td.src;
     }
@@ -1485,8 +1490,8 @@ function restoreState(snap) {
 
   updateUndoRedoBtns();
   setStatus('Ready');
-  // Refresh immediately for synchronous items (empty layers, text); todd groups refresh via img.onload above
-  refreshLayerPanel();
+  // If no async loads needed (only empty layers / text), refresh now
+  if (asyncCount === 0) refreshLayerPanel();
 }
 
 function undo() {
