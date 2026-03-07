@@ -1624,6 +1624,11 @@ stage.on('mouseup touchend', () => {
     currentPencilLine = null;
     pushHistory();
   }
+  if (lineMode && _previewLine) {
+    _previewLine = null;
+    _lineStart = null;
+    pushHistory();
+  }
 });
 stage.on('mousemove touchmove', () => {
   if (isErasing && selectedGroup) {
@@ -1639,6 +1644,11 @@ stage.on('mousemove touchmove', () => {
   if (isPenciling && currentPencilLine) {
     const pos = stage.getRelativePointerPosition();
     currentPencilLine.points(currentPencilLine.points().concat([pos.x, pos.y]));
+    drawLayer.batchDraw();
+  }
+  if (lineMode && _previewLine && _lineStart) {
+    const pos = stage.getRelativePointerPosition();
+    _previewLine.points([_lineStart.x, _lineStart.y, pos.x, pos.y]);
     drawLayer.batchDraw();
   }
 });
