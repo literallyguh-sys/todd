@@ -7,9 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;background:#060608;font-family:'VT323',monospace;}
-body{min-height:100%;}
-html{min-width:1920px;overflow-x:auto;overflow-y:auto;}
+html,body{width:100%;height:100%;background:#060608;font-family:'VT323',monospace;}
+html{min-width:1920px;overflow-x:auto;overflow-y:hidden;}
 body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
 
@@ -141,7 +140,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 #lobby-login-btn{background:transparent;color:#FFD600;border:2px solid #FFD600;font-family:VT323,monospace;font-size:18px;letter-spacing:2px;padding:8px 20px;cursor:pointer;}
 #lobby-login-btn:hover{background:#FFD600;color:#000;}
 
-#layout{position:relative;width:1920px;height:1080px;transform:translate(0,0);overflow:hidden;}
+#layout{position:relative;width:1920px;height:100vh;transform:translate(0,0);overflow:hidden;}
 
 @media(max-width:599px){
   #layout{transform:none;width:100%;height:auto;overflow:visible;}
