@@ -972,7 +972,7 @@ stage.add(bgLayer);
 stage.add(toddLayer);
 stage.add(drawLayer);
 toddLayer.clip({ x: 0, y: 0, width: CANVAS_W, height: CANVAS_H });
-applyDrawLayerClip();
+drawLayer.clip({ x: 0, y: 0, width: CANVAS_W, height: CANVAS_H });
 
 // ── Zoom & Pan ──
 const ZOOM_MIN = 0.15, ZOOM_MAX = 8, ZOOM_FACTOR = 1.12;
