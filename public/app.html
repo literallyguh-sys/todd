@@ -22,10 +22,13 @@ html{min-width:1920px;overflow-x:auto;overflow-y:hidden;}
 
 #room{position:fixed;inset:0;z-index:0;background-image:url('app.jpg');background-size:cover;background-position:center;}
 @keyframes scanroll{to{background-position:0 4px;}}
-@keyframes scanflick{0%,86%,92%,100%{opacity:1;}87%{opacity:0.55;}88%{opacity:1;}89%{opacity:0.75;}90%{opacity:1;}93%{opacity:0.5;}94%{opacity:1;}}
+@keyframes sweep{0%{transform:translateY(-140px);opacity:0;}4%{opacity:1;}55%{transform:translateY(110vh);opacity:0.85;}60%,100%{transform:translateY(110vh);opacity:0;}}
 #room::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
-  animation:scanroll 0.25s linear infinite,scanflick 7s steps(1) infinite;}
+  animation:scanroll 0.25s linear infinite;}
+#sweep{position:fixed;left:0;right:0;top:0;height:140px;z-index:1;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.03) 30%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0.03) 70%,transparent);
+  animation:sweep 12s linear infinite;}
 #room::after{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.82) 100%);}
 
@@ -540,6 +543,7 @@ body {
 </head>
 <body>
 <div id="room"></div>
+<div id="sweep"></div>
 <div id="transition"></div>
 
 <div class="app">
