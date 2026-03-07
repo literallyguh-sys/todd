@@ -1519,6 +1519,12 @@ function _endMoveDrag() {
 }
 window.addEventListener('mouseup', _endMoveDrag);
 
+// Returns true if the stage pointer is within canvas bounds
+function _inCanvas() {
+  const pos = stage.getRelativePointerPosition();
+  return pos && pos.x >= 0 && pos.x <= CANVAS_W && pos.y >= 0 && pos.y <= CANVAS_H;
+}
+
 // ── Apply / clear drawLayer clip based on current bgBounds ──
 function applyDrawLayerClip() {
   if (bgBounds) {
