@@ -332,7 +332,7 @@ if (window.location.hash.includes('access_token')) {
   history.replaceState(null, '', window.location.pathname);
 }
 updateLobbyLoginBtn();
-initLobbyName();
+initLobbyName().then(() => checkAdminAccess()).then(() => loadGallery());
 
 // ── User popup ──
 function openLbUserPopup(){var popup=document.getElementById('lb-user-popup');if(!popup)return;var u=null;try{u=JSON.parse(localStorage.getItem('todd_user_data')||'null');}catch(e){}var icon=u&&u.icon?u.icon:'1';var nameEl=document.getElementById('lb-pu-uname');if(nameEl)nameEl.textContent=u&&u.username?u.username:'';var img=document.getElementById('lb-pu-avatar-img');if(img)img.src='Icons/'+icon+'.png';lbUpdateIconSelection(icon);var picker=document.getElementById('lb-pu-picker');if(picker)picker.style.display='none';popup.style.display='flex';}
