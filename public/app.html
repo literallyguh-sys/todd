@@ -1693,6 +1693,7 @@ document.getElementById('bgUpload').addEventListener('change', e => {
       canvasBg.moveToBottom();
       bgLayer.draw();
       applyDrawLayerClip();
+      refreshLayerPanel();
       pushHistory();
       setStatus('Background loaded — add a Todd!');
       showToast('Background set!');
