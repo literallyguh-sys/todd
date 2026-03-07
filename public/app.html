@@ -1446,6 +1446,22 @@ function clampToBg(group, w, h) {
 }
 
 
+// ── End a manual move-drag (called from stage mouseup and window mouseup) ──
+function _endMoveDrag() {
+  if (!_moveTarget) return;
+  const target = _moveTarget;
+  _moveTarget = null;
+  if (_moveMoved) {
+    clampToBg(target, target._currentW, target._currentH);
+    toddLayer.batchDraw();
+    pushHistory();
+  }
+  _moveMoved = false;
+  if (moveMode) containerEl.style.cursor = 'grab';
+  else containerEl.style.cursor = '';
+}
+window.addEventListener('mouseup', _endMoveDrag);
+
 // ── Apply / clear drawLayer clip based on current bgBounds ──
 function applyDrawLayerClip() {
   if (bgBounds) {
