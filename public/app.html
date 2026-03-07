@@ -1580,11 +1580,6 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   const eraseLayer  = new Konva.Group({ listening:false });
 
   function refreshDelete() {
-    const sel = transformer.nodes().includes(group);
-    const show = sel && !eraserMode ? 'flex' : 'none';
-    document.getElementById('mirrorBtn').style.display = show;
-    document.getElementById('layerBtns').style.display = show;
-    document.getElementById('deleteToddBtn').style.display = show;
   }
 
   group.on('transformend', () => {
