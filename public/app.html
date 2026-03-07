@@ -1987,9 +1987,6 @@ stage.on('click tap', () => {
   if (pencilMode || lineMode || eraserMode) return; // keep active layer while drawing
   // Click on empty canvas — deselect transformer; only clear active drawing layer in move mode
   transformer.nodes([]);
-  document.getElementById('mirrorBtn').style.display = 'none';
-  document.getElementById('layerBtns').style.display = 'none';
-  document.getElementById('deleteToddBtn').style.display = 'none';
   if (moveMode) _activeLayer = null;
   refreshLayerPanel();
 });
