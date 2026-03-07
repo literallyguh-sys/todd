@@ -1118,6 +1118,7 @@ function setActiveTool(tool) {
     case 'move':
       moveMode = true;
       containerEl.style.cursor = 'grab';
+      if (_activeLayer) { transformer.nodes([_activeLayer]); toddLayer.draw(); }
       setStatus('Move — click a layer then drag it');
       break;
     case 'text':
