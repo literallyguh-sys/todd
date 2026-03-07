@@ -349,6 +349,12 @@ async function lbSelectIcon(icon){var VALID=['1','2','3'];if(!VALID.includes(ico
 
 // ── Gallery ──
 let _galleryPosts = [];
+let _sortMode = 'popular';
+function toggleSort() {
+  _sortMode = _sortMode === 'popular' ? 'newest' : 'popular';
+  document.getElementById('sort-btn').textContent = 'SORT: ' + (_sortMode === 'popular' ? 'POPULAR' : 'NEWEST');
+  loadGallery();
+}
 function escHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 async function loadGallery() {
