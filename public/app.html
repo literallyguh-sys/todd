@@ -976,8 +976,9 @@ function setActiveTool(tool) {
     g.draggable(true);
     if (g._refreshDelete) g._refreshDelete();
   });
-  document.getElementById('pencilBtn')?.classList.remove('active');
-  document.getElementById('eraserBtn')?.classList.remove('active');
+  ['pencilBtn','eraserBtn','lineBtn','fillBtn'].forEach(id =>
+    document.getElementById(id)?.classList.remove('active')
+  );
   document.getElementById('pencilSizeRow').style.display = 'none';
   document.getElementById('eraserSizeRow').style.display = 'none';
   document.getElementById('mdb-pencil')?.classList.remove('active');
