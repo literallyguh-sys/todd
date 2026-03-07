@@ -230,13 +230,10 @@ html,body{width:100%;height:100%;background:#060608;font-family:'VT323',monospac
   </div>
   <button id="chat-fab" onclick="toggleMobileChat()"><div class="lobby-live-dot"></div>[ CHAT ]</button>
 </div>
-<div id="phone-nav">
-  <a class="phone-nav-icon" onclick="fadeNavigate('app.html')" title="Draw">
-    <img src="/Icons/SVG/draw.png" alt="Draw">
-  </a>
-  <a class="phone-nav-icon" onclick="fadeNavigate('view.html')" title="Scanner">
-    <img src="/Icons/SVG/scan.png" alt="Scanner">
-  </a>
+<div id="left-nav">
+  <a class="lnav-item" onclick="fadeNavigate('view.html')">SCAN</a>
+  <a class="lnav-item" onclick="fadeNavigate('app.html')">DRAW</a>
+  <a class="lnav-item" onclick="fadeNavigate('gallery.html')">GALLERY</a>
 </div>
 <div id="transition"></div>
 
