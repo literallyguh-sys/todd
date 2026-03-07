@@ -1771,8 +1771,6 @@ function addTodd(src) {
     _activeLayer = g;
     if (!moveMode) transformer.nodes([]); // don't show resize handles in draw mode
     pushHistory();
-    // Double-RAF ensures the panel repaints after any canvas events that fire post-onload
-    requestAnimationFrame(() => requestAnimationFrame(refreshLayerPanel));
     setStatus(`Todd added! ${toddCount} on canvas`);
     showToast('Todd added! ✓');
   };
