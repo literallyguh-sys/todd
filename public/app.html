@@ -834,6 +834,54 @@ stage.add(bgLayer);
 stage.add(toddLayer);
 stage.add(drawLayer);
 
+// ── Zoom & Pan ──
+const ZOOM_MIN = 0.15, ZOOM_MAX = 8, ZOOM_FACTOR = 1.12;
+
+function updateZoomIndicator() {
+  const pct = Math.round(stage.scaleX() * 100);
+  const el = document.getElementById('zoomIndicator');
+  if (!el) return;
+  if (pct === 100) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.textContent = pct + '% (click to reset)';
+}
+
+function resetZoom() {
+  stage.scale({ x: 1, y: 1 });
+  stage.position({ x: 0, y: 0 });
+  stage.batchDraw();
+  updateZoomIndicator();
+}
+
+containerEl.addEventListener('wheel', e => {
+  e.preventDefault();
+  const oldScale = stage.scaleX();
+  const pointer  = stage.getPointerPosition();
+  const dir      = e.deltaY < 0 ? 1 : -1;
+  const newScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, oldScale * (dir > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR)));
+  const anchor   = { x: (pointer.x - stage.x()) / oldScale, y: (pointer.y - stage.y()) / oldScale };
+  stage.scale({ x: newScale, y: newScale });
+  stage.position({ x: pointer.x - anchor.x * newScale, y: pointer.y - anchor.y * newScale });
+  stage.batchDraw();
+  updateZoomIndicator();
+}, { passive: false });
+
+// Middle-mouse pan
+let _panning = false, _panLast = { x: 0, y: 0 };
+containerEl.addEventListener('mousedown', e => {
+  if (e.button !== 1) return;
+  e.preventDefault();
+  _panning = true;
+  _panLast = { x: e.clientX, y: e.clientY };
+});
+window.addEventListener('mousemove', e => {
+  if (!_panning) return;
+  stage.position({ x: stage.x() + (e.clientX - _panLast.x), y: stage.y() + (e.clientY - _panLast.y) });
+  _panLast = { x: e.clientX, y: e.clientY };
+  stage.batchDraw();
+});
+window.addEventListener('mouseup', e => { if (e.button === 1) _panning = false; });
+
 // ── Pencil state ──
 let pencilMode = false;
 let isPenciling = false;
@@ -1429,7 +1477,7 @@ stage.on('mousemove touchmove', () => {
     toddLayer.batchDraw();
   }
   if (isPenciling && currentPencilLine) {
-    const pos = stage.getPointerPosition();
+    const pos = stage.getRelativePointerPosition();
     currentPencilLine.points(currentPencilLine.points().concat([pos.x, pos.y]));
     drawLayer.batchDraw();
   }
