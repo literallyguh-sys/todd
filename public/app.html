@@ -1408,27 +1408,15 @@ document.getElementById('bgUpload').addEventListener('change', e => {
     img.onload = () => {
       if (background) background.destroy();
 
-      // Resize the canvas to match the image's aspect ratio exactly,
-      // fitting within the available space. Image fills 100% — no grey bars.
-      const canvasWrap = containerEl.parentElement;
-      const maxW = canvasWrap.clientWidth  - 40;
-      const maxH = canvasWrap.clientHeight - 40;
-      const scale = Math.min(maxW / img.width, maxH / img.height);
-      const newW = Math.round(img.width  * scale);
-      const newH = Math.round(img.height * scale);
+      // Canvas stays at its screen-filling size; scale image to fit within it
+      const scale = Math.min(CANVAS_W / img.width, CANVAS_H / img.height);
+      const imgW = Math.round(img.width  * scale);
+      const imgH = Math.round(img.height * scale);
+      const imgX = Math.round((CANVAS_W - imgW) / 2);
+      const imgY = Math.round((CANVAS_H - imgH) / 2);
 
-      CANVAS_W = newW;
-      CANVAS_H = newH;
-      containerEl.style.width  = CANVAS_W + 'px';
-      containerEl.style.height = CANVAS_H + 'px';
-      stage.width(CANVAS_W);
-      stage.height(CANVAS_H);
-      canvasBg.width(CANVAS_W);
-      canvasBg.height(CANVAS_H);
-
-      // Image fills entire canvas — no offset needed
-      bgBounds = { x:0, y:0, w:CANVAS_W, h:CANVAS_H };
-      background = new Konva.Image({ image:img, x:0, y:0, width:CANVAS_W, height:CANVAS_H, listening:false });
+      bgBounds = { x:imgX, y:imgY, w:imgW, h:imgH };
+      background = new Konva.Image({ image:img, x:imgX, y:imgY, width:imgW, height:imgH, listening:false });
       bgLayer.add(background);
       canvasBg.moveToBottom();
       bgLayer.draw();
