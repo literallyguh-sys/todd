@@ -1055,6 +1055,7 @@ function setActiveTool(tool) {
   containerEl.style.cursor = '';
   toddLayer.find('Group').forEach(g => {
     if (!g._toddId) return;
+    g.stopDrag();
     g.draggable(false);
     if (g._refreshDelete) g._refreshDelete();
   });
