@@ -1933,15 +1933,15 @@ stage.on('mousemove touchmove', () => {
     }));
     toddLayer.batchDraw();
   }
-  if (isPenciling && currentPencilLine) {
-    const rpos = _activeLayer ? _activeLayer.getRelativePointerPosition() : stage.getRelativePointerPosition();
+  if (isPenciling && currentPencilLine && _inCanvas()) {
+    const rpos = _activeLayer.getRelativePointerPosition();
     currentPencilLine.points(currentPencilLine.points().concat([rpos.x, rpos.y]));
-    if (_activeLayer) toddLayer.batchDraw(); else drawLayer.batchDraw();
+    toddLayer.batchDraw();
   }
-  if (lineMode && _previewLine && _lineStart) {
-    const rpos = _activeLayer ? _activeLayer.getRelativePointerPosition() : stage.getRelativePointerPosition();
+  if (lineMode && _previewLine && _lineStart && _activeLayer) {
+    const rpos = _activeLayer.getRelativePointerPosition();
     _previewLine.points([_lineStart.x, _lineStart.y, rpos.x, rpos.y]);
-    if (_activeLayer) toddLayer.batchDraw(); else drawLayer.batchDraw();
+    toddLayer.batchDraw();
   }
 });
 stage.on('mousedown touchstart', ev => {
