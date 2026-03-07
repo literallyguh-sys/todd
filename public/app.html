@@ -1051,6 +1051,9 @@ function setActiveTool(tool) {
   ['pencilBtn','eraserBtn','lineBtn','fillBtn'].forEach(id =>
     document.getElementById(id)?.classList.remove('active')
   );
+  ['pencil','line','fill','eraser'].forEach(t =>
+    document.getElementById('ft-'+t)?.classList.remove('active')
+  );
   document.getElementById('pencilSizeRow').style.display = 'none';
   document.getElementById('eraserSizeRow').style.display = 'none';
   document.getElementById('mdb-pencil')?.classList.remove('active');
