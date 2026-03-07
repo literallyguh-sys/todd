@@ -953,6 +953,120 @@ window.addEventListener('mousemove', e => {
 });
 window.addEventListener('mouseup', e => { if (e.button === 1) _panning = false; });
 
+// ── Active tool state ──
+let _activeTool  = null;
+let _toolColor   = '#FFD600';
+let _toolSize    = 3;
+let lineMode     = false;
+let fillMode     = false;
+let _lineStart   = null;
+let _previewLine = null;
+
+function setToolColor(hex) {
+  _toolColor = hex;
+}
+function setToolSize(v) {
+  _toolSize = parseInt(v) || 3;
+}
+
+function setActiveTool(tool) {
+  const same = _activeTool === tool;
+  // Deactivate everything first
+  pencilMode = false; eraserMode = false; lineMode = false; fillMode = false;
+  _activeTool = null;
+  containerEl.classList.remove('pencil-active','eraser-active');
+  containerEl.style.cursor = '';
+  toddLayer.find('Group').forEach(g => {
+    g.draggable(true);
+    if (g._refreshDelete) g._refreshDelete();
+  });
+  document.getElementById('pencilBtn')?.classList.remove('active');
+  document.getElementById('eraserBtn')?.classList.remove('active');
+  document.getElementById('pencilSizeRow').style.display = 'none';
+  document.getElementById('eraserSizeRow').style.display = 'none';
+  document.getElementById('mdb-pencil')?.classList.remove('active');
+  document.getElementById('mdb-eraser')?.classList.remove('active');
+  ['pencil','text','line','fill','eraser'].forEach(t =>
+    document.getElementById('ft-'+t)?.classList.remove('active')
+  );
+
+  if (same) { setStatus('Ready'); return; } // toggle off
+
+  _activeTool = tool;
+  document.getElementById('ft-'+tool)?.classList.add('active');
+
+  switch (tool) {
+    case 'pencil':
+      pencilMode = true;
+      containerEl.classList.add('pencil-active');
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      document.getElementById('pencilBtn')?.classList.add('active');
+      document.getElementById('pencilSizeRow').style.display = 'flex';
+      document.getElementById('mdb-pencil')?.classList.add('active');
+      setStatus('Pencil — draw on canvas');
+      break;
+    case 'eraser':
+      eraserMode = true;
+      containerEl.classList.add('eraser-active');
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => {
+        g.draggable(false);
+        if (g._refreshDelete) g._refreshDelete();
+      });
+      document.getElementById('eraserBtn')?.classList.add('active');
+      document.getElementById('eraserSizeRow').style.display = 'flex';
+      document.getElementById('mdb-eraser')?.classList.add('active');
+      setStatus('Eraser — paint over a Todd', true);
+      break;
+    case 'line':
+      lineMode = true;
+      containerEl.classList.add('pencil-active');
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      setStatus('Line — click and drag');
+      break;
+    case 'fill':
+      fillMode = true;
+      containerEl.style.cursor = 'cell';
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      setStatus('Fill — click to flood fill');
+      break;
+    case 'text':
+      _activeTool = null;
+      document.getElementById('ft-text')?.classList.remove('active');
+      openTextModal();
+      break;
+  }
+}
+
+// ── Chat toggle ──
+function toggleChat() {
+  const open = document.body.classList.toggle('chat-open');
+  document.getElementById('chatPanel').classList.toggle('chat-hidden', !open);
+}
+
+// ── Floating toolbar drag ──
+(function() {
+  const ft = document.getElementById('floatToolbar');
+  const drag = document.getElementById('ftDrag');
+  let dragging = false, ox = 0, oy = 0;
+  drag.addEventListener('mousedown', e => {
+    dragging = true;
+    ox = e.clientX - ft.offsetLeft;
+    oy = e.clientY - ft.offsetTop;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    ft.style.left = (e.clientX - ox) + 'px';
+    ft.style.top  = (e.clientY - oy) + 'px';
+    ft.style.right = 'auto';
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+})();
+
 // ── Pencil state ──
 let pencilMode = false;
 let isPenciling = false;
