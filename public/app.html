@@ -1567,8 +1567,15 @@ function _endMoveDrag() {
   const target = _moveTarget;
   _moveTarget = null;
   if (_moveMoved) {
-    clampToBg(target, target._currentW, target._currentH);
-    toddLayer.batchDraw();
+    if (target === background) {
+      // Update bgBounds to match the new background position
+      bgBounds = { x: background.x(), y: background.y(), w: bgBounds.w, h: bgBounds.h };
+      applyDrawLayerClip();
+      bgLayer.batchDraw();
+    } else {
+      clampToBg(target, target._currentW, target._currentH);
+      toddLayer.batchDraw();
+    }
     pushHistory();
   }
   _moveMoved = false;
