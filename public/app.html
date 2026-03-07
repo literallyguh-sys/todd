@@ -1768,6 +1768,10 @@ eraserSizeSlider.addEventListener('input', () => { eraserSizeVal.textContent = e
 
 stage.on('mousedown touchstart', ev => {
   if (!eraserMode) return;
+  // If a layer is active, erase within it; otherwise find group under pointer
+  if (_activeLayer && _activeLayer.eraseLayer) {
+    selectedGroup = _activeLayer; isErasing = true; return;
+  }
   let node = ev.target;
   while (node) {
     if (node.eraseLayer) { selectedGroup = node; isErasing = true; return; }
