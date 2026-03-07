@@ -22,7 +22,7 @@ html{min-width:1920px;overflow-x:auto;overflow-y:hidden;}
 
 #room{position:fixed;inset:0;z-index:0;background-image:url('app.jpg');background-size:cover;background-position:center;}
 @keyframes scanroll{to{background-position:0 6px;}}
-@keyframes sweep{0%{transform:translateY(-140px);opacity:0;}4%{opacity:1;}55%{transform:translateY(110vh);opacity:0.85;}60%,100%{transform:translateY(110vh);opacity:0;}}
+55%{transform:translateY(110vh);opacity:0.85;}60%,100%{transform:translateY(110vh);opacity:0;}}
 #room::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.05) 3px,rgba(0,0,0,0.05) 6px);
   animation:scanroll 0.35s linear infinite;}
