@@ -1052,6 +1052,7 @@ function setActiveTool(tool) {
   containerEl.classList.remove('pencil-active','eraser-active');
   containerEl.style.cursor = '';
   toddLayer.find('Group').forEach(g => {
+    if (!g._toddId) return;
     g.draggable(true);
     if (g._refreshDelete) g._refreshDelete();
   });
