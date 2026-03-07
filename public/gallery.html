@@ -366,8 +366,11 @@ async function lbSelectIcon(icon){var VALID=['1','2','3'];if(!VALID.includes(ico
 let _galleryPosts = [];
 let _sortMode = 'popular';
 function toggleSort() {
-  _sortMode = _sortMode === 'popular' ? 'newest' : 'popular';
-  document.getElementById('sort-btn').textContent = 'SORT: ' + (_sortMode === 'popular' ? 'POPULAR' : 'NEWEST');
+  if (_sortMode === 'popular') _sortMode = 'newest';
+  else if (_sortMode === 'newest') _sortMode = 'oldest';
+  else _sortMode = 'popular';
+  const labels = { popular: 'POPULAR', newest: 'NEWEST', oldest: 'OLDEST' };
+  document.getElementById('sort-btn').textContent = 'SORT: ' + labels[_sortMode];
   loadGallery();
 }
 function escHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
