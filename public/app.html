@@ -1312,6 +1312,7 @@ function refreshLayerPanel() {
 
     item.addEventListener('click', () => {
       _activeLayer = g;
+      _bgSelected = false;
       g._refreshDelete && g._refreshDelete();
       if (moveMode) {
         transformer.nodes([g]);
