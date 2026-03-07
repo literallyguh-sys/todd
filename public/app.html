@@ -1223,6 +1223,7 @@ function restoreState(snap) {
         bgBounds = {...b};
         background = new Konva.Image({ image:img, x:b.x, y:b.y, width:b.w, height:b.h, listening:false });
         bgLayer.add(background);
+        canvasBg.visible(false);
         canvasBg.moveToBottom();
         bgLayer.draw();
       };
