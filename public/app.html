@@ -1418,6 +1418,7 @@ document.getElementById('bgUpload').addEventListener('change', e => {
       bgBounds = { x:imgX, y:imgY, w:imgW, h:imgH };
       background = new Konva.Image({ image:img, x:imgX, y:imgY, width:imgW, height:imgH, listening:false });
       bgLayer.add(background);
+      canvasBg.visible(false);
       canvasBg.moveToBottom();
       bgLayer.draw();
       pushHistory();
