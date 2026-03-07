@@ -1687,24 +1687,7 @@ const pencilSizeSlider = document.getElementById('pencilSize');
 const pencilSizeVal    = document.getElementById('pencilSizeVal');
 pencilSizeSlider.addEventListener('input', () => { pencilSizeVal.textContent = pencilSizeSlider.value; });
 
-function togglePencil() {
-  pencilMode = !pencilMode;
-  if (pencilMode && eraserMode) toggleEraser();
-  const btn = document.getElementById('pencilBtn');
-  btn.classList.toggle('active', pencilMode);
-  btn.innerHTML = pencilMode
-    ? '<span class="btn-icon">✏️</span> Stop Pencil'
-    : '<span class="btn-icon">✏️</span> Pencil';
-  document.getElementById('pencilSizeRow').style.display = pencilMode ? 'flex' : 'none';
-  containerEl.classList.toggle('pencil-active', pencilMode);
-  if (pencilMode) {
-    transformer.nodes([]);
-    toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
-  }
-  const mdbPencil = document.getElementById('mdb-pencil');
-  if (mdbPencil) mdbPencil.classList.toggle('active', pencilMode);
-  setStatus(pencilMode ? 'Pencil active — draw on canvas' : 'Ready');
-}
+function togglePencil() { setActiveTool(_activeTool === 'pencil' ? null : 'pencil'); }
 
 // ── Clear all ──
 function clearAll() {
