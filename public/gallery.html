@@ -379,6 +379,7 @@ async function loadGallery() {
         const bP = b.approved ? 0 : 1;
         if (aP !== bP) return aP - bP;
       }
+      if (_sortMode === 'newest') return new Date(b.created_at) - new Date(a.created_at);
       return (b.votes_up - b.votes_down) - (a.votes_up - a.votes_down);
     });
     _galleryPosts = posts;
