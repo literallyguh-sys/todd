@@ -1529,7 +1529,7 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   };
   g.on('click tap', ev => {
     ev.cancelBubble = true;
-    if (!moveMode && _activeLayer && _activeLayer !== g) { refreshLayerPanel(); return; }
+    if (!moveMode) { refreshLayerPanel(); return; } // panel is the only selection in draw modes
     _activeLayer = g;
     refreshDelete();
     refreshLayerPanel();
