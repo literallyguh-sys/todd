@@ -1049,19 +1049,19 @@ function setToolSize(v) {
 function setActiveTool(tool) {
   const same = _activeTool === tool;
   // Deactivate everything first
-  pencilMode = false; eraserMode = false; lineMode = false; fillMode = false;
+  pencilMode = false; eraserMode = false; lineMode = false; fillMode = false; moveMode = false;
   _activeTool = null;
   containerEl.classList.remove('pencil-active','eraser-active');
   containerEl.style.cursor = '';
   toddLayer.find('Group').forEach(g => {
     if (!g._toddId) return;
-    g.draggable(true);
+    g.draggable(false);
     if (g._refreshDelete) g._refreshDelete();
   });
   ['pencilBtn','eraserBtn','lineBtn','fillBtn'].forEach(id =>
     document.getElementById(id)?.classList.remove('active')
   );
-  ['pencil','line','fill','eraser'].forEach(t =>
+  ['pencil','line','fill','eraser','move'].forEach(t =>
     document.getElementById('ft-'+t)?.classList.remove('active')
   );
   document.getElementById('pencilSizeRow').style.display = 'none';
