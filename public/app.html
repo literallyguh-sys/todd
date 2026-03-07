@@ -1215,9 +1215,10 @@ function refreshLayerPanel() {
   }
   list.innerHTML = '';
   groups.forEach(g => {
-    const isSel = transformer.nodes().includes(g);
+    const isSel   = transformer.nodes().includes(g);
+    const isActive = _activeLayer === g;
     const item  = document.createElement('div');
-    item.className = 'layer-item' + (isSel ? ' layer-selected' : '');
+    item.className = 'layer-item' + (isSel ? ' layer-selected' : '') + (isActive ? ' layer-active' : '');
 
     // Thumbnail
     let thumbHtml;
