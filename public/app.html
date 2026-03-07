@@ -1344,8 +1344,10 @@ function refreshLayerPanel() {
     });
     list.appendChild(bgItem);
   }
-  // Force the browser to re-render this scrollable GPU layer so async DOM updates become visible
-  list.scrollTop = 0;
+  // Force repaint: display toggle flushes GPU compositor cache so async img.onload DOM updates become visible
+  list.style.display = 'none';
+  void list.offsetHeight;
+  list.style.display = '';
 }
 
 function layerMove(id, dir) {
