@@ -879,6 +879,23 @@ body.chat-open #chatTab{
   </div>
 </div>
 
+<!-- Floating tool window — must be before <script> so drag IIFE can find it -->
+<div id="floatToolbar">
+  <div id="ftDrag">⠿ TOOLS</div>
+  <div id="ftBody">
+    <button class="ft-btn" id="ft-pencil"  onclick="setActiveTool('pencil')"  title="Pencil">✏</button>
+    <button class="ft-btn" id="ft-text"    onclick="setActiveTool('text')"    title="Add Text">T</button>
+    <button class="ft-btn" id="ft-line"    onclick="setActiveTool('line')"    title="Draw Line">╲</button>
+    <button class="ft-btn" id="ft-fill"    onclick="setActiveTool('fill')"    title="Bucket Fill">▓</button>
+    <button class="ft-btn" id="ft-eraser"  onclick="setActiveTool('eraser')"  title="Eraser">⌫</button>
+    <div class="ft-sep"></div>
+    <input type="color" id="ftColor" value="#FFD600" title="Color" onchange="setToolColor(this.value)">
+    <div class="ft-size-wrap">
+      <input type="range" id="ftSize" min="1" max="40" value="3" title="Brush size" oninput="setToolSize(this.value)">
+    </div>
+  </div>
+</div>
+
 <script>
 // ── Canvas sizing ──
 function computeCanvasSize() {
