@@ -1807,12 +1807,12 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   group.on('click tap', ev => {
     ev.cancelBubble = true;
     _activeLayer = group;
-    if (eraserMode) { refreshLayerPanel(); return; }
+    if (!moveMode) { refreshLayerPanel(); return; }
     transformer.nodes([group]);
     refreshDelete();
     toddLayer.draw();
     refreshLayerPanel();
-    setStatus(moveMode ? 'Move — drag to reposition' : 'Text selected — Del to delete, drag handles to resize/rotate');
+    setStatus('Move — drag to reposition');
   });
   group.on('mousedown touchstart', ev => {
     if (!moveMode) return;
