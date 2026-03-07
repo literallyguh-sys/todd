@@ -1498,7 +1498,7 @@ stage.on('click tap', ev => {
     document.getElementById('layerBtns').style.display = 'none';
     document.getElementById('deleteToddBtn').style.display = 'none';
     toddLayer.draw();
-    
+    refreshLayerPanel();
     setStatus('Ready');
   }
 });
