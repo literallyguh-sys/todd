@@ -137,7 +137,10 @@ html,body{width:100%;height:100%;background:#060608;font-family:'VT323',monospac
 
 <!-- Gallery -->
 <div id="gallery-area">
-  <a id="back-btn" onclick="fadeNavigate('index.html')">← BACK</a>
+  <div class="top-row">
+    <a id="back-btn" onclick="fadeNavigate('index.html')">← BACK</a>
+    <button id="sort-btn" onclick="toggleSort()">SORT: POPULAR</button>
+  </div>
   <div class="gallery-grid" id="galleryGrid">
     <div class="gallery-loading">Loading masterpieces...</div>
   </div>
