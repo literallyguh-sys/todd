@@ -823,6 +823,36 @@ body.chat-open #chatTab{
 
 <div class="toast" id="toast"></div>
 
+<!-- Canvas size modal -->
+<div class="modal-overlay" id="canvasModal" style="display:none" onclick="closeCanvasModal(event)">
+  <div class="modal" style="width:300px">
+    <div class="modal-titlebar">
+      <span>Canvas Size</span>
+      <button class="modal-titlebar-close" onclick="closeCanvasModal()">✕ CLOSE</button>
+    </div>
+    <div class="modal-inner">
+      <p class="modal-sub">Choose canvas dimensions (max 1920×1080)</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px">
+        <button class="btn" onclick="setCanvasPreset(1920,1080)">1920×1080</button>
+        <button class="btn" onclick="setCanvasPreset(1280,720)">1280×720</button>
+        <button class="btn" onclick="setCanvasPreset(1080,1080)">1080×1080</button>
+        <button class="btn" onclick="setCanvasPreset(1080,1920)">1080×1920</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <div style="flex:1">
+          <label style="font-size:11px;color:#666;display:block;margin-bottom:2px;letter-spacing:1px">WIDTH</label>
+          <input type="number" id="canvasWInput" min="200" max="1920" class="modal-input" style="text-align:center">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:#666;display:block;margin-bottom:2px;letter-spacing:1px">HEIGHT</label>
+          <input type="number" id="canvasHInput" min="200" max="1080" class="modal-input" style="text-align:center">
+        </div>
+      </div>
+      <button class="btn primary" onclick="applyCanvasSize()" style="width:100%">Apply</button>
+    </div>
+  </div>
+</div>
+
 <!-- Auth modal -->
 <div class="modal-overlay" id="authModal" style="display:none" onclick="closeAuthModal(event)">
   <div class="modal" style="width:340px">
