@@ -1643,12 +1643,22 @@ stage.on('mousemove touchmove', () => {
   }
 });
 stage.on('mousedown touchstart', ev => {
+  if (lineMode) {
+    const pos = stage.getRelativePointerPosition();
+    _lineStart = { x: pos.x, y: pos.y };
+    _previewLine = new Konva.Line({
+      stroke: _toolColor, strokeWidth: _toolSize,
+      lineCap: 'round', points: [pos.x, pos.y, pos.x, pos.y], listening: false
+    });
+    drawLayer.add(_previewLine);
+    drawLayer.batchDraw();
+    return;
+  }
   if (!pencilMode) return;
   isPenciling = true;
-  const pos = stage.getPointerPosition();
-  const size = parseInt(document.getElementById('pencilSize').value) || 3;
+  const pos = stage.getRelativePointerPosition();
   currentPencilLine = new Konva.Line({
-    stroke: '#FFD600', strokeWidth: size,
+    stroke: _toolColor, strokeWidth: _toolSize,
     lineCap: 'round', lineJoin: 'round',
     points: [pos.x, pos.y, pos.x, pos.y],
     listening: false
