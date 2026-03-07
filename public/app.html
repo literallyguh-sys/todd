@@ -1112,6 +1112,14 @@ function setActiveTool(tool) {
       document.getElementById('pencilSizeRow').style.display = 'flex';
       setStatus('Fill — click to flood fill');
       break;
+    case 'move':
+      moveMode = true;
+      document.getElementById('ft-move')?.classList.add('active');
+      containerEl.style.cursor = 'grab';
+      { const sel = transformer.nodes().find(n => n._toddId);
+        if (sel) sel.draggable(true); }
+      setStatus('Move — drag the selected layer');
+      break;
     case 'text':
       _activeTool = null;
       openTextModal();
