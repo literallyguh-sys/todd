@@ -2048,7 +2048,7 @@ stage.on('click tap', () => {
   if (pencilMode || lineMode || eraserMode) return; // keep active layer while drawing
   // Click on empty canvas — deselect transformer; only clear active drawing layer in move mode
   transformer.nodes([]);
-  if (moveMode) _activeLayer = null;
+  if (moveMode) { _activeLayer = null; _bgSelected = false; }
   refreshLayerPanel();
 });
 
