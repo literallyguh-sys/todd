@@ -2101,12 +2101,24 @@ async function publishToGallery() {
     ? _currentUser.username + ' ✔'
     : getGuestName();
   const msg  = document.getElementById('publishMsg').value.trim();
-  if (!_publishDataURL) return showToast('Nothing to publish!');
+  if (!_publishBlob) return showToast('Nothing to publish!');
 
   const btn = document.querySelector('#publishModal .btn.primary');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Publishing...'; }
 
   try {
+    // 1. Upload image to Supabase Storage
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.png`;
+    const uploadRes = await fetch(`${SUPA_URL}/storage/v1/object/gallery/${filename}`, {
+      method: 'POST',
+      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'image/png' },
+      body: _publishBlob
+    });
+    if (!uploadRes.ok) throw new Error('Storage upload failed: ' + await uploadRes.text());
+
+    const imageUrl = `${SUPA_URL}/storage/v1/object/public/gallery/${filename}`;
+
+    // 2. Insert URL into gallery_posts
     const res = await fetch(`${SUPA_URL}/rest/v1/gallery_posts`, {
       method: 'POST',
       headers: {
@@ -2115,7 +2127,7 @@ async function publishToGallery() {
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({ name, message: msg, image: _publishDataURL })
+      body: JSON.stringify({ name, message: msg, image: imageUrl })
     });
 
     if (!res.ok) {
@@ -2134,10 +2146,11 @@ async function publishToGallery() {
     document.getElementById('publishName').value = '';
     document.getElementById('publishMsg').value  = '';
     _publishDataURL = null;
+    _publishBlob = null;
 
   } catch(err) {
     console.error('Publish error:', err);
-    showToast('Publish failed — image may be too large, try a smaller canvas');
+    showToast('Publish failed — ' + err.message);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'PUBLISH'; }
   }
