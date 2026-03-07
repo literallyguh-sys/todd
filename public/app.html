@@ -1390,7 +1390,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   group._currentH        = currentH;
 
   toddLayer.add(group);
-  transformer.nodes([group]);
+  if (autoSelect) transformer.nodes([group]);
   clampToBg(group, currentW, currentH);
   refreshDelete();
   toddLayer.draw();
@@ -1523,7 +1523,7 @@ document.getElementById('textInput').addEventListener('keydown', e => {
   if (e.key === 'Escape') { document.getElementById('textModal').style.display = 'none'; }
 });
 
-function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, scaleY, rotation, mirrored) {
+function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, scaleY, rotation, mirrored, autoSelect = true) {
   const id = reuseId || ('text_' + (++_textIdCounter));
   const textNode = new Konva.Text({
     text: txt,
