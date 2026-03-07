@@ -1300,11 +1300,7 @@ function refreshLayerPanel() {
 
     item.addEventListener('click', () => {
       if (eraserMode) return;
-      if (moveMode) {
-        transformer.nodes().forEach(n => { if (n._toddId && n !== g) { n.stopDrag(); n.draggable(false); } });
-      }
       transformer.nodes([g]);
-      if (moveMode) g.draggable(true);
       g._refreshDelete && g._refreshDelete();
       toddLayer.draw();
       refreshLayerPanel();
