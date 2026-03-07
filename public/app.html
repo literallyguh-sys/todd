@@ -1729,9 +1729,6 @@ stage.on('click tap', ev => {
     transformer.nodes([]);   // clear FIRST so refreshDelete sees no selection
     selectedGroup = null;
     toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
-    document.getElementById('mirrorBtn').style.display = 'none';
-    document.getElementById('layerBtns').style.display = 'none';
-    document.getElementById('deleteToddBtn').style.display = 'none';
     toddLayer.draw();
     refreshLayerPanel();
     setStatus('Ready');
