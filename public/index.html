@@ -231,8 +231,14 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   </div>
   <button id="chat-fab" onclick="toggleMobileChat()"><div class="lobby-live-dot"></div>[ CHAT ]</button>
 </div>
-<div id="draw-hotspot" onclick="fadeNavigate('app.html')"></div>
-<div id="scan-hotspot" onclick="fadeNavigate('view.html')"></div>
+<div id="phone-nav">
+  <a class="phone-nav-icon" onclick="fadeNavigate('app.html')" title="Draw">
+    <img src="/Icons/SVG/draw.png" alt="Draw">
+  </a>
+  <a class="phone-nav-icon" onclick="fadeNavigate('view.html')" title="Scanner">
+    <img src="/Icons/SVG/scan.png" alt="Scanner">
+  </a>
+</div>
 <div id="transition"></div>
 
 <div id="site-title">
