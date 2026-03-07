@@ -1580,7 +1580,7 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
 
   group.add(textNode);
   toddLayer.add(group);
-  transformer.nodes([group]);
+  if (autoSelect) transformer.nodes([group]);
   refreshDelete();
   toddLayer.draw();
   return group;
