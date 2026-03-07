@@ -2149,6 +2149,7 @@ function applyCanvasSize() {
   containerEl.style.height = h + 'px';
   stage.width(w); stage.height(h);
   canvasBg.width(w); canvasBg.height(h);
+  toddLayer.clip({ x: 0, y: 0, width: w, height: h });
   applyDrawLayerClip();
   bgLayer.draw(); toddLayer.draw(); drawLayer.draw();
   document.getElementById('canvasModal').style.display = 'none';
