@@ -361,7 +361,14 @@ async function loadGallery() {
     });
     const posts = await res.json();
     if (!Array.isArray(posts) || !posts.length) { grid.innerHTML = ''; return; }
-    posts.sort((a, b) => (b.votes_up - b.votes_down) - (a.votes_up - a.votes_down));
+    posts.sort((a, b) => {
+      if (_isAdmin) {
+        const aP = a.approved ? 0 : 1;
+        const bP = b.approved ? 0 : 1;
+        if (aP !== bP) return aP - bP;
+      }
+      return (b.votes_up - b.votes_down) - (a.votes_up - a.votes_down);
+    });
     _galleryPosts = posts;
     grid.innerHTML = '';
     posts.forEach(post => {
