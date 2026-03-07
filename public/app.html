@@ -883,6 +883,36 @@ body.chat-open #chatTab{
     <button class="ft-btn" id="ft-line"    onclick="setActiveTool('line')"    title="Draw Line">╲</button>
     <button class="ft-btn" id="ft-fill"    onclick="setActiveTool('fill')"    title="Bucket Fill">▓</button>
     <button class="ft-btn" id="ft-eraser"  onclick="setActiveTool('eraser')"  title="Eraser">⌫</button>
+    <div id="pencilSizeRow" style="display:none;flex-direction:column;gap:2px;padding:2px 0">
+      <input type="range" id="pencilSize" min="1" max="40" value="3"
+        oninput="setToolSize(this.value);document.getElementById('pencilSizeVal').textContent=this.value"
+        style="width:100%;accent-color:var(--accent)">
+      <span id="pencilSizeVal" style="font-size:10px;color:#888;text-align:center">3</span>
+    </div>
+    <div id="eraserSizeRow" style="display:none;flex-direction:column;gap:2px;padding:2px 0">
+      <input type="range" id="eraserSize" min="4" max="60" value="18"
+        style="width:100%;accent-color:var(--accent)">
+      <span id="eraserSizeVal" style="font-size:10px;color:#888;text-align:center">18</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:3px;padding:3px 0;border-top:1px solid rgba(255,255,255,0.07);margin-top:2px">
+      <span id="activeColorSwatch" style="width:16px;height:16px;background:#FFD600;border:1px solid rgba(255,255,255,0.25);flex-shrink:0;cursor:pointer" onclick="document.getElementById('ftColor').click()" title="Color"></span>
+      <input type="color" id="ftColor" value="#FFD600" onchange="setToolColor(this.value)"
+        style="width:0;height:0;opacity:0;position:absolute;pointer-events:none">
+      <input type="range" id="ftSize" min="1" max="40" value="3" oninput="setToolSize(this.value)"
+        style="flex:1;accent-color:var(--accent)">
+    </div>
+    <div class="color-palette-grid" style="padding-top:2px">
+      <div class="swatch" data-color="#000000" style="background:#000000" onclick="setToolColor('#000000')"></div>
+      <div class="swatch" data-color="#FFFFFF" style="background:#FFFFFF" onclick="setToolColor('#FFFFFF')"></div>
+      <div class="swatch active" data-color="#FFD600" style="background:#FFD600" onclick="setToolColor('#FFD600')"></div>
+      <div class="swatch" data-color="#FF3A3A" style="background:#FF3A3A" onclick="setToolColor('#FF3A3A')"></div>
+      <div class="swatch" data-color="#FF6B00" style="background:#FF6B00" onclick="setToolColor('#FF6B00')"></div>
+      <div class="swatch" data-color="#FF69B4" style="background:#FF69B4" onclick="setToolColor('#FF69B4')"></div>
+      <div class="swatch" data-color="#9945FF" style="background:#9945FF" onclick="setToolColor('#9945FF')"></div>
+      <div class="swatch" data-color="#3B82F6" style="background:#3B82F6" onclick="setToolColor('#3B82F6')"></div>
+      <div class="swatch" data-color="#00cc66" style="background:#00cc66" onclick="setToolColor('#00cc66')"></div>
+      <div class="swatch" data-color="#888888" style="background:#888888" onclick="setToolColor('#888888')"></div>
+    </div>
   </div>
 </div>
 
