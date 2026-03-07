@@ -1508,14 +1508,6 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
     pushHistory();
   });
 
-  group.on('dragstart', () => {
-    containerEl.style.cursor = 'grabbing';
-  });
-  group.on('dragend', () => {
-    clampToBg(group, currentW, currentH);
-    if (moveMode) containerEl.style.cursor = 'grab';
-    pushHistory();
-  });
 
   group.on('click tap', ev => {
     if (eraserMode) return;
