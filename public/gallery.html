@@ -431,7 +431,7 @@ function openLightbox(e, postId) {
   document.getElementById('lightbox').style.display = 'flex';
 }
 function closeLightbox(e) {
-  if (e && e.target !== document.getElementById('lightbox')) return;
+  if (e && e.target !== document.getElementById('lightbox') && !e.target.classList.contains('lightbox-close')) return;
   document.getElementById('lightbox').style.display = 'none';
 }
 function updateLightboxVotes(postId) {
