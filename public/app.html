@@ -1118,9 +1118,7 @@ function setActiveTool(tool) {
       moveMode = true;
       document.getElementById('ft-move')?.classList.add('active');
       containerEl.style.cursor = 'grab';
-      { const sel = transformer.nodes().find(n => n._toddId);
-        if (sel) sel.draggable(true); }
-      setStatus('Move — drag the selected layer');
+      setStatus('Move — click a layer then drag it');
       break;
     case 'text':
       _activeTool = null;
