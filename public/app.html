@@ -1029,6 +1029,9 @@ let _toolSize    = 3;
 let lineMode     = false;
 let fillMode     = false;
 let moveMode     = false;
+let _moveTarget  = null;   // group being manually dragged in move mode
+let _moveOffset  = { x: 0, y: 0 };
+let _moveMoved   = false;
 let _lineStart   = null;
 let _previewLine = null;
 
