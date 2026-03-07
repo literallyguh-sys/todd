@@ -1515,6 +1515,7 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   };
   g.on('click tap', ev => {
     ev.cancelBubble = true;
+    if (!moveMode && _activeLayer && _activeLayer !== g) { refreshLayerPanel(); return; }
     _activeLayer = g;
     refreshDelete();
     refreshLayerPanel();
@@ -1522,6 +1523,7 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   });
   g.on('mousedown touchstart', ev => {
     if (!moveMode) return;
+    if (g !== _activeLayer) return;
     ev.cancelBubble = true;
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
