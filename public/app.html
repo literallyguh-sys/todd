@@ -1222,7 +1222,9 @@ function refreshLayerPanel() {
 
     // Thumbnail
     let thumbHtml;
-    if (g._isText) {
+    if (g._isEmptyLayer) {
+      thumbHtml = `<span class="layer-thumb-icon" style="color:#555">▭</span>`;
+    } else if (g._isText) {
       const fill = g.findOne('Text')?.fill() || '#FFD600';
       thumbHtml = `<span class="layer-thumb-icon" style="color:${fill}">T</span>`;
     } else {
@@ -1234,7 +1236,9 @@ function refreshLayerPanel() {
 
     // Name
     let name;
-    if (g._isText) {
+    if (g._isEmptyLayer) {
+      name = 'Layer ' + g._toddId.replace(/[^0-9]/g,'');
+    } else if (g._isText) {
       const txt = g.findOne('Text')?.text() || '';
       name = 'Text: ' + (txt.length > 9 ? txt.slice(0,9) + '…' : txt);
     } else {
