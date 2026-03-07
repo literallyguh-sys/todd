@@ -15,13 +15,9 @@ html{min-width:1920px;overflow-x:auto;overflow-y:hidden;}
 #room{position:fixed;inset:0;z-index:0;
   background-image:url('view.jpg');background-size:cover;background-position:center;}
 @keyframes scanroll{to{background-position:0 6px;}}
-55%{transform:translateY(110vh);opacity:0.85;}60%,100%{transform:translateY(110vh);opacity:0;}}
 #room::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.05) 3px,rgba(0,0,0,0.05) 6px);
   animation:scanroll 0.35s linear infinite;}
-#sweep{position:fixed;left:0;right:0;top:0;height:140px;z-index:1;pointer-events:none;
-  background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.03) 30%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0.03) 70%,transparent);
-  animation:sweep 12s linear infinite;}
 #room::after{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.82) 100%);}
 
