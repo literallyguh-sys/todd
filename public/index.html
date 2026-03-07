@@ -133,19 +133,6 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
   #room-wrap{position:fixed;inset:0;z-index:5;overflow:hidden;}
   #room-pan{position:absolute;top:0;left:0;height:100%;will-change:transform;user-select:none;}
   #room{position:absolute;inset:0;background-size:cover;background-position:left center;}
-  #tv-hotspot,#computer-hotspot{
-    position:fixed;clip-path:none;
-    border:1px solid rgba(106,163,255,0.28);
-    display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;
-  }
-  #tv-hotspot{left:1.9%;top:7.5%;width:14%;height:29%;}
-  #computer-hotspot{left:23%;top:66%;width:15.5%;height:20%;}
-  #tv-hotspot::after,#computer-hotspot::after{
-    content:attr(data-label);position:static;background:none;
-    color:rgba(255,255,255,0.55);font-family:'VT323',monospace;
-    font-size:9px;letter-spacing:1px;text-shadow:0 1px 4px rgba(0,0,0,1);
-  }
-  .hint{display:none;}
   #site-title{display:none;}
   #enter-hint{display:none;}
   /* Full-width dark top bar — matches app.html style */
