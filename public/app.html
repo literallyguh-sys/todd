@@ -1960,7 +1960,8 @@ stage.on('mousemove touchmove', () => {
       _moveTarget.x(pos.x - _moveOffset.x);
       _moveTarget.y(pos.y - _moveOffset.y);
       _moveMoved = true;
-      toddLayer.batchDraw();
+      if (_moveTarget === background) bgLayer.batchDraw();
+      else toddLayer.batchDraw();
     }
   }
   if (isErasing && selectedGroup) {
