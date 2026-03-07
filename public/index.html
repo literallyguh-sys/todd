@@ -143,6 +143,7 @@ body::after{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
 #layout{position:relative;width:1920px;height:1080px;transform:translate(0,0);overflow:hidden;}
 
 @media(max-width:599px){
+  #layout{transform:none;width:100%;height:auto;overflow:visible;}
   html,body{height:100%;overflow:hidden;}
   #room-wrap{position:fixed;inset:0;z-index:5;overflow:hidden;}
   #room-pan{position:absolute;top:0;left:0;height:100%;will-change:transform;user-select:none;}
