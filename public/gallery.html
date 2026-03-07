@@ -272,6 +272,42 @@ function updateLobbyLoginBtn() {
   }
 }
 
+// ── Admin ──
+const _AK = 'bGl0ZXJhbGx5Z3VoQGdtYWlsLmNvbQ==';
+let _isAdmin = false;
+async function checkAdminAccess() {
+  const token = lbGetStoredToken();
+  if (!token) { _isAdmin = false; return; }
+  try {
+    const r = await fetch(SUPA_URL + '/auth/v1/user', {headers:{apikey:SUPA_KEY, Authorization:'Bearer '+token}});
+    if (!r.ok) return;
+    const u = await r.json();
+    try { _isAdmin = !!(u && u.email && u.email === atob(_AK)); } catch(e) { _isAdmin = false; }
+  } catch(e) { _isAdmin = false; }
+}
+async function adminApprove(postId) {
+  const token = lbGetStoredToken();
+  if (!_isAdmin || !token) return;
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/gallery_posts?id=eq.${postId}`, {
+      method:'PATCH', headers:{apikey:SUPA_KEY, Authorization:'Bearer '+token, 'Content-Type':'application/json', Prefer:'return=minimal'},
+      body: JSON.stringify({approved:true})
+    });
+    loadGallery();
+  } catch(e) {}
+}
+async function adminDelete(postId) {
+  if (!confirm('Delete this post?')) return;
+  const token = lbGetStoredToken();
+  if (!_isAdmin || !token) return;
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/gallery_posts?id=eq.${postId}`, {
+      method:'DELETE', headers:{apikey:SUPA_KEY, Authorization:'Bearer '+token, Prefer:'return=minimal'}
+    });
+    loadGallery();
+  } catch(e) {}
+}
+
 function lbGetStoredToken(){try{const k=Object.keys(localStorage).find(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));if(k){const s=JSON.parse(localStorage.getItem(k));return s?.access_token||'';}}catch(e){}return '';}
 async function initLobbyName(){
   try{const raw=localStorage.getItem('todd_user_data');if(raw){const u=JSON.parse(raw);if(u&&u.username){updateLobbyLoginBtn();return;}}}catch(e){}
