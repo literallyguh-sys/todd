@@ -1440,10 +1440,6 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
     document.getElementById('deleteToddBtn').style.display = show;
   }
 
-  group.on('transform', () => {
-    eraseLayer.clip({ x:0, y:0, width:currentW*Math.abs(group.scaleX()), height:currentH*Math.abs(group.scaleY()) });
-  });
-
   group.on('transformend', () => {
     const sx = Math.abs(group.scaleX()), sy = Math.abs(group.scaleY());
     const newW = Math.max(20, currentW * sx);
@@ -1453,7 +1449,10 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
       c.x(c.x() * sx); c.y(c.y() * sy);
       if (typeof c.radius === 'function') c.radius(c.radius() * Math.max(sx, sy));
     });
-    eraseLayer.clip({ x:0, y:0, width:newW, height:newH });
+    strokeGroup.find('Line').forEach(l => {
+      l.points(l.points().map((v, i) => v * (i % 2 === 0 ? sx : sy)));
+      l.strokeWidth(l.strokeWidth() * Math.max(sx, sy));
+    });
     currentW = newW; currentH = newH;
     group._currentW = currentW; group._currentH = currentH;
     group.scaleX(1); group.scaleY(1);
