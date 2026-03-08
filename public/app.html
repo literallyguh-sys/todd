@@ -2302,6 +2302,7 @@ async function doBucketFill(lx, ly) {
   activeGroup._fillNode = kFill;
   activeGroup.add(kFill);
   kFill.moveToBottom();
+  _invalidateEmptyLayerCache(activeGroup);
   toddLayer.batchDraw();
   pushHistory();
 }
