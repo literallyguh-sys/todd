@@ -1687,6 +1687,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   group._currentW = currentW;
   group._currentH = currentH;
 
+  group._fillNode = null;
   srcCache[id] = img.src;
   imgCache[img.src] = img; // cache Image object for sync undo/redo restore
 
