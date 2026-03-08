@@ -2531,13 +2531,12 @@ function confirmDownload() {
 
 
 updateUndoRedoBtns();
+_initCpListeners();
 setToolColor(_toolColor);
 window.addEventListener('load', () => {
   if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
   _drawColorSquare();
   _drawHueSlider();
-  document.getElementById('colorPickerPanel').style.display = 'flex';
-  _initCpListeners();
 });
 
 // ── CHAT (Supabase real-time) ──
