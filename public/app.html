@@ -3091,6 +3091,9 @@ async function openPublishModal() {
     nameInput.style.color = '#888';
     nameInput.style.borderColor = '';
   }
+  } catch(err) {
+    showToast('Publish error: ' + err.message);
+  }
 }
 
 function closePublishModal(e) {
