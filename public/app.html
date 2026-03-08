@@ -1467,6 +1467,26 @@ function restoreState(snap) {
       const g = makeTextGroup(td.text, td.x, td.y, td.id, td.fontSize, td.fill, td.scaleX, td.scaleY, td.rotation, td.mirrored, false);
       if (td.visible === false) g.visible(false);
       restoreStrokes(g);
+    } else if (imgCache[td.src]) {
+      // Image already loaded — restore synchronously (no flicker on undo/redo)
+      toddCount++;
+      const group = makeToddGroup(imgCache[td.src], td.w, td.h, td.x, td.y, td.id, false);
+      if (td.visible === false) group.visible(false);
+      if (td.rotation) group.rotation(td.rotation);
+      if (td.mirrored) {
+        group._mirrored = true;
+        const todd = group.findOne('Image');
+        todd.scaleX(-1); todd.x(td.w);
+      }
+      (td.eraseCircles || []).forEach(c => {
+        group.eraseLayer.add(new Konva.Circle({
+          x:c.x, y:c.y, radius:c.r,
+          fill:'#000', listening:false,
+          globalCompositeOperation:'destination-out'
+        }));
+      });
+      restoreStrokes(group);
+      toddLayer.draw();
     } else {
       const img = new Image();
       img.onload = () => {
