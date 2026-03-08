@@ -1291,10 +1291,7 @@ function pushHistory() {
   refreshLayerPanel();
 }
 
-function updateUndoRedoBtns() {
-  document.getElementById('undoBtn').style.opacity = historyIndex <= 0 ? '0.55' : '1';
-  document.getElementById('redoBtn').style.opacity = historyIndex >= history.length - 1 ? '0.55' : '1';
-}
+function updateUndoRedoBtns() {}
 
 function refreshLayerPanel() {
   const list = document.getElementById('layerList');
