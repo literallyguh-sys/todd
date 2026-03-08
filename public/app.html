@@ -1595,9 +1595,12 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   g._currentW = w;
   g._currentH = h;
   g._fillNode = null;
+  g._isCached = false;
   const sg = new Konva.Group({ listening: false });
   g._strokeGroup = sg;
-  g.add(sg);
+  const el = new Konva.Group({ listening: false });
+  g.eraseLayer = el;
+  g.add(sg, el); // strokes first so eraseLayer destination-out erases them
 
   function refreshDelete() {
   }
