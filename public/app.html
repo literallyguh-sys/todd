@@ -1354,6 +1354,7 @@ function layerMove(id, dir) {
   dir === 'up' ? g.moveUp() : g.moveDown();
   transformer.moveToTop();
   toddLayer.draw();
+  refreshLayerPanel();
   pushHistory();
 }
 
