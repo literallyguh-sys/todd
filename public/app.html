@@ -3039,7 +3039,6 @@ let _publishDataURL = null;
 let _publishBlob = null;
 
 async function openPublishModal() {
-  try {
   transformer.nodes([]);
   toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
   toddLayer.draw();
@@ -3048,26 +3047,31 @@ async function openPublishModal() {
     ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y), w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
     : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
-  // Preview: small JPEG for modal display
-  const PREV_W = 600;
-  const previewDataURL = stage.toDataURL({
-    x: crop.x, y: crop.y, width: crop.w, height: crop.h,
-    pixelRatio: Math.min(1, PREV_W / crop.w),
-    mimeType: 'image/jpeg', quality: 0.8
-  });
+  // Use locals to avoid Chrome TDZ bug with outer `let` vars inside async try blocks
+  let localPreviewURL, localBlob;
+  try {
+    const PREV_W = 600;
+    localPreviewURL = stage.toDataURL({
+      x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+      pixelRatio: Math.min(1, PREV_W / crop.w),
+      mimeType: 'image/jpeg', quality: 0.8
+    });
+    const origW = background?.image()?.naturalWidth || CANVAS_W;
+    const uploadRatio = Math.min(origW, 2400) / crop.w;
+    const uploadDataURL = stage.toDataURL({
+      x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+      pixelRatio: uploadRatio,
+      mimeType: 'image/png'
+    });
+    localBlob = await fetch(uploadDataURL).then(r => r.blob());
+  } catch(err) {
+    showToast('Publish error: ' + err.message);
+    return;
+  }
 
-  // Upload blob: full PNG via toDataURL → fetch → blob (avoids toBlob compatibility issues)
-  const origW = background?.image()?.naturalWidth || CANVAS_W;
-  const uploadRatio = Math.min(origW, 2400) / crop.w;
-  const uploadDataURL = stage.toDataURL({
-    x: crop.x, y: crop.y, width: crop.w, height: crop.h,
-    pixelRatio: uploadRatio,
-    mimeType: 'image/png'
-  });
-  const uploadBlob = await fetch(uploadDataURL).then(r => r.blob());
-
-  _publishDataURL = previewDataURL;
-  _publishBlob = uploadBlob;
+  // Assign to globals OUTSIDE the try block (avoids Chrome TDZ bug)
+  _publishDataURL = localPreviewURL;
+  _publishBlob = localBlob;
 
   const prevEl = document.getElementById('modalPreview');
   prevEl.innerHTML = '';
@@ -3075,12 +3079,10 @@ async function openPublishModal() {
   img.src = _publishDataURL;
   prevEl.appendChild(img);
 
-  // Reset to form view
   document.getElementById('modalFormView').style.display = '';
   document.getElementById('modalSuccessView').style.display = 'none';
-
   document.getElementById('publishModal').style.display = 'flex';
-  // Show verified username or guest name, always locked
+
   const nameInput = document.getElementById('publishName');
   if (_currentUser?.username) {
     nameInput.value = _currentUser.username + ' ✔';
@@ -3092,9 +3094,6 @@ async function openPublishModal() {
     nameInput.disabled = true;
     nameInput.style.color = '#888';
     nameInput.style.borderColor = '';
-  }
-  } catch(err) {
-    showToast('Publish error: ' + err.message);
   }
 }
 
