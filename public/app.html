@@ -1026,7 +1026,7 @@ function setActiveTool(tool) {
     document.getElementById(id)?.classList.remove('active')
   );
   ['pencil','line','fill','eraser','move','colorpicker'].forEach(t =>
-    document.getElementById('ft-'+t)?.classList.remove('active')
+    document.getElementById('sb-'+t)?.classList.remove('active')
   );
   document.getElementById('pencilSizeRow').style.display = 'none';
   document.getElementById('eraserSizeRow').style.display = 'none';
