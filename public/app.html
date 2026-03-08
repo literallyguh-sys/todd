@@ -2300,15 +2300,10 @@ async function doBucketFill(lx, ly) {
   if (lx >= 0 && lx < dw && ly >= 0 && ly < dh)
     _floodFill(compositeId.data, lx, ly, fR, fG, fB, dw, dh, 40);
 
-  // Build full-canvas fill: existing fill pixels (at canvas coords) + new flood pixels
+  // Build fill canvas from flood-fill result only
   const fillCanvas = document.createElement('canvas');
   fillCanvas.width = dw; fillCanvas.height = dh;
   const fillCtx = fillCanvas.getContext('2d');
-  if (activeGroup._fillNode) {
-    // Existing fill is a child of the group — draw at its canvas position
-    const ef = activeGroup._fillNode;
-    fillCtx.drawImage(ef.image(), activeGroup.x() + ef.x(), activeGroup.y() + ef.y(), ef.width(), ef.height());
-  }
   const fillId = fillCtx.getImageData(0, 0, dw, dh);
   for (let i = 0; i < compositeId.data.length; i += 4) {
     if (compositeId.data[i] !== beforeData[i] || compositeId.data[i+1] !== beforeData[i+1] || compositeId.data[i+2] !== beforeData[i+2]) {
