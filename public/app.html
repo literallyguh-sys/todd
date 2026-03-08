@@ -2178,8 +2178,12 @@ function _floodFill(data, sx, sy, fR, fG, fB, w, h, tol) {
 }
 
 async function doBucketFill(lx, ly) {
+  if (!_activeLayer) { showToast('Select a layer first'); return; }
   const dw = CANVAS_W, dh = CANVAS_H;
-  const dataUrl = await new Promise(r => drawLayer.toDataURL({ x:0, y:0, width:dw, height:dh, pixelRatio:1, callback:r }));
+  // Read from full visible composite so flood fill respects all layers
+  transformerLayer.hide();
+  const dataUrl = await new Promise(r => stage.toDataURL({ x:0, y:0, width:dw, height:dh, pixelRatio:1, callback:r }));
+  transformerLayer.show();
   const img = new Image();
   await new Promise(r => { img.onload = r; img.src = dataUrl; });
   const tmp = document.createElement('canvas');
