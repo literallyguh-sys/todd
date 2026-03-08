@@ -3037,6 +3037,7 @@ let _publishDataURL = null;
 let _publishBlob = null;
 
 async function openPublishModal() {
+  try {
   transformer.nodes([]);
   toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
   toddLayer.draw();
@@ -3045,31 +3046,25 @@ async function openPublishModal() {
     ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y), w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
     : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
-  let previewURL, uploadBlob;
-  try {
-    // Preview: small JPEG for modal display only
-    const PREV_W = 600;
-    let raw = stage.toDataURL({
-      x: crop.x, y: crop.y, width: crop.w, height: crop.h,
-      pixelRatio: Math.min(1, PREV_W / crop.w),
-      mimeType: 'image/jpeg', quality: 0.8
-    });
-    if (raw instanceof Promise) raw = await raw;
-    previewURL = raw;
+  // Preview: small JPEG for modal display
+  const PREV_W = 600;
+  const previewDataURL = stage.toDataURL({
+    x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+    pixelRatio: Math.min(1, PREV_W / crop.w),
+    mimeType: 'image/jpeg', quality: 0.8
+  });
 
-    // Upload blob: render at original image resolution (max 2400px wide), lossless PNG
-    const origW = background?.image()?.naturalWidth || CANVAS_W;
-    const uploadRatio = Math.min(origW, 2400) / crop.w;
-    uploadBlob = await stage.toBlob({
-      x: crop.x, y: crop.y, width: crop.w, height: crop.h,
-      pixelRatio: uploadRatio,
-      mimeType: 'image/png'
-    });
-  } catch(err) {
-    showToast('Preview failed: ' + err.message);
-    return;
-  }
-  _publishDataURL = previewURL;
+  // Upload blob: full PNG via toDataURL → fetch → blob (avoids toBlob compatibility issues)
+  const origW = background?.image()?.naturalWidth || CANVAS_W;
+  const uploadRatio = Math.min(origW, 2400) / crop.w;
+  const uploadDataURL = stage.toDataURL({
+    x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+    pixelRatio: uploadRatio,
+    mimeType: 'image/png'
+  });
+  const uploadBlob = await fetch(uploadDataURL).then(r => r.blob());
+
+  _publishDataURL = previewDataURL;
   _publishBlob = uploadBlob;
 
   const prevEl = document.getElementById('modalPreview');
