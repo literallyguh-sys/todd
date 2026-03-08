@@ -2222,9 +2222,8 @@ stage.on('mousedown touchstart', ev => {
       // Rotation zone: just outside transformer corners
       if (_inRotZone()) {
         const node = transformer.nodes()[0];
-        const r = node.getClientRect({ relativeTo: stage });
-        const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
-        _rotStart = { angle: Math.atan2(pos.y - cy, pos.x - cx), rotation: node.rotation(), cx, cy };
+        const c = _nodeWorldCenter(node);
+        _rotStart = { angle: Math.atan2(pos.y - c.y, pos.x - c.x), rotation: node.rotation(), wCx: c.x, wCy: c.y };
         _rotating = true;
         containerEl.style.cursor = ROTATE_CURSOR;
         return;
