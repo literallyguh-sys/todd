@@ -2187,13 +2187,19 @@ async function doBucketFill(lx, ly) {
   if (!_activeLayer) { showToast('Select a layer first'); return; }
   const dw = CANVAS_W, dh = CANVAS_H;
 
-  // Capture full composite at 1:1 canvas coordinates (handles zoom/pan and DPR correctly).
-  // Hide transformer handles so they don't appear in the source.
+  // Capture full composite at 1:1 canvas coords.
+  // Temporarily reset zoom/pan so the export matches canvas coordinates exactly.
+  // stage.toDataURL in Konva v9 is synchronous, so no browser paint occurs between reset and restore.
+  const savedScale = stage.scaleX();
+  const savedPos = { x: stage.x(), y: stage.y() };
   transformerLayer.visible(false);
-  const srcDataURL = await new Promise(resolve =>
-    stage.toDataURL({ x: 0, y: 0, width: dw, height: dh, pixelRatio: 1, callback: resolve })
-  );
+  stage.scale({ x: 1, y: 1 });
+  stage.position({ x: 0, y: 0 });
+  const srcDataURL = stage.toDataURL({ x: 0, y: 0, width: dw, height: dh, pixelRatio: 1 });
+  stage.scale({ x: savedScale, y: savedScale });
+  stage.position(savedPos);
   transformerLayer.visible(true);
+  stage.batchDraw();
 
   const srcImg = new Image();
   await new Promise(r => { srcImg.onload = r; srcImg.src = srcDataURL; });
