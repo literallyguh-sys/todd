@@ -1378,7 +1378,6 @@ function layerToggleVisible(id) {
   if (!g) return;
   const vis = !g.visible();
   g.visible(vis);
-  if (g._fillNode) g._fillNode.visible(vis);
   toddLayer.draw();
   refreshLayerPanel();
   pushHistory();
