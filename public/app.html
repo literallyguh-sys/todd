@@ -2118,6 +2118,7 @@ stage.on('mousemove touchmove', () => {
       fill:'#000', listening:false,
       globalCompositeOperation:'destination-out'
     }));
+    if (selectedGroup._isEmptyLayer) _cacheEmptyLayer(selectedGroup);
     toddLayer.batchDraw();
   }
   if (isPenciling && currentPencilLine && _inCanvas()) {
