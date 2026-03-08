@@ -2291,7 +2291,7 @@ async function doBucketFill(lx, ly) {
   kFill._fillOwnerId = activeGroup._toddId;
   activeGroup._fillNode = kFill;
   activeGroup.add(kFill);
-  kFill.moveToBottom();
+  if (activeGroup.eraseLayer) kFill.zIndex(activeGroup.eraseLayer.zIndex() + 1); else kFill.moveToBottom();
   _invalidateEmptyLayerCache(activeGroup);
   toddLayer.batchDraw();
   pushHistory();
