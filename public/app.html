@@ -2481,29 +2481,6 @@ function newCanvas() {
 }
 
 // ── Crop canvas to background bounds ──
-function cropCanvas() {
-  if (!background || !bgBounds) { showToast('Upload a background first'); return; }
-  const newW = Math.round(bgBounds.w), newH = Math.round(bgBounds.h);
-  const offX = Math.round(bgBounds.x), offY = Math.round(bgBounds.y);
-  // Shift background to origin
-  background.x(background.x() - offX); background.y(background.y() - offY);
-  bgBounds = { x: 0, y: 0, w: newW, h: newH };
-  // Shift all layer groups
-  toddLayer.getChildren().forEach(g => {
-    if (g._toddId) { g.x(g.x() - offX); g.y(g.y() - offY); }
-  });
-  // Apply new canvas size
-  CANVAS_W = newW; CANVAS_H = newH;
-  containerEl.style.width = newW + 'px'; containerEl.style.height = newH + 'px';
-  stage.width(newW); stage.height(newH);
-  canvasBg.width(newW); canvasBg.height(newH);
-  toddLayer.clip({ x: 0, y: 0, width: newW, height: newH });
-  applyDrawLayerClip();
-  bgLayer.draw(); toddLayer.draw();
-  pushHistory();
-  showToast('Cropped to ' + newW + '×' + newH);
-}
-
 // ── Clear all ──
 function clearAll() {
   _activeLayer = null;
