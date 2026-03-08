@@ -1215,6 +1215,19 @@ const srcCache = {};   // groupId -> full image URL (used for history/restore)
 const thumbCache = {}; // groupId -> 22x22 data URL (used for panel thumbnail, renders instantly)
 const imgCache = {};   // url -> Image object (used for sync restore in undo/redo, prevents flicker)
 
+let colorPickerMode = false;
+
+// Cache an empty-layer group to isolate destination-out compositing
+function _cacheEmptyLayer(g) {
+  const bx = g.x(), by = g.y();
+  g.cache({ x: -bx, y: -by, width: CANVAS_W, height: CANVAS_H });
+  g._isCached = true;
+}
+// Refresh cache if one already exists (called after stroke/fill changes on a cached empty layer)
+function _invalidateEmptyLayerCache(g) {
+  if (g._isEmptyLayer && g._isCached) _cacheEmptyLayer(g);
+}
+
 function _snapFill(g) {
   if (!g._fillNode) return {};
   const f = g._fillNode;
