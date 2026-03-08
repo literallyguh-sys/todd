@@ -1185,6 +1185,34 @@ const transformer = new Konva.Transformer({
 });
 transformerLayer.add(transformer);
 
+// Boost transformer anchor hit areas after every draw so they're easy to grab
+transformerLayer.on('draw', () => {
+  transformer.find('Rect').forEach(r => r.hitStrokeWidth(28));
+});
+
+// Returns true if stage-world pos is within ANCHOR_THRESH screen-px of any of the 8 anchor positions
+const ANCHOR_THRESH_PX = 28;
+function _nearAnyAnchor(pos) {
+  if (!transformer.nodes().length) return false;
+  const node = transformer.nodes()[0];
+  const w = node._currentW, h = node._currentH;
+  const r = node.rotation() * Math.PI / 180;
+  const c = Math.cos(r), s = Math.sin(r);
+  const nx = node.x(), ny = node.y();
+  const anchors = [
+    [nx,                      ny                     ], // TL
+    [nx+(w/2)*c,              ny+(w/2)*s             ], // TC
+    [nx+w*c,                  ny+w*s                 ], // TR
+    [nx-(h/2)*s,              ny+(h/2)*c             ], // ML
+    [nx+w*c-(h/2)*s,          ny+w*s+(h/2)*c         ], // MR
+    [nx-h*s,                  ny+h*c                 ], // BL
+    [nx+(w/2)*c-h*s,          ny+(w/2)*s+h*c         ], // BC
+    [nx+w*c-h*s,              ny+w*s+h*c             ], // BR
+  ];
+  const thresh = ANCHOR_THRESH_PX / stage.scaleX();
+  return anchors.some(([ax, ay]) => Math.sqrt((pos.x-ax)**2 + (pos.y-ay)**2) <= thresh);
+}
+
 // Rotation cursor (Photoshop-style: hover outside corners)
 const ROTATE_CURSOR = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M12 4V2L9 5l3 3V6c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z' fill='black' stroke='black' stroke-width='1.5' stroke-linejoin='round'/><path d='M12 4V2L9 5l3 3V6c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z' fill='white'/></svg>\") 12 12, crosshair";
 const ROTATE_ZONE_MIN_PX = 16; // inner dead-zone — clears scale handles
