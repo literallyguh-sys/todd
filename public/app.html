@@ -926,7 +926,7 @@ const containerEl = document.getElementById('container');
 containerEl.style.width  = CANVAS_W + 'px';
 containerEl.style.height = CANVAS_H + 'px';
 
-const stage = new Konva.Stage({ container:'container', width:CANVAS_W, height:CANVAS_H });
+const stage = new Konva.Stage({ container:'container', width:CANVAS_W, height:CANVAS_H, scaleX:0.75, scaleY:0.75 });
 
 const bgLayer        = new Konva.Layer();
 const toddLayer      = new Konva.Layer();
