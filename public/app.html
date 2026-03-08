@@ -1291,9 +1291,10 @@ function refreshLayerPanel() {
       const fill = g.findOne('Text')?.fill() || '#FFD600';
       thumbHtml = `<span class="layer-thumb-icon" style="color:${fill}">T</span>`;
     } else {
-      const thumbSrc = thumbCache[g._toddId] || srcCache[g._toddId];
-      thumbHtml = thumbSrc
-        ? `<img class="layer-thumb" src="${thumbSrc}">`
+      // Only use the pre-generated data URL from thumbCache — never a remote URL.
+      // Remote URLs cause Chrome to defer painting the list until the img loads.
+      thumbHtml = thumbCache[g._toddId]
+        ? `<img class="layer-thumb" src="${thumbCache[g._toddId]}">`
         : `<span class="layer-thumb-icon">🖼</span>`;
     }
 
