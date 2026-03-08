@@ -1353,8 +1353,7 @@ function layerMove(id, dir) {
   const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
   if (!g) return;
   dir === 'up' ? g.moveUp() : g.moveDown();
-  transformer.moveToTop();
-  toddLayer.draw();
+  _rearrangeFills(); // keep fill Z-order in sync
   refreshLayerPanel();
   pushHistory();
 }
