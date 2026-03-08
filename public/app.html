@@ -1304,7 +1304,7 @@ function refreshLayerPanel() {
     // Thumbnail
     let thumbHtml;
     if (g._isEmptyLayer) {
-      thumbHtml = `<span class="layer-thumb-icon" style="color:#555">▭</span>`;
+      thumbHtml = `<span class="layer-thumb-icon" style="color:#bbb">▭</span>`;
     } else if (g._isText) {
       const fill = g.findOne('Text')?.fill() || '#FFD600';
       thumbHtml = `<span class="layer-thumb-icon" style="color:${fill}">T</span>`;
