@@ -1054,7 +1054,7 @@ function setToolSize(v) {
 function setActiveTool(tool) {
   const same = _activeTool === tool;
   // Deactivate everything first
-  pencilMode = false; eraserMode = false; lineMode = false; fillMode = false; moveMode = false;
+  pencilMode = false; eraserMode = false; lineMode = false; fillMode = false; moveMode = false; colorPickerMode = false;
   _activeTool = null;
   containerEl.classList.remove('pencil-active','eraser-active');
   containerEl.style.cursor = '';
