@@ -2248,13 +2248,21 @@ function _floodFill(data, sx, sy, fR, fG, fB, w, h, tol) {
   const i0 = (sy * w + sx) * 4;
   const tR = data[i0], tG = data[i0+1], tB = data[i0+2], tA = data[i0+3];
   if (tR===fR && tG===fG && tB===fB && tA===255) return;
+  const fillingTransparent = tA < 10;
   const stack = [sx + sy * w];
   const vis   = new Uint8Array(w * h);
   while (stack.length) {
     const p = stack.pop();
     if (vis[p]) continue;
     const cx = p % w, cy = (p / w) | 0, i = p * 4;
-    if (Math.abs(data[i]-tR)+Math.abs(data[i+1]-tG)+Math.abs(data[i+2]-tB)+Math.abs(data[i+3]-tA) > tol) continue;
+    if (fillingTransparent) {
+      // filling a transparent region — use full RGBA check to stay in transparent area
+      if (Math.abs(data[i]-tR)+Math.abs(data[i+1]-tG)+Math.abs(data[i+2]-tB)+Math.abs(data[i+3]-tA) > tol) continue;
+    } else {
+      // filling an opaque region — RGB only so anti-aliased edges don't block the fill
+      if (data[i+3] < 20) continue; // don't spill into transparent
+      if (Math.abs(data[i]-tR)+Math.abs(data[i+1]-tG)+Math.abs(data[i+2]-tB) > tol) continue;
+    }
     vis[p] = 1;
     data[i]=fR; data[i+1]=fG; data[i+2]=fB; data[i+3]=255;
     if (cx > 0)   stack.push(p-1);
