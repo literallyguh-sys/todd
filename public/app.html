@@ -2185,6 +2185,7 @@ function _floodFill(data, sx, sy, fR, fG, fB, w, h, tol) {
 
 async function doBucketFill(lx, ly) {
   if (!_activeLayer) { showToast('Select a layer first'); return; }
+  const activeGroup = _activeLayer; // snapshot — user may change active layer during awaits
   const dw = CANVAS_W, dh = CANVAS_H;
 
   // Capture full composite at 1:1 canvas coords.
