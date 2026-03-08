@@ -2241,37 +2241,35 @@ stage.on('mousedown touchstart', ev => {
   if (!_inCanvas()) return; // outside canvas — don't draw
   // In move mode: clicking canvas drags the active layer (needed for empty layers with no hit area)
   if (moveMode) {
-    // Don't intercept transformer anchor drag events
-    if (ev.target && ev.target !== stage) {
-      const isAnchor = (ev.target.getParent && ev.target.getParent() === transformer) ||
-                       (ev.target.getLayer && ev.target.getLayer() === transformerLayer);
-      if (isAnchor) return;
-    }
     const pos = stage.getRelativePointerPosition();
-    if (pos) {
-      // Rotation zone: just outside transformer corners
-      if (_inRotZone()) {
-        const node = transformer.nodes()[0];
-        const c = _nodeWorldCenter(node);
-        _rotStart = { angle: Math.atan2(pos.y - c.y, pos.x - c.x), rotation: node.rotation(), wCx: c.x, wCy: c.y };
-        _rotating = true;
-        containerEl.style.cursor = ROTATE_CURSOR;
-        return;
-      }
-      if (_bgSelected && background) {
-        _moveTarget = background;
-        _moveOffset = { x: pos.x - background.x(), y: pos.y - background.y() };
-        _moveMoved = false;
-        containerEl.style.cursor = 'grabbing';
-        return;
-      }
-      if (_activeLayer && !_activeLayer._isBgProxy) {
-        _moveTarget = _activeLayer;
-        _moveOffset = { x: pos.x - _activeLayer.x(), y: pos.y - _activeLayer.y() };
-        _moveMoved = false;
-        containerEl.style.cursor = 'grabbing';
-        return;
-      }
+    if (!pos) return;
+    // Rotation zone checked first, regardless of target
+    if (_inRotZone()) {
+      const node = transformer.nodes()[0];
+      const c = _nodeWorldCenter(node);
+      _rotStart = { angle: Math.atan2(pos.y - c.y, pos.x - c.x), rotation: node.rotation(), wCx: c.x, wCy: c.y };
+      _rotating = true;
+      containerEl.style.cursor = ROTATE_CURSOR;
+      return;
+    }
+    // Only handle empty-stage clicks beyond this point.
+    // Image group drags are handled by group.on('mousedown') with cancelBubble=true
+    // so stage.on('mousedown') never fires for those.
+    // Transformer anchor clicks have ev.target !== stage — we must not set _moveTarget for them.
+    if (ev.target !== stage) return;
+    if (_bgSelected && background) {
+      _moveTarget = background;
+      _moveOffset = { x: pos.x - background.x(), y: pos.y - background.y() };
+      _moveMoved = false;
+      containerEl.style.cursor = 'grabbing';
+      return;
+    }
+    if (_activeLayer && !_activeLayer._isBgProxy) {
+      _moveTarget = _activeLayer;
+      _moveOffset = { x: pos.x - _activeLayer.x(), y: pos.y - _activeLayer.y() };
+      _moveMoved = false;
+      containerEl.style.cursor = 'grabbing';
+      return;
     }
   }
   if (lineMode) {
