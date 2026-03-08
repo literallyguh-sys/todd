@@ -1410,7 +1410,8 @@ function restoreState(snap) {
 
   // Pre-calculate ALL async loads before starting any (prevents race conditions)
   const items = snap.items || snap.todds || [];
-  const toddAsyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text').length;
+  // Items with a cached Image object restore synchronously — only uncached ones are async
+  const toddAsyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text' && !imgCache[td.src]).length;
   const bgNeedsLoad = !!(snap.bgSrc && snap.bgBounds && (!background || background.image().src !== snap.bgSrc));
   let totalAsync = toddAsyncCount + (bgNeedsLoad ? 1 : 0);
   let asyncDone = 0;
