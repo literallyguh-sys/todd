@@ -1203,7 +1203,8 @@ let historyIndex = -1;
 const MAX_HISTORY = 40;
 
 // Store image src by group id so we can restore images
-const srcCache = {};  // groupId -> dataURL
+const srcCache = {};   // groupId -> full image URL (used for history/restore)
+const thumbCache = {}; // groupId -> 22x22 data URL (used for panel thumbnail, renders instantly)
 
 function snapshotState() {
   const items = [];
