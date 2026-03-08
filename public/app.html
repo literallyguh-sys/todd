@@ -1383,23 +1383,6 @@ function layerToggleVisible(id) {
   pushHistory();
 }
 
-// Ensure each group's fill node sits just below it in toddLayer Z-order.
-// Fills are toddLayer siblings (not children) so we must maintain order manually.
-function _rearrangeFills() {
-  // Detach all fill nodes (identified by _fillOwnerId)
-  toddLayer.getChildren()
-    .filter(n => n._fillOwnerId)
-    .forEach(n => n.remove());
-  // Re-insert each fill just below its owner group, bottom-to-top
-  toddLayer.getChildren().slice().forEach(g => {
-    if (!g._toddId || !g._fillNode) return;
-    const gIdx = g.getZIndex();
-    toddLayer.add(g._fillNode); // appends to top
-    g._fillNode.zIndex(gIdx);   // inserts before group; group shifts up by 1
-  });
-  transformer.moveToTop();
-  toddLayer.batchDraw();
-}
 
 function removeBackground() {
   if (!background) return;
@@ -1412,8 +1395,7 @@ function removeBackground() {
 }
 
 function restoreState(snap) {
-  toddLayer.getChildren().filter(n => n._fillOwnerId).forEach(n => n.destroy()); // fill siblings
-  toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
+  toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); }); // fills destroyed with their groups
   transformer.nodes([]);
   toddCount = 0;
 
