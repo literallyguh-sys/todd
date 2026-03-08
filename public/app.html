@@ -2506,6 +2506,7 @@ function clearAll() {
   transformer.nodes([]);
   toddCount = 0;
   drawLayer.destroyChildren();
+  bgStrokeGroup.destroyChildren();
   bgLayer.draw(); toddLayer.draw(); drawLayer.draw();
   pushHistory();
   setStatus('Canvas cleared');
