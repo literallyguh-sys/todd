@@ -1242,7 +1242,8 @@ function snapshotState() {
       ? g._strokeGroup.find('Line').map(l => ({ points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth() }))
       : [];
     if (g._isEmptyLayer) {
-      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes, visible: g.visible(), ..._snapFill(g) });
+      const eraseCircles = g.eraseLayer ? g.eraseLayer.getChildren().map(c => ({ x:c.x(), y:c.y(), r:c.radius() })) : [];
+      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes, eraseCircles, visible: g.visible(), ..._snapFill(g) });
     } else if (g._isText) {
       const tn = g.findOne('Text');
       items.push({
