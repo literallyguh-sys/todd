@@ -2311,23 +2311,113 @@ async function doColorPick(lx, ly) {
   const savedPos   = { x: stage.x(), y: stage.y() };
   transformerLayer.visible(false);
   stage.scale({ x:1, y:1 }); stage.position({ x:0, y:0 });
-  const dataURL = stage.toDataURL({ x: lx, y: ly, width: 1, height: 1, pixelRatio: 1 });
+  // Capture full canvas then sample the clicked pixel (more reliable than 1x1 crop)
+  const dataURL = stage.toDataURL({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, pixelRatio:1 });
   stage.scale({ x: savedScale, y: savedScale }); stage.position(savedPos);
   transformerLayer.visible(true); stage.batchDraw();
   const img = new Image();
   await new Promise(r => { img.onload = r; img.src = dataURL; });
-  const c = document.createElement('canvas'); c.width = 1; c.height = 1;
-  c.getContext('2d').drawImage(img, 0, 0);
-  const [r, g, b] = c.getContext('2d').getImageData(0, 0, 1, 1).data;
+  const c = document.createElement('canvas');
+  c.width = CANVAS_W; c.height = CANVAS_H;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const [r, g, b] = ctx.getImageData(lx, ly, 1, 1).data;
   const hex = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
   setToolColor(hex);
-  setActiveTool(null); // return to no-tool after picking
+  setActiveTool(null);
 }
 
 function applyHexInput(val) {
   const v = val.trim();
   const hex = v.startsWith('#') ? v : '#' + v;
   if (/^#[0-9a-fA-F]{6}$/.test(hex)) setToolColor(hex);
+}
+
+// ── Custom inline color picker ──
+let _cpHue = 45, _cpSat = 80, _cpVal = 90, _cpReady = false;
+
+function _hsvToHex(h, s, v) {
+  s /= 100; v /= 100;
+  const f = n => { const k = (n + h/60) % 6; return v - v*s*Math.max(0, Math.min(k, 4-k, 1)); };
+  return '#' + [f(5),f(3),f(1)].map(x => Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
+function _hexToHsv(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max-min;
+  let h = 0, s = max ? d/max*100 : 0, v = max*100;
+  if (d) {
+    if (max===r) h=(g-b)/d+(g<b?6:0);
+    else if (max===g) h=(b-r)/d+2;
+    else h=(r-g)/d+4;
+    h*=60;
+  }
+  return [h, s, v];
+}
+function _drawColorSquare() {
+  const cv = document.getElementById('colorSquare'); if (!cv) return;
+  const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  ctx.fillStyle = `hsl(${_cpHue},100%,50%)`; ctx.fillRect(0,0,W,H);
+  const wg = ctx.createLinearGradient(0,0,W,0);
+  wg.addColorStop(0,'rgba(255,255,255,1)'); wg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle = wg; ctx.fillRect(0,0,W,H);
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'rgba(0,0,0,0)'); bg.addColorStop(1,'rgba(0,0,0,1)');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  const cx = _cpSat/100*W, cy = (1-_cpVal/100)*H;
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=0.5;
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.stroke();
+}
+function _drawHueSlider() {
+  const cv = document.getElementById('hueSlider'); if (!cv) return;
+  const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const grd = ctx.createLinearGradient(0,0,W,0);
+  for (let i=0;i<=6;i++) grd.addColorStop(i/6,`hsl(${i*60},100%,50%)`);
+  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+  const cx = _cpHue/360*W;
+  ctx.strokeStyle='#fff'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+}
+function _cpSyncFromColor(hex) {
+  const panel = document.getElementById('colorPickerPanel');
+  if (!panel || panel.style.display==='none') return;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    [_cpHue,_cpSat,_cpVal] = _hexToHsv(hex);
+    _drawColorSquare(); _drawHueSlider();
+  }
+}
+function _initCpListeners() {
+  if (_cpReady) return; _cpReady = true;
+  const sq = document.getElementById('colorSquare');
+  const hs = document.getElementById('hueSlider');
+  let dSq = false, dHs = false;
+  function pickSq(e) {
+    const r = sq.getBoundingClientRect();
+    _cpSat = Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*100;
+    _cpVal = (1-Math.max(0,Math.min(1,(e.clientY-r.top)/r.height)))*100;
+    _drawColorSquare(); setToolColor(_hsvToHex(_cpHue,_cpSat,_cpVal));
+  }
+  function pickHs(e) {
+    const r = hs.getBoundingClientRect();
+    _cpHue = Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*360;
+    _drawColorSquare(); _drawHueSlider(); setToolColor(_hsvToHex(_cpHue,_cpSat,_cpVal));
+  }
+  sq.addEventListener('mousedown', e => { dSq=true; pickSq(e); e.preventDefault(); });
+  hs.addEventListener('mousedown', e => { dHs=true; pickHs(e); e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if(dSq) pickSq(e); if(dHs) pickHs(e); });
+  window.addEventListener('mouseup', () => { dSq=false; dHs=false; });
+}
+function toggleColorPicker() {
+  const panel = document.getElementById('colorPickerPanel');
+  if (!panel) return;
+  const opening = panel.style.display === 'none';
+  panel.style.display = opening ? 'flex' : 'none';
+  if (opening) {
+    _initCpListeners();
+    if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
+    _drawColorSquare(); _drawHueSlider();
+  }
 }
 
 // ── Pencil tool ──
