@@ -1368,7 +1368,6 @@ function layerRemove(id) {
   const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
   if (g && g._removeTodd) g._removeTodd();
   else if (g) {
-    if (g._fillNode) { g._fillNode.destroy(); g._fillNode = null; }
     g.destroy(); toddLayer.draw();
     refreshLayerPanel(); pushHistory();
   }
