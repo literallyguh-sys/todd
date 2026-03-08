@@ -1426,7 +1426,11 @@ function restoreState(snap) {
   let asyncDone = 0;
   function _onAsyncDone() {
     asyncDone++;
-    if (asyncDone === totalAsync) refreshLayerPanel();
+    if (asyncDone === totalAsync) {
+      if (snap.activeLayerId)
+        _activeLayer = Array.from(toddLayer.getChildren()).find(g => g._toddId === snap.activeLayerId) || null;
+      refreshLayerPanel();
+    }
   }
 
   // Restore background
