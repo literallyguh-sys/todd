@@ -2172,8 +2172,14 @@ stage.on('mousemove touchmove', () => {
     const pos = stage.getRelativePointerPosition();
     if (pos) {
       const node = transformer.nodes()[0];
-      const a = Math.atan2(pos.y - _rotStart.cy, pos.x - _rotStart.cx);
-      node.rotation(_rotStart.rotation + (a - _rotStart.angle) * 180 / Math.PI);
+      const a = Math.atan2(pos.y - _rotStart.wCy, pos.x - _rotStart.wCx);
+      const newRot = _rotStart.rotation + (a - _rotStart.angle) * 180 / Math.PI;
+      const newRotRad = newRot * Math.PI / 180;
+      const w = node._currentW, h = node._currentH;
+      node.rotation(newRot);
+      // Reposition so center stays pinned
+      node.x(_rotStart.wCx - (w/2)*Math.cos(newRotRad) + (h/2)*Math.sin(newRotRad));
+      node.y(_rotStart.wCy - (w/2)*Math.sin(newRotRad) - (h/2)*Math.cos(newRotRad));
       toddLayer.batchDraw();
     }
   }
