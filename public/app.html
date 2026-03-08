@@ -2283,10 +2283,11 @@ stage.on('mousedown touchstart', ev => {
       return;
     }
     // Only handle empty-stage clicks beyond this point.
-    // Image group drags are handled by group.on('mousedown') with cancelBubble=true
-    // so stage.on('mousedown') never fires for those.
-    // Transformer anchor clicks have ev.target !== stage — we must not set _moveTarget for them.
+    // Image group drags are handled by group.on('mousedown') with cancelBubble=true.
+    // Transformer anchor clicks have ev.target !== stage — skip them.
+    // Also skip if cursor is near an anchor (anchor hit detection may have missed).
     if (ev.target !== stage) return;
+    if (_nearAnyAnchor(pos)) return;
     if (_bgSelected && background) {
       _moveTarget = background;
       _moveOffset = { x: pos.x - background.x(), y: pos.y - background.y() };
