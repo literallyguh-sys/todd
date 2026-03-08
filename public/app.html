@@ -2187,38 +2187,53 @@ async function doBucketFill(lx, ly) {
   if (!_activeLayer) { showToast('Select a layer first'); return; }
   const dw = CANVAS_W, dh = CANVAS_H;
 
-  // Flood-fill source: bgLayer + drawLayer only (no todd images — avoids echo artefact)
+  // Capture full composite at 1:1 canvas coordinates (handles zoom/pan and DPR correctly).
+  // Hide transformer handles so they don't appear in the source.
+  transformerLayer.visible(false);
+  const srcDataURL = await new Promise(resolve =>
+    stage.toDataURL({ x: 0, y: 0, width: dw, height: dh, pixelRatio: 1, callback: resolve })
+  );
+  transformerLayer.visible(true);
+
+  const srcImg = new Image();
+  await new Promise(r => { srcImg.onload = r; srcImg.src = srcDataURL; });
+
   const srcCanvas = document.createElement('canvas');
   srcCanvas.width = dw; srcCanvas.height = dh;
   const srcCtx = srcCanvas.getContext('2d');
-  srcCtx.drawImage(bgLayer.getCanvas()._canvas, 0, 0, dw, dh);
-  srcCtx.drawImage(drawLayer.getCanvas()._canvas, 0, 0, dw, dh);
+  srcCtx.drawImage(srcImg, 0, 0);
+
   const compositeId = srcCtx.getImageData(0, 0, dw, dh);
-  const beforeData  = compositeId.data.slice(); // snapshot before fill
+  const beforeData  = compositeId.data.slice();
 
   const hex = _toolColor.replace('#','');
   const fR = parseInt(hex.slice(0,2),16), fG = parseInt(hex.slice(2,4),16), fB = parseInt(hex.slice(4,6),16);
   if (lx >= 0 && lx < dw && ly >= 0 && ly < dh)
     _floodFill(compositeId.data, lx, ly, fR, fG, fB, dw, dh, 40);
 
-  // Result: existing drawLayer content + only the newly-filled pixels (no baked-in bg/images)
-  const resCanvas = document.createElement('canvas');
-  resCanvas.width = dw; resCanvas.height = dh;
-  const resCtx = resCanvas.getContext('2d');
-  resCtx.drawImage(drawLayer.getCanvas()._canvas, 0, 0, dw, dh);
-  const resId = resCtx.getImageData(0, 0, dw, dh);
+  // Build fill canvas: start with existing fill for this group (accumulative), add new fill pixels
+  const fillCanvas = document.createElement('canvas');
+  fillCanvas.width = dw; fillCanvas.height = dh;
+  const fillCtx = fillCanvas.getContext('2d');
+  if (_activeLayer._fillNode) {
+    fillCtx.drawImage(_activeLayer._fillNode.image(), 0, 0);
+  }
+  const fillId = fillCtx.getImageData(0, 0, dw, dh);
   for (let i = 0; i < compositeId.data.length; i += 4) {
     if (compositeId.data[i] !== beforeData[i] || compositeId.data[i+1] !== beforeData[i+1] || compositeId.data[i+2] !== beforeData[i+2]) {
-      resId.data[i] = fR; resId.data[i+1] = fG; resId.data[i+2] = fB; resId.data[i+3] = 255;
+      fillId.data[i] = fR; fillId.data[i+1] = fG; fillId.data[i+2] = fB; fillId.data[i+3] = 255;
     }
   }
-  resCtx.putImageData(resId, 0, 0);
+  fillCtx.putImageData(fillId, 0, 0);
 
-  drawLayer.find('Image').forEach(n => n.destroy());
+  // Replace this group's fill node
+  if (_activeLayer._fillNode) { _activeLayer._fillNode.destroy(); _activeLayer._fillNode = null; }
   const fi = new Image();
-  await new Promise(r => { fi.onload = r; fi.src = resCanvas.toDataURL(); });
-  const kFill = new Konva.Image({ image:fi, x:0, y:0, width:dw, height:dh, listening:false });
+  await new Promise(r => { fi.onload = r; fi.src = fillCanvas.toDataURL(); });
+  const kFill = new Konva.Image({ image: fi, x: 0, y: 0, width: dw, height: dh, listening: false });
   kFill._fillOwnerId = _activeLayer._toddId;
+  kFill.visible(_activeLayer.visible());
+  _activeLayer._fillNode = kFill;
   drawLayer.add(kFill);
   kFill.moveToBottom();
   drawLayer.batchDraw();
