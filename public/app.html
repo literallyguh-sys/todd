@@ -1538,6 +1538,7 @@ function restoreState(snap) {
     if (td.type === 'layer') {
       const g = _restoreEmptyLayer(td);
       if (td.visible === false) g.visible(false);
+      if (td.opacity != null) g.opacity(td.opacity);
       (td.eraseCircles || []).forEach(c => {
         g.eraseLayer.add(new Konva.Circle({ x:c.x, y:c.y, radius:c.r, fill:'#000', listening:false, globalCompositeOperation:'destination-out' }));
       });
@@ -1547,6 +1548,7 @@ function restoreState(snap) {
     } else if (td.type === 'text') {
       const g = makeTextGroup(td.text, td.x, td.y, td.id, td.fontSize, td.fill, td.scaleX, td.scaleY, td.rotation, td.mirrored, false);
       if (td.visible === false) g.visible(false);
+      if (td.opacity != null) g.opacity(td.opacity);
       restoreStrokes(g);
       restoreFill(g, td);
     } else if (imgCache[td.src]) {
@@ -1554,6 +1556,7 @@ function restoreState(snap) {
       toddCount++;
       const group = makeToddGroup(imgCache[td.src], td.w, td.h, td.x, td.y, td.id, false);
       if (td.visible === false) group.visible(false);
+      if (td.opacity != null) group.opacity(td.opacity);
       if (td.rotation) group.rotation(td.rotation);
       if (td.mirrored) {
         group._mirrored = true;
@@ -1576,6 +1579,7 @@ function restoreState(snap) {
         toddCount++;
         const group = makeToddGroup(img, td.w, td.h, td.x, td.y, td.id, false);
         if (td.visible === false) group.visible(false);
+        if (td.opacity != null) group.opacity(td.opacity);
         if (td.rotation) group.rotation(td.rotation);
         if (td.mirrored) {
           group._mirrored = true;
