@@ -1637,6 +1637,18 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
 
   srcCache[id] = img.src;
 
+  // Generate 22×22 thumbnail data URL synchronously (img is already loaded here).
+  // Stored in thumbCache so the panel can render it instantly without an async network fetch.
+  try {
+    const tc = document.createElement('canvas');
+    tc.width = 22; tc.height = 22;
+    const tctx = tc.getContext('2d');
+    const s = Math.min(22 / img.naturalWidth, 22 / img.naturalHeight);
+    const tw = Math.round(img.naturalWidth * s), th = Math.round(img.naturalHeight * s);
+    tctx.drawImage(img, (22 - tw) / 2, (22 - th) / 2, tw, th);
+    thumbCache[id] = tc.toDataURL('image/jpeg', 0.7);
+  } catch(e) { thumbCache[id] = null; } // CORS taint fallback
+
   const todd = new Konva.Image({ image:img, width:currentW, height:currentH });
 
   const strokeGroup = new Konva.Group({ listening:false });
