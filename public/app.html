@@ -1318,7 +1318,9 @@ function refreshLayerPanel() {
 
     // Name
     let name;
-    if (g._isEmptyLayer) {
+    if (g._customName) {
+      name = g._customName;
+    } else if (g._isEmptyLayer) {
       name = 'Layer ' + g._toddId.replace(/[^0-9]/g,'');
     } else if (g._isText) {
       const txt = g.findOne('Text')?.text() || '';
