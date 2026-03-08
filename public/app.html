@@ -2222,8 +2222,8 @@ async function doBucketFill(lx, ly) {
   const fillCanvas = document.createElement('canvas');
   fillCanvas.width = dw; fillCanvas.height = dh;
   const fillCtx = fillCanvas.getContext('2d');
-  if (_activeLayer._fillNode) {
-    fillCtx.drawImage(_activeLayer._fillNode.image(), 0, 0);
+  if (activeGroup._fillNode) {
+    fillCtx.drawImage(activeGroup._fillNode.image(), 0, 0);
   }
   const fillId = fillCtx.getImageData(0, 0, dw, dh);
   for (let i = 0; i < compositeId.data.length; i += 4) {
@@ -2234,13 +2234,13 @@ async function doBucketFill(lx, ly) {
   fillCtx.putImageData(fillId, 0, 0);
 
   // Replace this group's fill node
-  if (_activeLayer._fillNode) { _activeLayer._fillNode.destroy(); _activeLayer._fillNode = null; }
+  if (activeGroup._fillNode) { activeGroup._fillNode.destroy(); activeGroup._fillNode = null; }
   const fi = new Image();
   await new Promise(r => { fi.onload = r; fi.src = fillCanvas.toDataURL(); });
   const kFill = new Konva.Image({ image: fi, x: 0, y: 0, width: dw, height: dh, listening: false });
-  kFill._fillOwnerId = _activeLayer._toddId;
-  kFill.visible(_activeLayer.visible());
-  _activeLayer._fillNode = kFill;
+  kFill._fillOwnerId = activeGroup._toddId;
+  kFill.visible(activeGroup.visible());
+  activeGroup._fillNode = kFill;
   drawLayer.add(kFill);
   kFill.moveToBottom();
   drawLayer.batchDraw();
