@@ -1290,7 +1290,11 @@ function pushHistory() {
   refreshLayerPanel();
 }
 
-function updateUndoRedoBtns() {}
+function updateUndoRedoBtns() {
+  const u = document.getElementById('undoBtn'), r = document.getElementById('redoBtn');
+  if (u) u.style.opacity = _histIdx > 0 ? '1' : '0.4';
+  if (r) r.style.opacity = _histIdx < _history.length - 1 ? '1' : '0.4';
+}
 
 function refreshLayerPanel() {
   const list = document.getElementById('layerList');
