@@ -972,6 +972,24 @@ containerEl.addEventListener('wheel', e => {
   updateZoomIndicator();
 }, { passive: false });
 
+// ── Resize handler ──
+let _resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    const newSz = computeCanvasSize();
+    CANVAS_W = newSz.w; CANVAS_H = newSz.h;
+    containerEl.style.width  = CANVAS_W + 'px';
+    containerEl.style.height = CANVAS_H + 'px';
+    stage.width(CANVAS_W); stage.height(CANVAS_H);
+    toddLayer.clip({ x:0, y:0, width:CANVAS_W, height:CANVAS_H });
+    drawLayer.clip({ x:0, y:0, width:CANVAS_W, height:CANVAS_H });
+    canvasBackdrop.width(CANVAS_W); canvasBackdrop.height(CANVAS_H);
+    canvasBg.width(CANVAS_W); canvasBg.height(CANVAS_H);
+    stage.batchDraw();
+  }, 150);
+});
+
 // Middle-mouse pan
 let _panning = false, _panLast = { x: 0, y: 0 };
 containerEl.addEventListener('mousedown', e => {
