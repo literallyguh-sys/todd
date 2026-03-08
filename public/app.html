@@ -1147,7 +1147,21 @@ let _textIdCounter = 0;
 
 const canvasBg = new Konva.Rect({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, fill:'rgba(34,34,34,0.5)', listening:false });
 bgLayer.add(canvasBg);
+
+// Background stroke group — pencil/line strokes drawn on the background layer
+const bgStrokeGroup = new Konva.Group({ listening: false });
+bgLayer.add(bgStrokeGroup);
 bgLayer.draw();
+
+// Proxy object used as _activeLayer when background is selected for drawing
+const _bgProxy = {
+  _isBgProxy: true,
+  _strokeGroup: bgStrokeGroup,
+  _isEmptyLayer: false,
+  _isCached: false,
+  getRelativePointerPosition() { return stage.getRelativePointerPosition(); },
+  batchDraw() { bgLayer.batchDraw(); }
+};
 
 const transformer = new Konva.Transformer({
   rotateEnabled: true,
