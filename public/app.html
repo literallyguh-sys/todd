@@ -2995,27 +2995,23 @@ loadChat().then(() => subscribeChat());
 
 
 // ── Todd Picker ──
-var ALL_TODDS = [
-  'todd1.png','todd2.png','todd3.png','todd4.png',
-  'todd5.png','todd10.png','toddchan.png'
-];
-
 function openToddPicker() {
   try {
-    const grid = document.getElementById('toddPickerGrid');
+    var todds = ['todd1.png','todd2.png','todd3.png','todd4.png','todd5.png','todd10.png','toddchan.png'];
+    var grid = document.getElementById('toddPickerGrid');
     grid.innerHTML = '';
-    ALL_TODDS.forEach(src => {
-      const div = document.createElement('div');
+    todds.forEach(function(src) {
+      var div = document.createElement('div');
       div.className = 'todd-picker-thumb';
-      div.onclick = () => { addTodd(src); closeToddPicker(); };
-      const img = document.createElement('img');
+      div.onclick = function() { addTodd(src); closeToddPicker(); };
+      var img = document.createElement('img');
       img.src = src;
-      img.onerror = () => { div.style.display = 'none'; };
+      img.onerror = function() { div.style.display = 'none'; };
       div.appendChild(img);
       grid.appendChild(div);
     });
     document.getElementById('toddPickerModal').style.display = 'flex';
-  } catch(e) { showToast('Error: ' + e.message); }
+  } catch(e) { showToast('Todd picker error: ' + e.message); }
 }
 
 function closeToddPicker(e) {
