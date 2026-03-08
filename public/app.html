@@ -907,33 +907,25 @@ body.chat-open #chatTab{
 <div id="floatToolbar">
   <div id="ftDrag">⠿ TOOLS</div>
   <div id="ftBody">
-    <button class="ft-btn" id="ft-move"   onclick="setActiveTool('move')"    title="Move selected layer">✥</button>
-    <button class="ft-btn" id="ft-eraser"  onclick="setActiveTool('eraser')"  title="Eraser"><img src="Icons/Toolbar/eraser.png" alt="Eraser"></button>
-    <button class="ft-btn" id="ft-pencil"  onclick="setActiveTool('pencil')"  title="Pencil"><img src="Icons/Toolbar/pencil.png" alt="Pencil"></button>
-    <button class="ft-btn" id="ft-line"    onclick="setActiveTool('line')"    title="Draw Line"><img src="Icons/Toolbar/line.png" alt="Line"></button>
-    <button class="ft-btn" id="ft-fill"    onclick="setActiveTool('fill')"    title="Bucket Fill"><img src="Icons/Toolbar/bucket.png" alt="Bucket Fill"></button>
-    <button class="ft-btn" id="ft-text"    onclick="openTextModal()"          title="Add Text"><img src="Icons/Toolbar/text.png" alt="Text"></button>
+    <button class="ft-btn" id="ft-move"        onclick="setActiveTool('move')"       title="Move selected layer">✥</button>
+    <button class="ft-btn" id="ft-eraser"      onclick="setActiveTool('eraser')"     title="Eraser"><img src="Icons/Toolbar/eraser.png" alt="Eraser"></button>
+    <button class="ft-btn" id="ft-pencil"      onclick="setActiveTool('pencil')"     title="Pencil"><img src="Icons/Toolbar/pencil.png" alt="Pencil"></button>
+    <button class="ft-btn" id="ft-line"        onclick="setActiveTool('line')"       title="Draw Line"><img src="Icons/Toolbar/line.png" alt="Line"></button>
+    <button class="ft-btn" id="ft-fill"        onclick="setActiveTool('fill')"       title="Bucket Fill"><img src="Icons/Toolbar/bucket.png" alt="Bucket Fill"></button>
+    <button class="ft-btn" id="ft-text"        onclick="openTextModal()"             title="Add Text"><img src="Icons/Toolbar/text.png" alt="Text"></button>
+    <button class="ft-btn" id="ft-colorpicker" onclick="setActiveTool('colorpicker')" title="Pick color from canvas"><img src="Icons/Toolbar/colorfinder.png" alt="Color Finder"></button>
     <div id="pencilSizeRow" style="display:none;flex-direction:column;align-items:center;gap:2px;padding:4px 0">
       <input type="range" id="pencilSize" min="1" max="40" value="3" orient="vertical"
         oninput="setToolSize(this.value);document.getElementById('pencilSizeVal').textContent=this.value"
         style="writing-mode:vertical-lr;direction:rtl;height:80px;width:20px;accent-color:var(--accent);cursor:pointer">
       <span id="pencilSizeVal" style="font-size:10px;color:#888;text-align:center">3</span>
     </div>
-    <div id="eraserSizeRow" style="display:none;flex-direction:column;gap:2px;padding:2px 0">
-      <input type="range" id="eraserSize" min="4" max="60" value="18"
-        style="width:100%;accent-color:var(--accent)">
+    <div id="eraserSizeRow" style="display:none;flex-direction:column;align-items:center;gap:2px;padding:4px 0">
+      <input type="range" id="eraserSize" min="4" max="60" value="18" orient="vertical"
+        style="writing-mode:vertical-lr;direction:rtl;height:80px;width:20px;accent-color:var(--accent);cursor:pointer">
       <span id="eraserSizeVal" style="font-size:10px;color:#888;text-align:center">18</span>
     </div>
-    <div style="display:flex;align-items:center;gap:3px;padding:3px 0;border-top:1px solid rgba(255,255,255,0.07);margin-top:2px">
-      <span id="activeColorSwatch" style="width:30px;height:30px;background:#FFD600;border:2px solid rgba(255,255,255,0.35);flex-shrink:0;display:block;cursor:pointer" onclick="toggleColorPicker()" title="Open color picker"></span>
-      <button class="ft-btn" id="ft-colorpicker" onclick="setActiveTool('colorpicker')" title="Pick color from canvas" style="width:30px;height:30px;flex-shrink:0;padding:0;border:1px solid rgba(255,255,255,0.15)"><img src="Icons/Toolbar/colorfinder.png" alt="Color Finder"></button>
-    </div>
-    <div class="color-palette-grid" style="padding-top:2px">
-      <div class="swatch" data-color="#f4e9e3" style="background:#f4e9e3" onclick="setToolColor('#f4e9e3')"></div>
-      <div class="swatch" data-color="#54433c" style="background:#54433c" onclick="setToolColor('#54433c')"></div>
-      <div class="swatch" data-color="#000000" style="background:#000000" onclick="setToolColor('#000000')"></div>
-    </div>
-    <div id="colorPickerPanel" style="display:none;flex-direction:column;gap:3px;padding:4px 0;border-top:1px solid rgba(255,255,255,0.07);margin-top:2px">
+    <div id="colorPickerPanel" style="display:flex;flex-direction:column;gap:3px;padding:4px 0;border-top:1px solid rgba(255,255,255,0.07);margin-top:2px">
       <canvas id="colorSquare" width="100" height="80" style="width:100%;display:block;cursor:crosshair;border:1px solid rgba(255,255,255,0.1)"></canvas>
       <canvas id="hueSlider" width="100" height="12" style="width:100%;display:block;cursor:crosshair;border:1px solid rgba(255,255,255,0.1)"></canvas>
       <input id="hexInput" type="text" placeholder="#rrggbb" maxlength="7"
