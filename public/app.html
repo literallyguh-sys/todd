@@ -2183,8 +2183,20 @@ stage.on('mousedown touchstart', ev => {
   if (!_inCanvas()) return; // outside canvas — don't draw
   // In move mode: clicking canvas drags the active layer (needed for empty layers with no hit area)
   if (moveMode) {
+    // Don't intercept transformer anchor drag events
+    if (ev.target && ev.target.getLayer && ev.target.getLayer() === transformerLayer) return;
     const pos = stage.getRelativePointerPosition();
     if (pos) {
+      // Rotation zone: just outside transformer corners
+      if (_inRotZone()) {
+        const node = transformer.nodes()[0];
+        const r = node.getClientRect({ relativeTo: stage });
+        const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
+        _rotStart = { angle: Math.atan2(pos.y - cy, pos.x - cx), rotation: node.rotation(), cx, cy };
+        _rotating = true;
+        containerEl.style.cursor = ROTATE_CURSOR;
+        return;
+      }
       if (_bgSelected && background) {
         _moveTarget = background;
         _moveOffset = { x: pos.x - background.x(), y: pos.y - background.y() };
