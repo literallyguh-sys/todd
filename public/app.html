@@ -1352,8 +1352,10 @@ function refreshLayerPanel() {
 function layerMove(id, dir) {
   const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
   if (!g) return;
+  // Temporarily remove fill siblings so moveUp/moveDown operates on groups only
+  toddLayer.getChildren().filter(n => n._fillOwnerId).forEach(n => n.remove());
   dir === 'up' ? g.moveUp() : g.moveDown();
-  _rearrangeFills(); // keep fill Z-order in sync
+  _rearrangeFills(); // re-insert fills in correct Z-order
   refreshLayerPanel();
   pushHistory();
 }
