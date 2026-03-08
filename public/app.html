@@ -2187,6 +2187,11 @@ stage.on('click tap', () => {
     doBucketFill(Math.round(pos.x), Math.round(pos.y));
     return;
   }
+  if (colorPickerMode) {
+    const pos = stage.getRelativePointerPosition();
+    doColorPick(Math.round(pos.x), Math.round(pos.y));
+    return;
+  }
   // In any active tool mode, don't deselect the layer on canvas click
   if (pencilMode || lineMode || eraserMode || moveMode) return;
   transformer.nodes([]);
