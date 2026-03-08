@@ -2395,7 +2395,7 @@ function _drawHueSlider() {
 }
 function _cpSyncFromColor(hex) {
   const panel = document.getElementById('colorPickerPanel');
-  if (!panel || panel.style.display==='none' || panel.style.display==='') return;
+  if (!panel || panel.style.display==='none') return;
   if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
     [_cpHue,_cpSat,_cpVal] = _hexToHsv(hex);
     _drawColorSquare(); _drawHueSlider();
