@@ -2306,6 +2306,31 @@ async function doBucketFill(lx, ly) {
   pushHistory();
 }
 
+// ── Color picker / eyedropper ──
+async function doColorPick(lx, ly) {
+  const savedScale = stage.scaleX();
+  const savedPos   = { x: stage.x(), y: stage.y() };
+  transformerLayer.visible(false);
+  stage.scale({ x:1, y:1 }); stage.position({ x:0, y:0 });
+  const dataURL = stage.toDataURL({ x: lx, y: ly, width: 1, height: 1, pixelRatio: 1 });
+  stage.scale({ x: savedScale, y: savedScale }); stage.position(savedPos);
+  transformerLayer.visible(true); stage.batchDraw();
+  const img = new Image();
+  await new Promise(r => { img.onload = r; img.src = dataURL; });
+  const c = document.createElement('canvas'); c.width = 1; c.height = 1;
+  c.getContext('2d').drawImage(img, 0, 0);
+  const [r, g, b] = c.getContext('2d').getImageData(0, 0, 1, 1).data;
+  const hex = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+  setToolColor(hex);
+  setActiveTool(null); // return to no-tool after picking
+}
+
+function applyHexInput(val) {
+  const v = val.trim();
+  const hex = v.startsWith('#') ? v : '#' + v;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) setToolColor(hex);
+}
+
 // ── Pencil tool ──
 const pencilSizeSlider = document.getElementById('pencilSize');
 const pencilSizeVal    = document.getElementById('pencilSizeVal');
