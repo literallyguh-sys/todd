@@ -1209,6 +1209,12 @@ const srcCache = {};   // groupId -> full image URL (used for history/restore)
 const thumbCache = {}; // groupId -> 22x22 data URL (used for panel thumbnail, renders instantly)
 const imgCache = {};   // url -> Image object (used for sync restore in undo/redo, prevents flicker)
 
+function _snapFill(g) {
+  if (!g._fillNode) return {};
+  const f = g._fillNode;
+  return { fillSrc: f.image().src, fillX: f.x(), fillY: f.y(), fillW: f.width(), fillH: f.height() };
+}
+
 function snapshotState() {
   const items = [];
   toddLayer.find('Group').forEach(g => {
