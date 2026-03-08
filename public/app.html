@@ -1783,8 +1783,8 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
     pushHistory();
   }
 
-  // render order: image → strokes → erase (so erase covers both)
-  group.add(todd, strokeGroup, eraseLayer);
+  // render order: image → erase → strokes (so new strokes appear above erased areas)
+  group.add(todd, eraseLayer, strokeGroup);
   group.eraseLayer       = eraseLayer;
   group._strokeGroup     = strokeGroup;
   group._refreshDelete   = refreshDelete;
