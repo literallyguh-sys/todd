@@ -2110,7 +2110,6 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
     if (group !== _activeLayer) return;
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
-    if (transformer.nodes().includes(group) && _nearAnyAnchor(pos)) return;
     ev.cancelBubble = true;
     _moveTarget = group;
     _moveOffset = { x: pos.x - group.x(), y: pos.y - group.y() };
