@@ -1408,6 +1408,13 @@ function layerToggleVisible(id) {
 }
 
 
+function setLayerOpacity(id, val) {
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
+  if (!g) return;
+  g.opacity(parseInt(val) / 100);
+  toddLayer.draw();
+}
+
 function removeBackground() {
   if (!background) return;
   background.destroy(); background = null; bgBounds = null;
