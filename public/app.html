@@ -2427,7 +2427,7 @@ function _initCpListeners() {
 function toggleColorPicker() {
   const panel = document.getElementById('colorPickerPanel');
   if (!panel) return;
-  const opening = panel.style.display === 'none';
+  const opening = panel.style.display !== 'flex';
   panel.style.display = opening ? 'flex' : 'none';
   if (opening) {
     _initCpListeners();
