@@ -1576,6 +1576,7 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   g._isEmptyLayer = true;
   g._currentW = w;
   g._currentH = h;
+  g._fillNode = null;
   const sg = new Konva.Group({ listening: false });
   g._strokeGroup = sg;
   g.add(sg);
@@ -1585,7 +1586,8 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   g._refreshDelete = refreshDelete;
   g._removeTodd = () => {
     if (_activeLayer === g) _activeLayer = null;
-    g.destroy(); toddLayer.draw(); refreshLayerPanel(); pushHistory();
+    if (g._fillNode) { g._fillNode.destroy(); g._fillNode = null; }
+    g.destroy(); toddLayer.draw(); drawLayer.draw(); refreshLayerPanel(); pushHistory();
   };
   g.on('click tap', ev => {
     ev.cancelBubble = true;
