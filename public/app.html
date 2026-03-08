@@ -2282,7 +2282,6 @@ stage.on('mousedown touchstart', ev => {
     // Transformer anchor clicks have ev.target !== stage — skip them.
     // Also skip if cursor is near an anchor (anchor hit detection may have missed).
     if (ev.target !== stage) return;
-    if (_nearAnyAnchor(pos)) return;
     if (_bgSelected && background) {
       _moveTarget = background;
       _moveOffset = { x: pos.x - background.x(), y: pos.y - background.y() };
