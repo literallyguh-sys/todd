@@ -1036,7 +1036,7 @@ function setToolColor(hex) {
   document.querySelectorAll('.swatch').forEach(s =>
     s.classList.toggle('active', s.dataset.color?.toLowerCase() === hex.toLowerCase())
   );
-  _cpSyncFromColor(hex);
+  if (!_cpInteracting) _cpSyncFromColor(hex);
 }
 function setToolSize(v) {
   _toolSize = parseInt(v) || 3;
