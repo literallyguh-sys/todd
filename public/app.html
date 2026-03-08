@@ -928,8 +928,6 @@ body.chat-open #chatTab{
       <span id="activeColorSwatch" style="width:16px;height:16px;background:#FFD600;border:1px solid rgba(255,255,255,0.25);flex-shrink:0;cursor:pointer" onclick="document.getElementById('ftColor').click()" title="Color"></span>
       <input type="color" id="ftColor" value="#FFD600" onchange="setToolColor(this.value)"
         style="width:0;height:0;opacity:0;position:absolute;pointer-events:none">
-      <input type="range" id="ftSize" min="1" max="40" value="3" oninput="setToolSize(this.value)"
-        style="flex:1;accent-color:var(--accent)">
     </div>
     <div class="color-palette-grid" style="padding-top:2px">
       <div class="swatch" data-color="#000000" style="background:#000000" onclick="setToolColor('#000000')"></div>
