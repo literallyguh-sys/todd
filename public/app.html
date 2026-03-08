@@ -2307,13 +2307,17 @@ async function doBucketFill(lx, ly) {
   if (lx >= 0 && lx < dw && ly >= 0 && ly < dh)
     _floodFill(compositeId.data, lx, ly, fR, fG, fB, dw, dh, 40);
 
-  // Build fill canvas from flood-fill result only
+  // Build fill canvas: existing fill pixels underneath, new flood-fill pixels on top
   const fillCanvas = document.createElement('canvas');
   fillCanvas.width = dw; fillCanvas.height = dh;
   const fillCtx = fillCanvas.getContext('2d');
+  if (activeGroup._fillNode) {
+    const ef = activeGroup._fillNode;
+    fillCtx.drawImage(ef.image(), activeGroup.x() + ef.x(), activeGroup.y() + ef.y(), ef.width(), ef.height());
+  }
   const fillId = fillCtx.getImageData(0, 0, dw, dh);
   for (let i = 0; i < compositeId.data.length; i += 4) {
-    if (compositeId.data[i] !== beforeData[i] || compositeId.data[i+1] !== beforeData[i+1] || compositeId.data[i+2] !== beforeData[i+2]) {
+    if (compositeId.data[i] !== beforeData[i] || compositeId.data[i+1] !== beforeData[i+1] || compositeId.data[i+2] !== beforeData[i+2] || compositeId.data[i+3] !== beforeData[i+3]) {
       fillId.data[i] = fR; fillId.data[i+1] = fG; fillId.data[i+2] = fB; fillId.data[i+3] = 255;
     }
   }
