@@ -1981,7 +1981,6 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
     if (group._fillNode) { group._fillNode.destroy(); group._fillNode = null; }
     group.destroy();
     toddLayer.draw();
-    drawLayer.draw();
     setStatus('Ready');
     pushHistory();
   }
