@@ -2131,6 +2131,11 @@ stage.on('mousedown touchstart', ev => {
   }
 });
 stage.on('mouseup touchend', () => {
+  if (_rotating) {
+    _rotating = false; _rotStart = null;
+    containerEl.style.cursor = moveMode ? 'grab' : '';
+    pushHistory();
+  }
   if (isErasing) { isErasing = false; pushHistory(); }
   if (isPenciling) {
     isPenciling = false;
