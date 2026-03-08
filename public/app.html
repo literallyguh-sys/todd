@@ -535,6 +535,19 @@ body.chat-open #chatTab{
 #canvas-top-bar{
   display:flex;gap:4px;flex-shrink:0;padding:3px 4px 3px;width:100%;
 }
+#todd-tray{
+  display:flex;flex-direction:row;align-items:center;gap:6px;
+  width:100%;flex-shrink:0;overflow-x:auto;overflow-y:hidden;
+  height:0;padding:0 8px;box-sizing:border-box;
+  background:rgba(0,0,0,0.5);border-bottom:1px solid rgba(255,255,255,0.08);
+  transition:height .2s ease;
+}
+#todd-tray.open{height:54px;}
+#todd-tray img{flex-shrink:0;width:40px;height:40px;object-fit:contain;cursor:pointer;border:1px solid rgba(255,255,255,0.15);padding:2px;box-sizing:border-box;background:rgba(0,0,0,0.3);}
+#todd-tray img:hover{border-color:rgba(255,214,0,0.6);}
+#todd-tray::-webkit-scrollbar{height:4px;}
+#todd-tray::-webkit-scrollbar-track{background:transparent;}
+#todd-tray::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);}
 .ctb-btn{
   background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.1);
   color:#555;font-family:'VT323',monospace;font-size:15px;
