@@ -1043,6 +1043,8 @@ function setToolColor(hex) {
   if (indicator) indicator.style.background = hex;
   const ftColor = document.getElementById('ftColor');
   if (ftColor) ftColor.value = hex;
+  const hexInput = document.getElementById('hexInput');
+  if (hexInput && document.activeElement !== hexInput) hexInput.value = hex;
   document.querySelectorAll('.swatch').forEach(s =>
     s.classList.toggle('active', s.dataset.color?.toLowerCase() === hex.toLowerCase())
   );
