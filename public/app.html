@@ -2563,6 +2563,11 @@ function confirmDownload() {
 
 updateUndoRedoBtns();
 _initCpListeners();
+new ResizeObserver(() => {
+  const sq = document.getElementById('colorSquare'); if (!sq) return;
+  const r = sq.getBoundingClientRect();
+  if (r.width > 0 && r.height > 0) { sq.width = Math.round(r.width); sq.height = Math.round(r.height); _drawColorSquare(); }
+}).observe(document.getElementById('colorSquare'));
 setToolColor(_toolColor);
 window.addEventListener('load', () => {
   if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
