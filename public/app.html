@@ -1492,7 +1492,8 @@ function restoreState(snap) {
         kFill._fillOwnerId = group._toddId;
         group._fillNode = kFill;
         group.add(kFill);
-        kFill.moveToBottom();
+        // Place fill above eraseLayer so destination-out doesn't erase it
+        if (group.eraseLayer) kFill.zIndex(group.eraseLayer.zIndex() + 1); else kFill.moveToBottom();
         toddLayer.batchDraw();
         _onAsyncDone();
       };
