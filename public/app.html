@@ -1445,6 +1445,17 @@ function restoreState(snap) {
   });
   drawLayer.draw();
 
+  // Restore background stroke group
+  bgStrokeGroup.destroyChildren();
+  (snap.bgStrokes || []).forEach(s => {
+    bgStrokeGroup.add(new Konva.Line({
+      stroke: s.stroke, strokeWidth: s.strokeWidth,
+      lineCap: 'round', lineJoin: 'round',
+      points: s.points, listening: false
+    }));
+  });
+  bgLayer.batchDraw();
+
   // Pre-calculate ALL async loads before starting any (prevents race conditions)
   const items = snap.items || snap.todds || [];
   // Items with a cached Image object restore synchronously — only uncached ones are async
