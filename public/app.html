@@ -1031,8 +1031,6 @@ let _previewLine = null;
 
 function setToolColor(hex) {
   _toolColor = hex;
-  const indicator = document.getElementById('activeColorSwatch');
-  if (indicator) indicator.style.background = hex;
   const hexInput = document.getElementById('hexInput');
   if (hexInput && document.activeElement !== hexInput) hexInput.value = hex;
   document.querySelectorAll('.swatch').forEach(s =>
