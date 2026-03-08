@@ -1366,7 +1366,12 @@ function layerMove(id, dir) {
 function layerRemove(id) {
   const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
   if (g && g._removeTodd) g._removeTodd();
-  else if (g) { g.destroy(); toddLayer.draw(); pushHistory(); }
+  else if (g) {
+    g.destroy(); toddLayer.draw();
+    drawLayer.find('Image').forEach(n => { if (n._fillOwnerId === id) n.destroy(); });
+    drawLayer.draw();
+    refreshLayerPanel(); pushHistory();
+  }
 }
 
 function layerToggleVisible(id) {
