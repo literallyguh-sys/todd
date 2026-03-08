@@ -908,11 +908,11 @@ body.chat-open #chatTab{
   <div id="ftDrag">⠿ TOOLS</div>
   <div id="ftBody">
     <button class="ft-btn" id="ft-move"   onclick="setActiveTool('move')"    title="Move selected layer">✥</button>
+    <button class="ft-btn" id="ft-eraser"  onclick="setActiveTool('eraser')"  title="Eraser"><img src="Icons/Toolbar/eraser.png" alt="Eraser"></button>
     <button class="ft-btn" id="ft-pencil"  onclick="setActiveTool('pencil')"  title="Pencil"><img src="Icons/Toolbar/pencil.png" alt="Pencil"></button>
-    <button class="ft-btn" id="ft-text"    onclick="openTextModal()"          title="Add Text"><img src="Icons/Toolbar/text.png" alt="Text"></button>
     <button class="ft-btn" id="ft-line"    onclick="setActiveTool('line')"    title="Draw Line"><img src="Icons/Toolbar/line.png" alt="Line"></button>
     <button class="ft-btn" id="ft-fill"    onclick="setActiveTool('fill')"    title="Bucket Fill"><img src="Icons/Toolbar/bucket.png" alt="Bucket Fill"></button>
-    <button class="ft-btn" id="ft-eraser"  onclick="setActiveTool('eraser')"  title="Eraser"><img src="Icons/Toolbar/eraser.png" alt="Eraser"></button>
+    <button class="ft-btn" id="ft-text"    onclick="openTextModal()"          title="Add Text"><img src="Icons/Toolbar/text.png" alt="Text"></button>
     <div id="pencilSizeRow" style="display:none;flex-direction:column;align-items:center;gap:2px;padding:4px 0">
       <input type="range" id="pencilSize" min="1" max="40" value="3" orient="vertical"
         oninput="setToolSize(this.value);document.getElementById('pencilSizeVal').textContent=this.value"
