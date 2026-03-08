@@ -1298,10 +1298,8 @@ function pushHistory() {
 }
 
 function updateUndoRedoBtns() {
-  document.getElementById('undoBtn').disabled = historyIndex <= 0;
-  document.getElementById('redoBtn').disabled = historyIndex >= history.length - 1;
-  document.getElementById('undoBtn').style.opacity = historyIndex <= 0 ? '0.4' : '1';
-  document.getElementById('redoBtn').style.opacity = historyIndex >= history.length - 1 ? '0.4' : '1';
+  document.getElementById('undoBtn').style.opacity = historyIndex <= 0 ? '0.55' : '1';
+  document.getElementById('redoBtn').style.opacity = historyIndex >= history.length - 1 ? '0.55' : '1';
 }
 
 function refreshLayerPanel() {
