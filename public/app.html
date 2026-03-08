@@ -2200,6 +2200,7 @@ async function doBucketFill(lx, ly) {
   const fi = new Image();
   await new Promise(r => { fi.onload = r; fi.src = tmp.toDataURL(); });
   const kFill = new Konva.Image({ image:fi, x:0, y:0, width:dw, height:dh, listening:false });
+  kFill._fillOwnerId = _activeLayer._toddId;
   drawLayer.add(kFill);
   kFill.moveToBottom();
   drawLayer.batchDraw();
