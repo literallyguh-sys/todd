@@ -1511,6 +1511,10 @@ function restoreState(snap) {
     if (td.type === 'layer') {
       const g = _restoreEmptyLayer(td);
       if (td.visible === false) g.visible(false);
+      (td.eraseCircles || []).forEach(c => {
+        g.eraseLayer.add(new Konva.Circle({ x:c.x, y:c.y, radius:c.r, fill:'#000', listening:false, globalCompositeOperation:'destination-out' }));
+      });
+      if ((td.eraseCircles || []).length) _cacheEmptyLayer(g);
       restoreStrokes(g);
       restoreFill(g, td);
     } else if (td.type === 'text') {
