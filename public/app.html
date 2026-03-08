@@ -2145,6 +2145,20 @@ stage.on('mouseup touchend', () => {
   _endMoveDrag();
 });
 stage.on('mousemove touchmove', () => {
+  // Rotation zone cursor
+  if (moveMode && !_rotating && !_moveTarget && transformer.nodes().length) {
+    containerEl.style.cursor = _inRotZone() ? ROTATE_CURSOR : 'grab';
+  }
+  // Active rotation
+  if (_rotating && _rotStart && transformer.nodes().length) {
+    const pos = stage.getRelativePointerPosition();
+    if (pos) {
+      const node = transformer.nodes()[0];
+      const a = Math.atan2(pos.y - _rotStart.cy, pos.x - _rotStart.cx);
+      node.rotation(_rotStart.rotation + (a - _rotStart.angle) * 180 / Math.PI);
+      toddLayer.batchDraw();
+    }
+  }
   if (_moveTarget) {
     const pos = stage.getRelativePointerPosition();
     if (pos) {
