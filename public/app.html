@@ -1608,7 +1608,7 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   g._removeTodd = () => {
     if (_activeLayer === g) _activeLayer = null;
     if (g._fillNode) { g._fillNode.destroy(); g._fillNode = null; }
-    g.destroy(); toddLayer.draw(); drawLayer.draw(); refreshLayerPanel(); pushHistory();
+    g.destroy(); toddLayer.draw(); refreshLayerPanel(); pushHistory();
   };
   g.on('click tap', ev => {
     ev.cancelBubble = true;
