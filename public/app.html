@@ -965,12 +965,14 @@ containerEl.style.height = CANVAS_H + 'px';
 
 const stage = new Konva.Stage({ container:'container', width:CANVAS_W, height:CANVAS_H });
 
-const bgLayer   = new Konva.Layer();
-const toddLayer = new Konva.Layer();
-const drawLayer = new Konva.Layer();
+const bgLayer        = new Konva.Layer();
+const toddLayer      = new Konva.Layer();
+const drawLayer      = new Konva.Layer();           // bucket fill only — sits below todd groups
+const transformerLayer = new Konva.Layer({ listening: false }); // handles always on top
 stage.add(bgLayer);
-stage.add(toddLayer);
-stage.add(drawLayer);
+stage.add(drawLayer);        // fill below todds
+stage.add(toddLayer);        // images, strokes, groups
+stage.add(transformerLayer); // transformer handles
 toddLayer.clip({ x: 0, y: 0, width: CANVAS_W, height: CANVAS_H });
 drawLayer.clip({ x: 0, y: 0, width: CANVAS_W, height: CANVAS_H });
 
