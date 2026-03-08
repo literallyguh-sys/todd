@@ -637,7 +637,7 @@ app.get('/api/ticker', (req, res) => {
 });
 
 // ── Buy Alert System ─────────────────────────────────────────────────────────
-const BUY_TOKEN_ADDRESS = 'rt3p5zwosnnzdsuezbdialfazd2wgsoqvmnrlqtpljd';
+const BUY_TOKEN_ADDRESS = 'BzyKa1FGjs2EUpu3GGDibY4xdygn5evAiRboKmETpump';
 const PUBLIC_RPC_URL    = 'https://api.mainnet-beta.solana.com';
 const MIN_BUY_USD       = 300;
 let buyLastSig   = null;
