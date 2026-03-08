@@ -1157,7 +1157,7 @@ let currentPencilLine = null;
 // ── Text state ──
 let _textIdCounter = 0;
 
-const canvasBg = new Konva.Rect({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, fill:'rgba(34,34,34,0.5)', listening:false });
+const canvasBg = new Konva.Rect({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, fill:'transparent', listening:false });
 bgLayer.add(canvasBg);
 
 // Background stroke group — pencil/line strokes drawn on the background layer
