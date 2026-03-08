@@ -1114,8 +1114,14 @@ function setActiveTool(tool) {
       containerEl.style.cursor = 'cell';
       transformer.nodes([]);
       toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
-      document.getElementById('pencilSizeRow').style.display = 'flex';
       setStatus('Fill — click to flood fill');
+      break;
+    case 'colorpicker':
+      colorPickerMode = true;
+      containerEl.style.cursor = 'crosshair';
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      setStatus('Color Finder — click canvas to pick a color');
       break;
     case 'move':
       moveMode = true;
