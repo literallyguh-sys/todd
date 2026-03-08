@@ -1372,8 +1372,11 @@ function layerRemove(id) {
 function layerToggleVisible(id) {
   const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
   if (!g) return;
-  g.visible(!g.visible());
+  const vis = !g.visible();
+  g.visible(vis);
+  drawLayer.find('Image').forEach(n => { if (n._fillOwnerId === id) n.visible(vis); });
   toddLayer.draw();
+  drawLayer.draw();
   refreshLayerPanel();
   pushHistory();
 }
