@@ -896,53 +896,6 @@ body.chat-open #chatTab{
   </div>
 </div>
 
-<!-- Floating tool window — must be before <script> so drag IIFE can find it -->
-<div id="floatToolbar">
-  <div id="ftDrag">⠿ TOOLS</div>
-  <div id="ftBody">
-    <button class="ft-btn" id="ft-move"        onclick="setActiveTool('move')"       title="Move selected layer">✥</button>
-    <button class="ft-btn" id="ft-eraser"      onclick="setActiveTool('eraser')"     title="Eraser"><img src="Icons/Toolbar/eraser.png" alt="Eraser"></button>
-    <button class="ft-btn" id="ft-pencil"      onclick="setActiveTool('pencil')"     title="Pencil"><img src="Icons/Toolbar/pencil.png" alt="Pencil"></button>
-    <button class="ft-btn" id="ft-line"        onclick="setActiveTool('line')"       title="Draw Line"><img src="Icons/Toolbar/line.png" alt="Line"></button>
-    <button class="ft-btn" id="ft-fill"        onclick="setActiveTool('fill')"       title="Bucket Fill"><img src="Icons/Toolbar/bucket.png" alt="Bucket Fill"></button>
-    <button class="ft-btn" id="ft-text"        onclick="openTextModal()"             title="Add Text"><img src="Icons/Toolbar/text.png" alt="Text"></button>
-    <button class="ft-btn" id="ft-colorpicker" onclick="setActiveTool('colorpicker')" title="Pick color from canvas"><img src="Icons/Toolbar/colorfinder.png" alt="Color Finder"></button>
-    <div id="pencilSizeRow" style="display:none;flex-direction:column;align-items:center;gap:2px;padding:4px 0">
-      <input type="range" id="pencilSize" min="1" max="40" value="3" orient="vertical"
-        oninput="setToolSize(this.value);document.getElementById('pencilSizeVal').textContent=this.value"
-        style="writing-mode:vertical-lr;direction:rtl;height:80px;width:20px;accent-color:var(--accent);cursor:pointer">
-      <span id="pencilSizeVal" style="font-size:10px;color:#888;text-align:center">3</span>
-    </div>
-    <div id="eraserSizeRow" style="display:none;flex-direction:column;align-items:center;gap:2px;padding:4px 0">
-      <input type="range" id="eraserSize" min="4" max="60" value="18" orient="vertical"
-        style="writing-mode:vertical-lr;direction:rtl;height:80px;width:20px;accent-color:var(--accent);cursor:pointer">
-      <span id="eraserSizeVal" style="font-size:10px;color:#888;text-align:center">18</span>
-    </div>
-    <div id="colorIndicator" style="width:100%;height:22px;background:#FFD600;border:1px solid rgba(255,255,255,0.2);cursor:pointer;margin-top:4px;box-sizing:border-box" onclick="toggleColorPicker()" title="Current color — click to toggle picker"></div>
-    <div id="colorPickerPanel" style="display:flex;flex-direction:column;gap:3px;padding:4px 0;border-top:1px solid rgba(255,255,255,0.07);margin-top:2px">
-      <div class="color-palette-grid">
-        <div class="swatch" data-color="#000000" style="background:#000000" onclick="setToolColor('#000000')"></div>
-        <div class="swatch" data-color="#808080" style="background:#808080" onclick="setToolColor('#808080')"></div>
-        <div class="swatch" data-color="#ffffff" style="background:#ffffff" onclick="setToolColor('#ffffff')"></div>
-        <div class="swatch" data-color="#ff3a3a" style="background:#ff3a3a" onclick="setToolColor('#ff3a3a')"></div>
-        <div class="swatch" data-color="#ff6b00" style="background:#ff6b00" onclick="setToolColor('#ff6b00')"></div>
-        <div class="swatch" data-color="#ffd600" style="background:#ffd600" onclick="setToolColor('#ffd600')"></div>
-        <div class="swatch" data-color="#00cc66" style="background:#00cc66" onclick="setToolColor('#00cc66')"></div>
-        <div class="swatch" data-color="#00bbff" style="background:#00bbff" onclick="setToolColor('#00bbff')"></div>
-        <div class="swatch" data-color="#9945ff" style="background:#9945ff" onclick="setToolColor('#9945ff')"></div>
-        <div class="swatch" data-color="#ff69b4" style="background:#ff69b4" onclick="setToolColor('#ff69b4')"></div>
-        <div class="swatch" data-color="#8b4513" style="background:#8b4513" onclick="setToolColor('#8b4513')"></div>
-        <div class="swatch" data-color="#f5f5dc" style="background:#f5f5dc" onclick="setToolColor('#f5f5dc')"></div>
-      </div>
-      <canvas id="colorSquare" width="100" height="80" style="width:100%;display:block;cursor:crosshair;border:1px solid rgba(255,255,255,0.1)"></canvas>
-      <canvas id="hueSlider" width="100" height="12" style="width:100%;display:block;cursor:crosshair;border:1px solid rgba(255,255,255,0.1)"></canvas>
-      <input id="hexInput" type="text" placeholder="#rrggbb" maxlength="7"
-        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#ccc;font-family:'VT323',monospace;font-size:13px;padding:2px 4px;outline:none"
-        oninput="applyHexInput(this.value)" onkeydown="if(event.key==='Enter')applyHexInput(this.value)">
-    </div>
-  </div>
-</div>
-
 <script>
 // ── Canvas sizing ──
 function computeCanvasSize() {
