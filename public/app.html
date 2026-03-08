@@ -1379,7 +1379,7 @@ function layerToggleVisible(id) {
   if (!g) return;
   const vis = !g.visible();
   g.visible(vis);
-  drawLayer.find('Image').forEach(n => { if (n._fillOwnerId === id) n.visible(vis); });
+  if (g._fillNode) g._fillNode.visible(vis);
   toddLayer.draw();
   drawLayer.draw();
   refreshLayerPanel();
