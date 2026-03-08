@@ -920,12 +920,12 @@ body.chat-open #chatTab{
       <input type="range" id="pencilSize" min="1" max="40" value="3" orient="vertical"
         oninput="setToolSize(this.value);document.getElementById('pencilSizeVal').textContent=this.value"
         style="writing-mode:vertical-lr;direction:rtl;height:80px;width:20px;accent-color:var(--accent);cursor:pointer">
-      <span id="pencilSizeVal" style="font-size:10px;color:#888;text-align:center">3</span>
+      <span id="pencilSizeVal" style="font-size:10px;color:#444;text-align:center">3</span>
     </div>
     <div id="eraserSizeRow" style="display:none;flex-direction:column;align-items:center;gap:2px;padding:4px 0">
       <input type="range" id="eraserSize" min="4" max="60" value="18" orient="vertical"
         style="writing-mode:vertical-lr;direction:rtl;height:80px;width:20px;accent-color:var(--accent);cursor:pointer">
-      <span id="eraserSizeVal" style="font-size:10px;color:#888;text-align:center">18</span>
+      <span id="eraserSizeVal" style="font-size:10px;color:#444;text-align:center">18</span>
     </div>
     <div id="colorPickerPanel" style="display:flex;flex-direction:column;gap:3px;padding:4px 0;border-top:1px solid #808080;margin-top:2px">
       <canvas id="colorSquare" width="100" height="80" style="width:100%;display:block;cursor:crosshair;border-top:1px solid #808080;border-left:1px solid #808080;border-right:1px solid #dfdfdf;border-bottom:1px solid #dfdfdf;"></canvas>
