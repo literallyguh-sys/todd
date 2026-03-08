@@ -1042,6 +1042,8 @@ function setToolColor(hex) {
   _toolColor = hex;
   const hexInput = document.getElementById('hexInput');
   if (hexInput && document.activeElement !== hexInput) hexInput.value = hex;
+  const ci = document.getElementById('colorIndicator');
+  if (ci) ci.style.background = hex;
   document.querySelectorAll('.swatch').forEach(s =>
     s.classList.toggle('active', s.dataset.color?.toLowerCase() === hex.toLowerCase())
   );
