@@ -2124,6 +2124,7 @@ stage.on('mousemove touchmove', () => {
   if (isPenciling && currentPencilLine && _inCanvas()) {
     const rpos = _activeLayer.getRelativePointerPosition();
     currentPencilLine.points(currentPencilLine.points().concat([rpos.x, rpos.y]));
+    _invalidateEmptyLayerCache(_activeLayer);
     toddLayer.batchDraw();
   }
   if (lineMode && _previewLine && _lineStart && _activeLayer) {
