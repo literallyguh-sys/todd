@@ -565,34 +565,20 @@ body.chat-open #chatTab{
 .swatch:hover{transform:scale(1.18);position:relative;z-index:1;}
 .swatch.active{outline:2px solid #fff;outline-offset:1px;}
 
-/* ── FLOATING TOOLBAR ── */
-#floatToolbar{
-  position:fixed;left:214px;top:60px;z-index:200;width:100px;
-  background:#2a2a2a;
-  border:1px solid rgba(255,255,255,0.12);
-  user-select:none;
-}
-#ftDrag{
-  background:#c0c0c0;
-  border-top:2px solid #dfdfdf;border-left:2px solid #dfdfdf;
-  border-right:2px solid #808080;border-bottom:2px solid #808080;
-  padding:3px 6px;cursor:grab;font-size:12px;color:#000;
-  letter-spacing:1px;text-align:center;white-space:nowrap;font-family:'VT323',monospace;
-}
-#ftDrag:active{cursor:grabbing;}
-#ftBody{display:flex;flex-direction:column;padding:4px;gap:2px;}
-.ft-btn{
-  width:100%;height:30px;background:transparent;
-  border:1px solid transparent;color:#aaa;font-size:18px;cursor:pointer;
+#sidebarTools{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-bottom:4px;}
+.sb-tool-btn{
+  height:34px;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);color:#aaa;font-size:18px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   font-family:'VT323',monospace;
 }
-.ft-btn img{width:20px;height:20px;opacity:0.6;pointer-events:none;}
-.ft-btn:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);}
-.ft-btn:hover img{opacity:0.9;}
-.ft-btn.active{border-color:var(--accent);background:rgba(255,214,0,0.07);}
-.ft-btn.active img{opacity:1;filter:invert(86%) sepia(63%) saturate(900%) hue-rotate(358deg) brightness(103%);}
-@media(max-width:599px){#floatToolbar{display:none;}}
+.sb-tool-btn img{width:18px;height:18px;opacity:0.6;pointer-events:none;}
+.sb-tool-btn:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);}
+.sb-tool-btn.active{border-color:var(--accent);background:rgba(255,214,0,0.07);}
+.sb-tool-btn.active img{opacity:1;filter:invert(86%) sepia(63%) saturate(900%) hue-rotate(358deg) brightness(103%);}
+#pencilSizeRow,#eraserSizeRow{display:none;align-items:center;gap:4px;padding:2px 0;font-size:11px;color:#888;margin-bottom:2px;}
+#pencilSizeRow input,#eraserSizeRow input{flex:1;accent-color:var(--accent);}
+@media(max-width:599px){#sidebarTools{display:none;}}
 
 /* ── LAYER PANEL ── */
 #layerList{display:flex;flex-direction:column;gap:2px;max-height:220px;overflow-y:auto;}
