@@ -925,7 +925,7 @@ body.chat-open #chatTab{
       <span id="eraserSizeVal" style="font-size:10px;color:#888;text-align:center">18</span>
     </div>
     <div style="display:flex;align-items:center;gap:3px;padding:3px 0;border-top:1px solid rgba(255,255,255,0.07);margin-top:2px">
-      <span id="activeColorSwatch" style="width:30px;height:30px;background:#FFD600;border:2px solid rgba(255,255,255,0.35);flex-shrink:0;display:block" title="Current color"></span>
+      <span id="activeColorSwatch" style="width:30px;height:30px;background:#FFD600;border:2px solid rgba(255,255,255,0.35);flex-shrink:0;display:block;cursor:pointer" onclick="toggleColorPicker()" title="Open color picker"></span>
       <button class="ft-btn" id="ft-colorpicker" onclick="setActiveTool('colorpicker')" title="Pick color from canvas" style="width:30px;height:30px;flex-shrink:0;padding:0;border:1px solid rgba(255,255,255,0.15)"><img src="Icons/Toolbar/colorfinder.png" alt="Color Finder"></button>
     </div>
     <div class="color-palette-grid" style="padding-top:2px">
