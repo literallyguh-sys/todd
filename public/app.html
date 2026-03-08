@@ -1190,27 +1190,17 @@ transformerLayer.on('draw', () => {
   transformer.find('Rect').forEach(r => r.hitStrokeWidth(28));
 });
 
-// Returns true if stage-world pos is within ANCHOR_THRESH screen-px of any of the 8 anchor positions
-const ANCHOR_THRESH_PX = 28;
+// Returns true if stage-world pos is within ANCHOR_THRESH screen-px of any transformer anchor
+const ANCHOR_THRESH_PX = 32;
 function _nearAnyAnchor(pos) {
-  if (!transformer.nodes().length) return false;
-  const node = transformer.nodes()[0];
-  const w = node._currentW, h = node._currentH;
-  const r = node.rotation() * Math.PI / 180;
-  const c = Math.cos(r), s = Math.sin(r);
-  const nx = node.x(), ny = node.y();
-  const anchors = [
-    [nx,                      ny                     ], // TL
-    [nx+(w/2)*c,              ny+(w/2)*s             ], // TC
-    [nx+w*c,                  ny+w*s                 ], // TR
-    [nx-(h/2)*s,              ny+(h/2)*c             ], // ML
-    [nx+w*c-(h/2)*s,          ny+w*s+(h/2)*c         ], // MR
-    [nx-h*s,                  ny+h*c                 ], // BL
-    [nx+(w/2)*c-h*s,          ny+(w/2)*s+h*c         ], // BC
-    [nx+w*c-h*s,              ny+w*s+h*c             ], // BR
-  ];
+  const anchors = transformer.find('Rect');
+  if (!anchors.length) return false;
   const thresh = ANCHOR_THRESH_PX / stage.scaleX();
-  return anchors.some(([ax, ay]) => Math.sqrt((pos.x-ax)**2 + (pos.y-ay)**2) <= thresh);
+  return anchors.some(a => {
+    const r = a.getClientRect({ relativeTo: stage });
+    const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
+    return Math.sqrt((pos.x - cx)**2 + (pos.y - cy)**2) <= thresh;
+  });
 }
 
 // Rotation cursor (Photoshop-style: hover outside corners)
