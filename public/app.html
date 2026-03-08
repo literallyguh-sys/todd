@@ -1782,7 +1782,6 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
     if (group._fillNode) { group._fillNode.destroy(); group._fillNode = null; }
     group.destroy();
     toddLayer.draw();
-    drawLayer.draw();
     toddCount--;
     setStatus(toddCount === 0 ? 'Add a Todd!' : `${toddCount} Todd${toddCount>1?'s':''} on canvas`);
     refreshLayerPanel();
