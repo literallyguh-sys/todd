@@ -645,27 +645,11 @@ body.chat-open #chatTab{
       </div>
     </div>
 
-    <div class="panel">
-      <p class="panel-title">Canvas</p>
-      <button class="btn" onclick="openCanvasModal()" style="width:100%">Canvas Size</button>
-    </div>
-
-    <div class="panel">
-      <p class="panel-title">Export</p>
-      <button class="btn primary" onclick="exportImage()" style="margin-bottom:6px">Download PNG</button>
-      <button class="btn" onclick="openPublishModal()" style="border-color:#7c4dff;color:#b39ddb">Publish to Gallery</button>
-    </div>
-
     </div><!-- /sidebarPanels -->
 
-    <!-- Sidebar footer: social links + admin -->
-    <div class="sidebar-footer">
-      <a class="header-link" href="https://dexscreener.com/solana/rt3p5zwosnnzdsuezbdialfazd2wgsoqvmnrlqtpljd" target="_blank" title="DexScreener">
-        <img src="/Icons/SVG/dex.png" width="16" height="16" alt="DexScreener" style="display:block;">
-      </a>
-      <a class="header-link" href="https://x.com/i/communities/2024490509096407318" target="_blank" title="X Community">
-        <img src="/Icons/SVG/x.png" width="14" height="14" alt="X Community" style="display:block;">
-      </a>
+    <div id="exportPanel">
+      <button class="btn primary" onclick="exportImage()" style="margin-bottom:4px;width:100%">Download PNG</button>
+      <button class="btn" onclick="openPublishModal()" style="width:100%;border-color:#7c4dff;color:#b39ddb">Publish to Gallery</button>
     </div>
 
   </aside>
