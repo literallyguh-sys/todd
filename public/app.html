@@ -664,8 +664,10 @@ body.chat-open #chatTab{
 
   <div class="canvas-wrap" id="editorView">
     <div id="canvas-top-bar">
-      <button class="ctb-btn" onclick="undo()" title="Undo (Ctrl+Z)">↩ UNDO</button>
-      <button class="ctb-btn" onclick="redo()" title="Redo (Ctrl+Y)">REDO ↪</button>
+      <button class="ctb-btn" id="undoBtn" onclick="undo()" title="Undo (Ctrl+Z)">↩ UNDO</button>
+      <button class="ctb-btn" id="redoBtn" onclick="redo()" title="Redo (Ctrl+Y)">REDO ↪</button>
+      <button class="ctb-btn" onclick="newCanvas()" title="New canvas" style="margin-left:auto;color:#fff">NEW</button>
+      <button class="ctb-btn" onclick="cropCanvas()" title="Crop to background" style="color:#fff">CROP</button>
     </div>
     <div id="container"></div>
     <div class="statusbar">
