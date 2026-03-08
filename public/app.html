@@ -2138,12 +2138,12 @@ stage.on('mousemove touchmove', () => {
     const rpos = _activeLayer.getRelativePointerPosition();
     currentPencilLine.points(currentPencilLine.points().concat([rpos.x, rpos.y]));
     _invalidateEmptyLayerCache(_activeLayer);
-    toddLayer.batchDraw();
+    if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
   }
   if (lineMode && _previewLine && _lineStart && _activeLayer) {
     const rpos = _activeLayer.getRelativePointerPosition();
     _previewLine.points([_lineStart.x, _lineStart.y, rpos.x, rpos.y]);
-    toddLayer.batchDraw();
+    if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
   }
 });
 stage.on('mousedown touchstart', ev => {
