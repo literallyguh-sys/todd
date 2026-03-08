@@ -3043,8 +3043,8 @@ async function openPublishModal() {
     ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y), w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
     : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
-  // Use locals to avoid Chrome TDZ bug with outer `let` vars inside async try blocks
-  let localPreviewURL, localBlob;
+  // Use var locals to avoid Chrome TDZ bug (let/const in async functions)
+  var localPreviewURL, localBlob;
   try {
     const PREV_W = 600;
     localPreviewURL = stage.toDataURL({
