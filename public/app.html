@@ -2536,13 +2536,8 @@ function confirmDownload() {
 
 
 updateUndoRedoBtns();
-// Init color picker after layout so canvas isn't cleared by CSS sizing
 _initCpListeners();
 setToolColor(_toolColor);
-setTimeout(() => {
-  [_cpHue, _cpSat, _cpVal] = _hexToHsv(_toolColor);
-  _drawColorSquare(); _drawHueSlider();
-}, 50);
 
 // ── CHAT (Supabase real-time) ──
 const SUPA_URL  = 'https://cfaqadeoxskwhebyirok.supabase.co';
