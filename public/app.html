@@ -1397,21 +1397,8 @@ function restoreState(snap) {
   transformer.nodes([]);
   toddCount = 0;
 
-  // Restore draw layer
+  // Restore draw layer (strokes only — fills are restored per-group below)
   drawLayer.destroyChildren();
-  if (snap.fillSrc) {
-    const fi = new Image();
-    fi.onload = () => {
-      const kf = new Konva.Image({ image:fi, x:0, y:0, width:CANVAS_W, height:CANVAS_H, listening:false });
-      kf._fillOwnerId = snap.fillOwnerId || null;
-      if (kf._fillOwnerId) {
-        const ownerItem = (snap.items || snap.todds || []).find(td => td.id === kf._fillOwnerId);
-        if (ownerItem && ownerItem.visible === false) kf.visible(false);
-      }
-      drawLayer.add(kf); kf.moveToBottom(); drawLayer.batchDraw();
-    };
-    fi.src = snap.fillSrc;
-  }
   (snap.strokes || []).forEach(s => {
     drawLayer.add(new Konva.Line({
       stroke: s.stroke, strokeWidth: s.strokeWidth,
@@ -1424,7 +1411,9 @@ function restoreState(snap) {
   // Pre-calculate ALL async loads before starting any (prevents race conditions)
   const items = snap.items || snap.todds || [];
   // Items with a cached Image object restore synchronously — only uncached ones are async
+  // Also count fill loads (per-group)
   const toddAsyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text' && !imgCache[td.src]).length;
+  const fillAsyncCount = items.filter(td => td.fillSrc).length;
   const bgNeedsLoad = !!(snap.bgSrc && snap.bgBounds && (!background || background.image().src !== snap.bgSrc));
   let totalAsync = toddAsyncCount + (bgNeedsLoad ? 1 : 0);
   let asyncDone = 0;
