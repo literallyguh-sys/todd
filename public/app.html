@@ -2424,17 +2424,6 @@ function _initCpListeners() {
   window.addEventListener('mousemove', e => { if(dSq) pickSq(e); if(dHs) pickHs(e); });
   window.addEventListener('mouseup', () => { dSq=false; dHs=false; });
 }
-function toggleColorPicker() {
-  const panel = document.getElementById('colorPickerPanel');
-  if (!panel) return;
-  const opening = panel.style.display !== 'flex';
-  panel.style.display = opening ? 'flex' : 'none';
-  if (opening) {
-    _initCpListeners();
-    if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
-    _drawColorSquare(); _drawHueSlider();
-  }
-}
 
 // ── Pencil tool ──
 const pencilSizeSlider = document.getElementById('pencilSize');
