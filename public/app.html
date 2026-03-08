@@ -1753,6 +1753,8 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
     group.destroy();
     toddLayer.draw();
     toddCount--;
+    drawLayer.find('Image').forEach(n => { if (n._fillOwnerId === id) n.destroy(); });
+    drawLayer.draw();
     setStatus(toddCount === 0 ? 'Add a Todd!' : `${toddCount} Todd${toddCount>1?'s':''} on canvas`);
     refreshLayerPanel();
     pushHistory();
