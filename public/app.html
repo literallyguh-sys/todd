@@ -2258,9 +2258,8 @@ async function doBucketFill(lx, ly) {
   kFill._fillOwnerId = activeGroup._toddId;
   kFill.visible(activeGroup.visible());
   activeGroup._fillNode = kFill;
-  drawLayer.add(kFill);
-  kFill.moveToBottom();
-  drawLayer.batchDraw();
+  toddLayer.add(kFill);
+  _rearrangeFills();
   pushHistory();
 }
 
