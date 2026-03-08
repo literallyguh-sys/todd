@@ -1962,7 +1962,6 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   function removeItem() {
     if (_activeLayer === group) _activeLayer = null;
     transformer.nodes([]);
-    if (group._fillNode) { group._fillNode.destroy(); group._fillNode = null; }
     group.destroy();
     toddLayer.draw();
     setStatus('Ready');
