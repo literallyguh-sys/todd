@@ -1231,7 +1231,7 @@ function snapshotState() {
       : [];
     if (g._isEmptyLayer) {
       const eraseCircles = g.eraseLayer ? g.eraseLayer.getChildren().map(c => ({ x:c.x(), y:c.y(), r:c.radius() })) : [];
-      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes, eraseCircles, visible: g.visible(), ..._snapFill(g) });
+      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes, eraseCircles, visible: g.visible(), opacity: g.opacity(), ..._snapFill(g) });
     } else if (g._isText) {
       const tn = g.findOne('Text');
       items.push({
@@ -1240,7 +1240,7 @@ function snapshotState() {
         x: g.x(), y: g.y(), rotation: g.rotation(),
         scaleX: g.scaleX(), scaleY: g.scaleY(),
         mirrored: g._mirrored || false, strokes: layerStrokes,
-        visible: g.visible(), ..._snapFill(g)
+        visible: g.visible(), opacity: g.opacity(), ..._snapFill(g)
       });
     } else {
       items.push({
@@ -1249,16 +1249,20 @@ function snapshotState() {
         x: g.x(), y: g.y(), w: g._currentW, h: g._currentH,
         rotation: g.rotation(), mirrored: g._mirrored || false,
         eraseCircles: g.eraseLayer.getChildren().map(c => ({ x:c.x(), y:c.y(), r:c.radius() })),
-        strokes: layerStrokes, visible: g.visible(), ..._snapFill(g)
+        strokes: layerStrokes, visible: g.visible(), opacity: g.opacity(), ..._snapFill(g)
       });
     }
   });
   const strokes = drawLayer.find('Line').map(l => ({
     points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth()
   }));
+  const bgStrokes = bgStrokeGroup.find('Line').map(l => ({
+    points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth()
+  }));
   return {
     items,
     strokes,
+    bgStrokes,
     activeLayerId: _activeLayer ? _activeLayer._toddId : null,
     bgSrc:    background ? background.image().src : null,
     bgBounds: bgBounds ? {...bgBounds} : null
