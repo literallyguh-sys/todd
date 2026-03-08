@@ -1467,17 +1467,22 @@ function restoreState(snap) {
         }));
       });
     };
-    // Restore per-group fill asynchronously after the group exists
+    // Restore per-group fill — add as child of group at saved local position
     const restoreFill = (group, itemData) => {
       if (!itemData.fillSrc) return;
       const fi = new Image();
       fi.onload = () => {
-        const kFill = new Konva.Image({ image: fi, x: 0, y: 0, width: CANVAS_W, height: CANVAS_H, listening: false });
+        const kFill = new Konva.Image({
+          image: fi,
+          x: itemData.fillX ?? 0, y: itemData.fillY ?? 0,
+          width: itemData.fillW ?? CANVAS_W, height: itemData.fillH ?? CANVAS_H,
+          listening: false
+        });
         kFill._fillOwnerId = group._toddId;
-        kFill.visible(group.visible());
         group._fillNode = kFill;
-        toddLayer.add(kFill);
-        _rearrangeFills();
+        group.add(kFill);
+        kFill.moveToBottom();
+        toddLayer.batchDraw();
         _onAsyncDone();
       };
       fi.src = itemData.fillSrc;
