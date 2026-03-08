@@ -612,7 +612,21 @@ body.chat-open #chatTab{
   <aside class="sidebar" id="sidebar">
     <a id="back-btn" href="index.html">← BACK</a>
 
-    <div id="toolsPanel">
+    <div id="sidebarMiddle">
+
+      <div id="sidebarPanels">
+      <!-- ── LAYERS PANEL ── -->
+      <div class="panel" id="panel-layers" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+        <p class="panel-title">Layers</p>
+        <div id="layerList">
+          <div class="layer-empty">No layers yet</div>
+        </div>
+        <div style="margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0">
+          <button class="btn" onclick="addEmptyLayer()" style="width:100%">+ New Layer</button>
+        </div>
+      </div>
+      </div><!-- /sidebarPanels -->
+
       <div id="sidebarTools">
         <button class="sb-tool-btn" id="sb-move"        onclick="setActiveTool('move')"        title="Move">✥</button>
         <button class="sb-tool-btn" id="sb-pencil"      onclick="setActiveTool('pencil')"      title="Pencil"><img src="Icons/Toolbar/pencil.png" alt="Pencil"></button>
@@ -621,6 +635,10 @@ body.chat-open #chatTab{
         <button class="sb-tool-btn" id="sb-fill"        onclick="setActiveTool('fill')"        title="Bucket Fill"><img src="Icons/Toolbar/bucket.png" alt="Fill"></button>
         <button class="sb-tool-btn" id="sb-colorpicker" onclick="setActiveTool('colorpicker')" title="Color Picker"><img src="Icons/Toolbar/colorfinder.png" alt="Color Picker"></button>
       </div>
+
+    </div><!-- /sidebarMiddle -->
+
+    <div id="toolsPanel">
       <div id="pencilSizeRow">
         <span>SIZE</span>
         <input type="range" id="pencilSize" min="1" max="40" value="3" oninput="setToolSize(this.value);document.getElementById('pencilSizeVal').textContent=this.value">
@@ -640,21 +658,6 @@ body.chat-open #chatTab{
           oninput="applyHexInput(this.value)" onkeydown="if(event.key==='Enter')applyHexInput(this.value)">
       </div>
     </div>
-
-    <div id="sidebarPanels">
-
-    <!-- ── LAYERS PANEL ── -->
-    <div class="panel" id="panel-layers" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
-      <p class="panel-title">Layers</p>
-      <div id="layerList">
-        <div class="layer-empty">No layers yet</div>
-      </div>
-      <div style="margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0">
-        <button class="btn" onclick="addEmptyLayer()" style="width:100%">+ New Layer</button>
-      </div>
-    </div>
-
-    </div><!-- /sidebarPanels -->
 
     <div id="exportPanel">
       <button class="btn primary" onclick="exportImage()" style="margin-bottom:4px;width:100%">Download PNG</button>
