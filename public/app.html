@@ -1186,9 +1186,10 @@ transformerLayer.add(transformer);
 
 // Rotation cursor (Photoshop-style: hover outside corners)
 const ROTATE_CURSOR = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22'><path d='M11 2V0L8 3l3 3V4a7 7 0 1 1-7 7H2a9 9 0 1 0 9-9z' fill='white' stroke='black' stroke-width='1'/></svg>\") 11 11, crosshair";
-const ROTATE_ZONE_PX = 22;
+const ROTATE_ZONE_MIN_PX = 16; // inner dead-zone — clears scale handles
+const ROTATE_ZONE_MAX_PX = 44; // outer limit
 let _rotating  = false;
-let _rotStart  = null; // { angle, rotation, cx, cy }
+let _rotStart  = null; // { angle, rotation, wCx, wCy }
 
 function _inRotZone() {
   if (!moveMode || !transformer.nodes().length) return false;
@@ -1196,13 +1197,25 @@ function _inRotZone() {
   if (!pos) return false;
   const node = transformer.nodes()[0];
   const r = node.getClientRect({ relativeTo: stage });
-  const R = ROTATE_ZONE_PX / stage.scaleX();
+  const sc = stage.scaleX();
+  const Rmin = ROTATE_ZONE_MIN_PX / sc, Rmax = ROTATE_ZONE_MAX_PX / sc;
   const { x, y, width: w, height: h } = r;
   if (pos.x >= x && pos.x <= x + w && pos.y >= y && pos.y <= y + h) return false;
   for (const [cx, cy] of [[x,y],[x+w,y],[x,y+h],[x+w,y+h]]) {
-    if (Math.abs(pos.x - cx) <= R && Math.abs(pos.y - cy) <= R) return true;
+    const d = Math.sqrt((pos.x-cx)**2 + (pos.y-cy)**2);
+    if (d >= Rmin && d <= Rmax) return true;
   }
   return false;
+}
+
+// Compute node center in stage-local world coords from node transform
+function _nodeWorldCenter(node) {
+  const w = node._currentW, h = node._currentH;
+  const r = node.rotation() * Math.PI / 180;
+  return {
+    x: node.x() + (w/2)*Math.cos(r) - (h/2)*Math.sin(r),
+    y: node.y() + (w/2)*Math.sin(r) + (h/2)*Math.cos(r)
+  };
 }
 
 let background    = null;
