@@ -3003,22 +3003,21 @@ async function openPublishModal() {
 
   // Preview: small JPEG for modal display only
   const PREV_W = 600;
-  _publishDataURL = await new Promise(resolve => stage.toDataURL({
+  _publishDataURL = stage.toDataURL({
     x: crop.x, y: crop.y, width: crop.w, height: crop.h,
     pixelRatio: Math.min(1, PREV_W / crop.w),
-    mimeType: 'image/jpeg', quality: 0.8,
-    callback: resolve
-  }));
+    mimeType: 'image/jpeg', quality: 0.8
+  });
+  if (_publishDataURL instanceof Promise) _publishDataURL = await _publishDataURL;
 
   // Upload blob: render at original image resolution (max 2400px wide), lossless PNG
   const origW = background?.image()?.naturalWidth || CANVAS_W;
   const uploadRatio = Math.min(origW, 2400) / crop.w;
-  _publishBlob = await new Promise(resolve => stage.toBlob({
+  _publishBlob = await stage.toBlob({
     x: crop.x, y: crop.y, width: crop.w, height: crop.h,
     pixelRatio: uploadRatio,
-    mimeType: 'image/png',
-    callback: resolve
-  }));
+    mimeType: 'image/png'
+  });
 
   const prevEl = document.getElementById('modalPreview');
   prevEl.innerHTML = '';
