@@ -1640,6 +1640,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   group._currentH = currentH;
 
   srcCache[id] = img.src;
+  imgCache[img.src] = img; // cache Image object for sync undo/redo restore
 
   // Generate 22×22 thumbnail data URL synchronously (img is already loaded here).
   // Stored in thumbCache so the panel can render it instantly without an async network fetch.
