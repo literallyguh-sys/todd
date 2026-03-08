@@ -1421,7 +1421,9 @@ function setLayerOpacity(id, val) {
 
 function removeBackground() {
   if (!background) return;
+  if (_activeLayer === _bgProxy) { _activeLayer = null; _bgSelected = false; }
   background.destroy(); background = null; bgBounds = null;
+  bgStrokeGroup.destroyChildren();
   canvasBg.visible(true);
   applyDrawLayerClip();
   bgLayer.draw();
