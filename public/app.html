@@ -968,7 +968,7 @@ const stage = new Konva.Stage({ container:'container', width:CANVAS_W, height:CA
 const bgLayer        = new Konva.Layer();
 const toddLayer      = new Konva.Layer();
 const drawLayer      = new Konva.Layer();           // bucket fill only — sits below todd groups
-const transformerLayer = new Konva.Layer({ listening: false }); // handles always on top
+const transformerLayer = new Konva.Layer(); // handles always on top
 stage.add(bgLayer);
 stage.add(drawLayer);        // fill below todds
 stage.add(toddLayer);        // images, strokes, groups
