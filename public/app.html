@@ -1410,6 +1410,7 @@ function removeBackground() {
 }
 
 function restoreState(snap) {
+  toddLayer.getChildren().filter(n => n._fillOwnerId).forEach(n => n.destroy()); // fill siblings
   toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
   transformer.nodes([]);
   toddCount = 0;
