@@ -2275,6 +2275,7 @@ function togglePencil() { setActiveTool(_activeTool === 'pencil' ? null : 'penci
 // ── Clear all ──
 function clearAll() {
   _activeLayer = null;
+  toddLayer.getChildren().filter(n => n._fillOwnerId).forEach(n => n.destroy()); // fill siblings
   toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
   if (background) { background.destroy(); background = null; bgBounds = null; }
   canvasBg.visible(true);
