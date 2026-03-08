@@ -2537,6 +2537,12 @@ window.addEventListener('load', () => {
   if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
   _drawColorSquare();
   _drawHueSlider();
+  const initScale = 0.75;
+  stage.scale({ x: initScale, y: initScale });
+  const cw = containerEl.clientWidth, ch = containerEl.clientHeight;
+  stage.position({ x: Math.max(0,(cw - CANVAS_W*initScale)/2), y: Math.max(0,(ch - CANVAS_H*initScale)/2) });
+  stage.batchDraw();
+  updateZoomIndicator();
 });
 
 // ── CHAT (Supabase real-time) ──
