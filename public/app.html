@@ -2544,11 +2544,11 @@ function confirmDownload() {
 updateUndoRedoBtns();
 _initCpListeners();
 setToolColor(_toolColor);
-requestAnimationFrame(() => {
+setTimeout(() => {
   if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) { [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor); }
   _drawColorSquare();
   _drawHueSlider();
-});
+}, 100);
 
 // ── CHAT (Supabase real-time) ──
 const SUPA_URL  = 'https://cfaqadeoxskwhebyirok.supabase.co';
