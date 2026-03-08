@@ -1415,7 +1415,7 @@ function restoreState(snap) {
   const toddAsyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text' && !imgCache[td.src]).length;
   const fillAsyncCount = items.filter(td => td.fillSrc).length;
   const bgNeedsLoad = !!(snap.bgSrc && snap.bgBounds && (!background || background.image().src !== snap.bgSrc));
-  let totalAsync = toddAsyncCount + (bgNeedsLoad ? 1 : 0);
+  let totalAsync = toddAsyncCount + fillAsyncCount + (bgNeedsLoad ? 1 : 0);
   let asyncDone = 0;
   function _onAsyncDone() {
     asyncDone++;
