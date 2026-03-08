@@ -2325,7 +2325,7 @@ function applyHexInput(val) {
 }
 
 // ── Custom inline color picker ──
-let _cpHue = 45, _cpSat = 80, _cpVal = 90, _cpReady = false;
+let _cpHue = 45, _cpSat = 80, _cpVal = 90, _cpReady = false, _cpInteracting = false;
 
 function _hsvToHex(h, s, v) {
   s /= 100; v /= 100;
