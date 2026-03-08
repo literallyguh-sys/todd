@@ -1217,7 +1217,7 @@ function snapshotState() {
       ? g._strokeGroup.find('Line').map(l => ({ points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth() }))
       : [];
     if (g._isEmptyLayer) {
-      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes, visible: g.visible() });
+      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes, visible: g.visible(), fillSrc: g._fillNode ? g._fillNode.image().src : null });
     } else if (g._isText) {
       const tn = g.findOne('Text');
       items.push({
@@ -1226,7 +1226,7 @@ function snapshotState() {
         x: g.x(), y: g.y(), rotation: g.rotation(),
         scaleX: g.scaleX(), scaleY: g.scaleY(),
         mirrored: g._mirrored || false, strokes: layerStrokes,
-        visible: g.visible()
+        visible: g.visible(), fillSrc: g._fillNode ? g._fillNode.image().src : null
       });
     } else {
       items.push({
@@ -1235,20 +1235,16 @@ function snapshotState() {
         x: g.x(), y: g.y(), w: g._currentW, h: g._currentH,
         rotation: g.rotation(), mirrored: g._mirrored || false,
         eraseCircles: g.eraseLayer.getChildren().map(c => ({ x:c.x(), y:c.y(), r:c.radius() })),
-        strokes: layerStrokes, visible: g.visible()
+        strokes: layerStrokes, visible: g.visible(), fillSrc: g._fillNode ? g._fillNode.image().src : null
       });
     }
   });
   const strokes = drawLayer.find('Line').map(l => ({
     points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth()
   }));
-  const fillNode = drawLayer.findOne('Image');
-  const fillSrc  = fillNode ? fillNode.image().src : null;
   return {
     items,
     strokes,
-    fillSrc,
-    fillOwnerId:   fillNode ? (fillNode._fillOwnerId || null) : null,
     activeLayerId: _activeLayer ? _activeLayer._toddId : null,
     bgSrc:    background ? background.image().src : null,
     bgBounds: bgBounds ? {...bgBounds} : null
