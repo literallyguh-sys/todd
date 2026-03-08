@@ -2112,9 +2112,10 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   group.on('mousedown touchstart', ev => {
     if (!moveMode) return;
     if (group !== _activeLayer) return;
-    ev.cancelBubble = true;
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
+    if (transformer.nodes().includes(group) && _nearAnyAnchor(pos)) return;
+    ev.cancelBubble = true;
     _moveTarget = group;
     _moveOffset = { x: pos.x - group.x(), y: pos.y - group.y() };
     _moveMoved  = false;
