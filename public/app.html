@@ -1291,9 +1291,9 @@ function refreshLayerPanel() {
       const fill = g.findOne('Text')?.fill() || '#FFD600';
       thumbHtml = `<span class="layer-thumb-icon" style="color:${fill}">T</span>`;
     } else {
-      const src = srcCache[g._toddId];
-      thumbHtml = src
-        ? `<img class="layer-thumb" src="${src}">`
+      const thumbSrc = thumbCache[g._toddId] || srcCache[g._toddId];
+      thumbHtml = thumbSrc
+        ? `<img class="layer-thumb" src="${thumbSrc}">`
         : `<span class="layer-thumb-icon">🖼</span>`;
     }
 
