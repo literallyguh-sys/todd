@@ -1385,6 +1385,25 @@ function refreshLayerPanel() {
   }
 }
 
+function renameLayer(id, nameEl) {
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
+  if (!g || nameEl.tagName === 'INPUT') return;
+  const cur = nameEl.textContent;
+  const inp = document.createElement('input');
+  inp.value = cur;
+  inp.style.cssText = 'flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,214,0,0.5);color:#fff;font-family:\'VT323\',monospace;font-size:12px;padding:0 3px;outline:none;min-width:0';
+  nameEl.replaceWith(inp);
+  inp.focus(); inp.select();
+  function save() {
+    const val = inp.value.trim();
+    g._customName = val || null;
+    refreshLayerPanel();
+  }
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); save(); } if (e.key === 'Escape') refreshLayerPanel(); });
+  inp.addEventListener('blur', save);
+  inp.addEventListener('click', e => e.stopPropagation());
+}
+
 function layerMove(id, dir) {
   const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
   if (!g) return;
