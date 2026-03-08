@@ -1364,7 +1364,6 @@ function layerRemove(id) {
   else if (g) {
     if (g._fillNode) { g._fillNode.destroy(); g._fillNode = null; }
     g.destroy(); toddLayer.draw();
-    drawLayer.draw();
     refreshLayerPanel(); pushHistory();
   }
 }
