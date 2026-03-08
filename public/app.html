@@ -1185,10 +1185,17 @@ const transformer = new Konva.Transformer({
 });
 transformerLayer.add(transformer);
 
-// Boost transformer anchor hit areas after every draw so they're easy to grab
-transformerLayer.on('draw', () => {
-  transformer.find('Rect').forEach(r => r.hitStrokeWidth(28));
-});
+// Monkeypatch transformer.nodes() so anchor hit areas are boosted whenever nodes are attached.
+// transformer._update() runs synchronously inside nodes(), so find('Rect') works immediately after.
+const _trNodesOrig = transformer.nodes.bind(transformer);
+transformer.nodes = function(...args) {
+  const result = _trNodesOrig(...args);
+  if (args.length > 0 && Array.isArray(args[0]) && args[0].length > 0) {
+    transformer.find('Rect').forEach(r => r.hitStrokeWidth(32));
+    transformerLayer.drawHit();
+  }
+  return result;
+};
 
 // Returns true if stage-world pos is within ANCHOR_THRESH screen-px of any transformer anchor
 const ANCHOR_THRESH_PX = 32;
