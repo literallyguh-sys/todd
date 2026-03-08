@@ -1465,14 +1465,33 @@ function restoreState(snap) {
         }));
       });
     };
+    // Restore per-group fill asynchronously after the group exists
+    const restoreFill = (group, itemData) => {
+      if (!itemData.fillSrc) return;
+      const fi = new Image();
+      fi.onload = () => {
+        const kFill = new Konva.Image({ image: fi, x: 0, y: 0, width: CANVAS_W, height: CANVAS_H, listening: false });
+        kFill._fillOwnerId = group._toddId;
+        kFill.visible(group.visible());
+        group._fillNode = kFill;
+        drawLayer.add(kFill);
+        kFill.moveToBottom();
+        drawLayer.batchDraw();
+        _onAsyncDone();
+      };
+      fi.src = itemData.fillSrc;
+    };
+
     if (td.type === 'layer') {
       const g = _restoreEmptyLayer(td);
       if (td.visible === false) g.visible(false);
       restoreStrokes(g);
+      restoreFill(g, td);
     } else if (td.type === 'text') {
       const g = makeTextGroup(td.text, td.x, td.y, td.id, td.fontSize, td.fill, td.scaleX, td.scaleY, td.rotation, td.mirrored, false);
       if (td.visible === false) g.visible(false);
       restoreStrokes(g);
+      restoreFill(g, td);
     } else if (imgCache[td.src]) {
       // Image already loaded — restore synchronously (no flicker on undo/redo)
       toddCount++;
@@ -1493,6 +1512,7 @@ function restoreState(snap) {
       });
       restoreStrokes(group);
       toddLayer.draw();
+      restoreFill(group, td);
     } else {
       const img = new Image();
       img.onload = () => {
@@ -1514,6 +1534,7 @@ function restoreState(snap) {
         });
         restoreStrokes(group);
         toddLayer.draw();
+        restoreFill(group, td);
         _onAsyncDone();
       };
       if (td.src && td.src.includes('supabase.co')) img.crossOrigin = 'anonymous';
