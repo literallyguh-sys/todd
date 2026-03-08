@@ -1335,7 +1335,7 @@ function refreshLayerPanel() {
     bgItem.className = 'layer-item' + (_bgSelected ? ' layer-active' : '');
     bgItem.innerHTML = `<span class="layer-thumb-icon" style="color:#888">▨</span>
       <span class="layer-name">Background</span>
-      <button class="layer-act del" onclick="event.stopPropagation();removeBackground()" title="Remove background">×</button>`;
+      <button class="layer-act del" onclick="event.stopPropagation();setTimeout(()=>removeBackground(),0)" title="Remove background">×</button>`;
     bgItem.addEventListener('click', () => {
       _bgSelected = true;
       _activeLayer = null;
@@ -1776,7 +1776,7 @@ function addTodd(src) {
     _activeLayer = g;
     if (!moveMode) transformer.nodes([]); // don't show resize handles in draw mode
     pushHistory();
-    requestAnimationFrame(refreshLayerPanel); // ensure panel is visible after async img.onload
+    setTimeout(refreshLayerPanel, 0); // ensure panel is visible after async img.onload
     setStatus(`Todd added! ${toddCount} on canvas`);
     showToast('Todd added! ✓');
   };
