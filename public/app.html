@@ -1328,7 +1328,8 @@ function refreshLayerPanel() {
     }
 
     item.innerHTML = `${thumbHtml}
-      <span class="layer-name">${name}</span>
+      <span class="layer-name" ondblclick="event.stopPropagation();renameLayer('${g._toddId}',this)" title="Double-click to rename">${name}</span>
+      <button class="layer-act" onclick="event.stopPropagation();renameLayer('${g._toddId}',this.previousElementSibling)" title="Rename">✎</button>
       <button class="layer-act" onclick="event.stopPropagation();layerToggleVisible('${g._toddId}')" title="${g.visible() ? 'Hide layer' : 'Show layer'}" style="opacity:${g.visible() ? '1' : '0.4'}">${g.visible() ? '👁' : '○'}</button>
       <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','up')"   title="Bring forward">▲</button>
       <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','down')" title="Send backward">▼</button>
