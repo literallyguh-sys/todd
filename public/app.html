@@ -2598,6 +2598,11 @@ function confirmDownload() {
 
 
 updateUndoRedoBtns();
+// Init color picker state on load
+_initCpListeners();
+[_cpHue, _cpSat, _cpVal] = _hexToHsv(_toolColor);
+_drawColorSquare(); _drawHueSlider();
+setToolColor(_toolColor);
 
 // ── CHAT (Supabase real-time) ──
 const SUPA_URL  = 'https://cfaqadeoxskwhebyirok.supabase.co';
