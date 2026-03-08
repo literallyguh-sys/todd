@@ -1486,6 +1486,7 @@ function restoreState(snap) {
         toddLayer.draw();
         _onAsyncDone();
       };
+      if (td.src && td.src.includes('supabase.co')) img.crossOrigin = 'anonymous';
       img.src = td.src;
     }
   });
