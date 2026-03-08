@@ -1248,6 +1248,8 @@ function snapshotState() {
     items,
     strokes,
     fillSrc,
+    fillOwnerId:   fillNode ? (fillNode._fillOwnerId || null) : null,
+    activeLayerId: _activeLayer ? _activeLayer._toddId : null,
     bgSrc:    background ? background.image().src : null,
     bgBounds: bgBounds ? {...bgBounds} : null
   };
