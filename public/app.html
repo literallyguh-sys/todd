@@ -1945,6 +1945,7 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   group._isText = true;
   group._currentW = w;
   group._currentH = h;
+  group._fillNode = null;
   if (rotation) group.rotation(rotation);
   if (mirrored) {
     group._mirrored = true;
