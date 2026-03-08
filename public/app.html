@@ -1211,6 +1211,13 @@ function _inRotZone() {
   const pos = stage.getRelativePointerPosition();
   if (!pos) return false;
   const node = transformer.nodes()[0];
+  const w = node._currentW, h = node._currentH;
+  const r = node.rotation() * Math.PI / 180;
+  // Reject if inside the rotated node rect (transform pos to node-local space)
+  const dx = pos.x - node.x(), dy = pos.y - node.y();
+  const lx =  dx*Math.cos(r) + dy*Math.sin(r);
+  const ly = -dx*Math.sin(r) + dy*Math.cos(r);
+  if (lx >= 0 && lx <= w && ly >= 0 && ly <= h) return false;
   const sc = stage.scaleX();
   const Rmin = ROTATE_ZONE_MIN_PX / sc, Rmax = ROTATE_ZONE_MAX_PX / sc;
   for (const [cx, cy] of _nodeCorners(node)) {
