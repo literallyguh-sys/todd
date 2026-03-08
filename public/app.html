@@ -1369,7 +1369,7 @@ function refreshLayerPanel() {
   if (background) {
     const bgItem = document.createElement('div');
     bgItem.className = 'layer-item' + (_bgSelected ? ' layer-active' : '');
-    bgItem.innerHTML = `<span class="layer-thumb-icon" style="color:#888">▨</span>
+    bgItem.innerHTML = `<span class="layer-thumb-icon" style="color:#bbb">▨</span>
       <span class="layer-name">Background</span>
       <button class="layer-act del" onclick="event.stopPropagation();setTimeout(()=>removeBackground(),0)" title="Remove background">×</button>`;
     bgItem.addEventListener('click', () => {
