@@ -1331,6 +1331,19 @@ function refreshLayerPanel() {
       <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','down')" title="Send backward">▼</button>
       <button class="layer-act del" onclick="event.stopPropagation();layerRemove('${g._toddId}')" title="Delete">×</button>`;
 
+    // Opacity slider row
+    const opRow = document.createElement('div');
+    opRow.style.cssText = 'padding:0 2px;';
+    const opSlider = document.createElement('input');
+    opSlider.type = 'range'; opSlider.min = '0'; opSlider.max = '100';
+    opSlider.value = Math.round(g.opacity() * 100);
+    opSlider.className = 'layer-opacity-slider';
+    opSlider.title = 'Layer opacity';
+    opSlider.addEventListener('click', e => e.stopPropagation());
+    opSlider.addEventListener('input', e => { e.stopPropagation(); setLayerOpacity(g._toddId, e.target.value); });
+    opSlider.addEventListener('change', e => { e.stopPropagation(); pushHistory(); });
+    opRow.appendChild(opSlider);
+
     item.addEventListener('click', () => {
       _activeLayer = g;
       _bgSelected = false;
@@ -1343,7 +1356,10 @@ function refreshLayerPanel() {
       }
       refreshLayerPanel();
     });
-    list.appendChild(item);
+    const wrapper = document.createElement('div');
+    wrapper.appendChild(item);
+    wrapper.appendChild(opRow);
+    list.appendChild(wrapper);
   });
 
   // Background is always the bottom-most layer
@@ -1355,7 +1371,7 @@ function refreshLayerPanel() {
       <button class="layer-act del" onclick="event.stopPropagation();setTimeout(()=>removeBackground(),0)" title="Remove background">×</button>`;
     bgItem.addEventListener('click', () => {
       _bgSelected = true;
-      _activeLayer = null;
+      _activeLayer = _bgProxy;
       transformer.nodes([]);
       refreshLayerPanel();
     });
