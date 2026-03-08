@@ -1806,6 +1806,7 @@ function addTodd(src) {
     showToast('Todd added! ✓');
   };
   img.onerror = () => { toddCount--; showToast('Could not load image ✗'); };
+  if (src.includes('supabase.co')) img.crossOrigin = 'anonymous'; // needed for thumbCache toDataURL
   img.src = src;
 }
 
