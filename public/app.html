@@ -2177,7 +2177,8 @@ stage.on('mousedown touchstart', ev => {
       stroke: _toolColor, strokeWidth: _toolSize,
       lineCap: 'round', points: [rpos.x, rpos.y, rpos.x, rpos.y], listening: false
     });
-    _activeLayer._strokeGroup.add(_previewLine); toddLayer.batchDraw();
+    _activeLayer._strokeGroup.add(_previewLine);
+    if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
     return;
   }
   if (!pencilMode) return;
@@ -2190,7 +2191,8 @@ stage.on('mousedown touchstart', ev => {
     points: [rpos.x, rpos.y, rpos.x, rpos.y],
     listening: false
   });
-  _activeLayer._strokeGroup.add(currentPencilLine); toddLayer.batchDraw();
+  _activeLayer._strokeGroup.add(currentPencilLine);
+  if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
 });
 
 // ── Stage background click: fill or deselect ──
