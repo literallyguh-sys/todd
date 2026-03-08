@@ -2533,19 +2533,12 @@ function confirmDownload() {
 updateUndoRedoBtns();
 _initCpListeners();
 setToolColor(_toolColor);
-(function initColorPickerWhenVisible() {
-  const sq = document.getElementById('colorSquare');
-  if (!sq) return;
-  const io = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting) {
-      io.disconnect();
-      if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
-      _drawColorSquare();
-      _drawHueSlider();
-    }
-  }, { threshold: 0 });
-  io.observe(sq);
-})();
+window.addEventListener('load', () => {
+  if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
+  _drawColorSquare();
+  _drawHueSlider();
+  document.getElementById('colorPickerPanel').style.display = 'flex';
+});
 
 // ── CHAT (Supabase real-time) ──
 const SUPA_URL  = 'https://cfaqadeoxskwhebyirok.supabase.co';
