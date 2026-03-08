@@ -1751,12 +1751,24 @@ document.getElementById('bgUpload').addEventListener('change', e => {
 });
 
 // ── Todd upload ──
-document.getElementById('toddUpload').addEventListener('change', e => {
+document.getElementById('toddUpload').addEventListener('change', async e => {
   const file = e.target.files[0]; if (!file) return;
   e.target.value = '';
-  const reader = new FileReader();
-  reader.onload = evt => addTodd(evt.target.result);
-  reader.readAsDataURL(file);
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  showToast('Uploading image...');
+  try {
+    const res = await fetch(`${SUPA_URL}/storage/v1/object/canvas-uploads/${filename}`, {
+      method: 'POST',
+      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': file.type || 'image/png' },
+      body: file
+    });
+    if (!res.ok) throw new Error(await res.text());
+    addTodd(`${SUPA_URL}/storage/v1/object/public/canvas-uploads/${filename}`);
+  } catch (err) {
+    showToast('Upload failed ✗');
+    console.error('canvas-uploads error:', err);
+  }
 });
 
 // ── Add Todd ──
