@@ -2097,16 +2097,13 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
     // Canvas clicks never change the active layer — use the panel to select layers
     refreshLayerPanel();
   });
-  group.on('mousedown touchstart', ev => {
-    if (!moveMode) return;
-    if (group !== _activeLayer) return;
-    const pos = stage.getRelativePointerPosition();
-    if (!pos) return;
-    ev.cancelBubble = true;
-    _moveTarget = group;
-    _moveOffset = { x: pos.x - group.x(), y: pos.y - group.y() };
-    _moveMoved  = false;
+  group.on('dragstart', () => {
+    if (!moveMode || group !== _activeLayer) { group.stopDrag(); return; }
     containerEl.style.cursor = 'grabbing';
+  });
+  group.on('dragend', () => {
+    if (moveMode) containerEl.style.cursor = 'grab';
+    pushHistory();
   });
   group.on('transformend', () => { refreshDelete(); pushHistory(); });
   group._refreshDelete = refreshDelete;
