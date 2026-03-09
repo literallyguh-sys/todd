@@ -1909,6 +1909,12 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   group.on('mousedown touchstart', ev => {
     if (!moveMode) return;
     if (group !== _activeLayer) return;
+    // If a transformer anchor is under the pointer, let Konva handle the scale — don't move
+    const absPos = stage.getPointerPosition();
+    if (absPos) {
+      const hit = transformerLayer.getIntersection(absPos);
+      if (hit && hit.getParent && hit.getParent() === transformer) return;
+    }
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
     _moveTarget = group;
