@@ -1119,7 +1119,8 @@ function setActiveTool(tool) {
     case 'move':
       moveMode = true;
       containerEl.style.cursor = 'grab';
-      if (_activeLayer) { transformer.nodes([_activeLayer]); toddLayer.draw(); }
+      toddLayer.find('Group').forEach(g => { if (g._toddId && !g._isEmptyLayer) g.draggable(true); });
+      if (_activeLayer) { transformer.nodes([_activeLayer]); _boostAnchorHits(); toddLayer.draw(); }
       setStatus('Move — click a layer then drag it');
       break;
     case 'text':
