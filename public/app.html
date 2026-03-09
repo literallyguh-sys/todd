@@ -1195,13 +1195,13 @@ transformer.on('transformstart', () => {
 // Boost transformer anchor hit areas with a padded hitFunc so they are easy to click.
 // Call this after every transformer.nodes([...]) call that attaches nodes.
 function _boostAnchorHits() {
-  const pad = 10;
+  const pad = 12;
   transformer.find('Rect').forEach(r => {
     r.hitFunc(function(ctx) {
       ctx.beginPath();
       ctx.rect(-pad, -pad, this.width() + pad * 2, this.height() + pad * 2);
       ctx.closePath();
-      ctx.fillStrokeShape(this);
+      ctx.fill(); // fills current path with the colorKey Konva already set — do NOT use fillStrokeShape which rebuilds the original small rect
     });
   });
   transformerLayer.drawHit();
