@@ -2113,7 +2113,7 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   group._strokeGroup = textStrokeGroup;
   group.add(textNode, textStrokeGroup);
   toddLayer.add(group);
-  if (autoSelect) transformer.nodes([group]);
+  if (autoSelect) { transformer.nodes([group]); _boostAnchorHits(); }
   refreshDelete();
   toddLayer.draw();
   return group;
