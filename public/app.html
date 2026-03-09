@@ -1428,6 +1428,7 @@ function refreshLayerPanel() {
       g._refreshDelete && g._refreshDelete();
       if (moveMode) {
         transformer.nodes([g]);
+        _boostAnchorHits();
         toddLayer.draw();
       } else {
         transformer.nodes([]);
