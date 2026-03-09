@@ -2121,11 +2121,7 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   group.on('mousedown touchstart', ev => {
     if (!moveMode) return;
     if (group !== _activeLayer) return;
-    const absPos = stage.getPointerPosition();
-    if (absPos) {
-      const hit = transformerLayer.getIntersection(absPos);
-      if (hit && hit.getParent && hit.getParent() === transformer) return;
-    }
+    if (_pointerOnAnchor()) return; // anchor click — let Konva handle scale
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
     _moveTarget = group;
