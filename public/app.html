@@ -1185,6 +1185,13 @@ const transformer = new Konva.Transformer({
 });
 transformerLayer.add(transformer);
 
+// When Konva successfully starts a transform (anchor drag), kill any pending manual move
+// so _moveTarget doesn't fight with the transformer's scale operation.
+transformer.on('transformstart', () => {
+  _moveTarget = null;
+  _moveMoved  = false;
+});
+
 // Boost transformer anchor hit areas with a padded hitFunc so they are easy to click.
 // Call this after every transformer.nodes([...]) call that attaches nodes.
 function _boostAnchorHits() {
