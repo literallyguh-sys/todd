@@ -2279,7 +2279,7 @@ stage.on('mousedown touchstart', ev => {
       containerEl.style.cursor = 'grabbing';
       return;
     }
-    if (_activeLayer && _activeLayer._isEmptyLayer) {
+    if (_activeLayer && !_activeLayer._isBgProxy) {
       _moveTarget = _activeLayer;
       _moveOffset = { x: pos.x - _activeLayer.x(), y: pos.y - _activeLayer.y() };
       _moveMoved = false;
