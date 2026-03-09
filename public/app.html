@@ -2267,9 +2267,8 @@ stage.on('mousedown touchstart', ev => {
       return;
     }
     // Only handle empty-stage clicks beyond this point.
-    // Image group drags are handled by group.on('mousedown') with cancelBubble=true.
+    // Image/text group drags are handled natively by Konva (draggable:true).
     // Transformer anchor clicks have ev.target !== stage — skip them.
-    // Also skip if cursor is near an anchor (anchor hit detection may have missed).
     if (ev.target !== stage) return;
     if (_bgSelected && background) {
       _moveTarget = background;
@@ -2278,7 +2277,7 @@ stage.on('mousedown touchstart', ev => {
       containerEl.style.cursor = 'grabbing';
       return;
     }
-    if (_activeLayer && !_activeLayer._isBgProxy) {
+    if (_activeLayer && _activeLayer._isEmptyLayer) {
       _moveTarget = _activeLayer;
       _moveOffset = { x: pos.x - _activeLayer.x(), y: pos.y - _activeLayer.y() };
       _moveMoved = false;
