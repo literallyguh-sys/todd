@@ -2069,7 +2069,7 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   const w = textNode.width();
   const h = textNode.height();
 
-  const group = new Konva.Group({ x: startX, y: startY, draggable: false, scaleX: scaleX||1, scaleY: scaleY||1 });
+  const group = new Konva.Group({ x: startX, y: startY, draggable: moveMode, scaleX: scaleX||1, scaleY: scaleY||1 });
   group._toddId = id;
   group._isText = true;
   group._currentW = w;
