@@ -1185,29 +1185,19 @@ const transformer = new Konva.Transformer({
 });
 transformerLayer.add(transformer);
 
-// Monkeypatch transformer.nodes() so anchor hit areas are boosted whenever nodes are attached.
-// transformer._update() runs synchronously inside nodes(), so find('Rect') works immediately after.
-const _trNodesOrig = transformer.nodes.bind(transformer);
-transformer.nodes = function(...args) {
-  const result = _trNodesOrig(...args);
-  if (args.length > 0 && Array.isArray(args[0]) && args[0].length > 0) {
-    transformer.find('Rect').forEach(r => r.hitStrokeWidth(32));
-    transformerLayer.drawHit();
-  }
-  return result;
-};
-
-// Returns true if stage-world pos is within ANCHOR_THRESH screen-px of any transformer anchor
-const ANCHOR_THRESH_PX = 32;
-function _nearAnyAnchor(pos) {
-  const anchors = transformer.find('Rect');
-  if (!anchors.length) return false;
-  const thresh = ANCHOR_THRESH_PX / stage.scaleX();
-  return anchors.some(a => {
-    const r = a.getClientRect({ relativeTo: stage });
-    const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
-    return Math.sqrt((pos.x - cx)**2 + (pos.y - cy)**2) <= thresh;
+// Boost transformer anchor hit areas with a padded hitFunc so they are easy to click.
+// Call this after every transformer.nodes([...]) call that attaches nodes.
+function _boostAnchorHits() {
+  const pad = 14;
+  transformer.find('Rect').forEach(r => {
+    r.hitFunc(function(ctx) {
+      ctx.beginPath();
+      ctx.rect(-pad, -pad, this.width() + pad * 2, this.height() + pad * 2);
+      ctx.closePath();
+      ctx.fillStrokeShape(this);
+    });
   });
+  transformerLayer.drawHit();
 }
 
 // Rotation cursor (Photoshop-style: hover outside corners)
