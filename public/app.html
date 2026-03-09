@@ -1847,7 +1847,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   let currentH = initH;
   const id = reuseId || ('todd_' + (++_toddIdCounter));
 
-  const group = new Konva.Group({ x: startX, y: startY, draggable: false });
+  const group = new Konva.Group({ x: startX, y: startY, draggable: moveMode });
   group._toddId  = id;
   group._currentW = currentW;
   group._currentH = currentH;
