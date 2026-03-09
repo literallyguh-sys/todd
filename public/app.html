@@ -1940,7 +1940,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   group._currentH        = currentH;
 
   toddLayer.add(group);
-  if (autoSelect && moveMode) transformer.nodes([group]);
+  if (autoSelect && moveMode) { transformer.nodes([group]); _boostAnchorHits(); }
   clampToBg(group, currentW, currentH);
   refreshDelete();
   toddLayer.draw();
