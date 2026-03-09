@@ -2257,8 +2257,10 @@ stage.on('mousedown touchstart', ev => {
   if (moveMode) {
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
-    // Rotation zone checked first, regardless of target
-    if (_inRotZone()) {
+    // Skip rotation zone check if the click landed on a transformer anchor or border.
+    // (Those should trigger scale, not rotation — handled by Konva internally.)
+    const _isTransformerChild = ev.target && ev.target.getParent && ev.target.getParent() === transformer;
+    if (!_isTransformerChild && _inRotZone()) {
       const node = transformer.nodes()[0];
       const c = _nodeWorldCenter(node);
       _rotStart = { angle: Math.atan2(pos.y - c.y, pos.x - c.x), rotation: node.rotation(), wCx: c.x, wCy: c.y };
