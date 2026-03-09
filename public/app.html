@@ -1057,6 +1057,7 @@ function setActiveTool(tool) {
   transformer.nodes([]);
   toddLayer.find('Group').forEach(g => {
     if (!g._toddId) return;
+    if (!g._isEmptyLayer) g.draggable(false);
     if (g._refreshDelete) g._refreshDelete();
   });
   ['pencilBtn','eraserBtn','lineBtn','fillBtn'].forEach(id =>
