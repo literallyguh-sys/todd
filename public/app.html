@@ -2268,9 +2268,9 @@ stage.on('mousedown touchstart', ev => {
       containerEl.style.cursor = ROTATE_CURSOR;
       return;
     }
-    // Only handle empty-stage clicks beyond this point.
-    // Image/text group drags are handled natively by Konva (draggable:true).
-    // Transformer anchor clicks have ev.target !== stage — skip them.
+    // Group image clicks: group.on('mousedown') already set _moveTarget — ev.target is
+    // the image shape (not stage), so we return here without double-handling.
+    // Transformer anchor clicks: ev.target is the anchor rect — also return here.
     if (ev.target !== stage) return;
     if (_bgSelected && background) {
       _moveTarget = background;
