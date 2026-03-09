@@ -1190,7 +1190,7 @@ transformerLayer.add(transformer);
 // Boost transformer anchor hit areas with a padded hitFunc so they are easy to click.
 // Call this after every transformer.nodes([...]) call that attaches nodes.
 function _boostAnchorHits() {
-  const pad = 14;
+  const pad = 10;
   transformer.find('Rect').forEach(r => {
     r.hitFunc(function(ctx) {
       ctx.beginPath();
