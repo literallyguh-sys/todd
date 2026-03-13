@@ -2227,9 +2227,11 @@ stage.on('mouseup touchend', () => {
   _endMoveDrag();
 });
 stage.on('mousemove touchmove', (ev) => {
-  // Rotation zone cursor — skip if pointer is within anchor hit zone (let Konva set resize cursor)
+  // Rotation zone cursor — don't override if Konva already set a resize cursor on an anchor
   if (moveMode && !_rotating && !_moveTarget && transformer.nodes().length) {
-    if (!_pointerOnAnchor()) containerEl.style.cursor = _inRotZone() ? ROTATE_CURSOR : 'grab';
+    if (!containerEl.style.cursor.includes('resize')) {
+      containerEl.style.cursor = _inRotZone() ? ROTATE_CURSOR : 'grab';
+    }
   }
   // Active rotation
   if (_rotating && _rotStart && transformer.nodes().length) {
