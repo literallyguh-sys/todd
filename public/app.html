@@ -1194,18 +1194,12 @@ transformer.on('transformstart', () => {
   _moveMoved  = false;
 });
 
-// Boost transformer anchor hit areas with a padded hitFunc so they are easy to click.
+// Disable Konva's built-in anchor drag: make each anchor rect non-listening so Konva's
+// transformer never intercepts mousedown on them. Our geometry-based resize handles
+// everything — it doesn't rely on hit testing.
 // Call this after every transformer.nodes([...]) call and after zoom changes.
 function _boostAnchorHits() {
-  const pad = Math.ceil(ANCHOR_HIT_PX / stage.scaleX()); // match cursor detection radius
-  transformer.find('Rect').forEach(r => {
-    r.hitFunc(function(ctx) {
-      ctx.beginPath();
-      ctx.rect(-pad, -pad, this.width() + pad * 2, this.height() + pad * 2);
-      ctx.closePath();
-      ctx.fillStrokeShape(this); // fills hit canvas with shape's colorKey
-    });
-  });
+  transformer.find('Rect').forEach(r => r.listening(false));
   transformerLayer.drawHit();
 }
 
