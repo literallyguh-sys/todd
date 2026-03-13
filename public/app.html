@@ -2227,10 +2227,9 @@ stage.on('mouseup touchend', () => {
   _endMoveDrag();
 });
 stage.on('mousemove touchmove', (ev) => {
-  // Rotation zone cursor — skip if hovering over a transformer anchor (let Konva set resize cursor)
+  // Rotation zone cursor — skip if pointer is within anchor hit zone (let Konva set resize cursor)
   if (moveMode && !_rotating && !_moveTarget && transformer.nodes().length) {
-    const overAnchor = ev.target && ev.target.getParent && ev.target.getParent() === transformer;
-    if (!overAnchor) containerEl.style.cursor = _inRotZone() ? ROTATE_CURSOR : 'grab';
+    if (!_pointerOnAnchor()) containerEl.style.cursor = _inRotZone() ? ROTATE_CURSOR : 'grab';
   }
   // Active rotation
   if (_rotating && _rotStart && transformer.nodes().length) {
