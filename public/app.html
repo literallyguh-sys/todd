@@ -2178,7 +2178,7 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
     _moveMoved  = false;
     containerEl.style.cursor = 'grabbing';
   });
-  group.on('transformend', () => { refreshDelete(); pushHistory(); });
+  group.on('transformend', () => { refreshDelete(); pushHistory(); _boostAnchorHits(); });
   group._refreshDelete = refreshDelete;
   group._removeTodd = removeItem;
 
