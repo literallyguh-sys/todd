@@ -1271,7 +1271,6 @@ function _getAnchorCursor() {
   if (nearestIdx >= 0) {
     const effective = ((ANCHORS[nearestIdx][2] + rot) % 360 + 360) % 360;
     return CURSOR_MAP[Math.round(effective / 45) % 8];
-    if (false) {
   }
   return null;
 }
