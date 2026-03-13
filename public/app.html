@@ -982,6 +982,7 @@ containerEl.addEventListener('wheel', e => {
   stage.position({ x: pointer.x - anchor.x * newScale, y: pointer.y - anchor.y * newScale });
   stage.batchDraw();
   updateZoomIndicator();
+  if (transformer.nodes().length) _boostAnchorHits();
 }, { passive: false });
 
 // ── Resize handler ──
