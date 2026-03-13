@@ -1,0 +1,3513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TODD'S WITNESSES</title>
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent:  #FFD600;
+  --red:     #FF3A3A;
+  --green:   #00cc66;
+  --sidebar: 228px;
+}
+
+/* ── RESET ── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:#060608;font-family:'VT323',monospace;}
+html{overflow:hidden;}
+
+
+#room{position:fixed;inset:0;z-index:0;background-image:url('app.jpg');background-size:cover;background-position:center;}
+@keyframes scanroll{to{background-position:0 6px;}}
+#room::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.05) 3px,rgba(0,0,0,0.05) 6px);
+  animation:scanroll 0.35s linear infinite;}
+#room::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.82) 100%);}
+
+body {
+  color: #e0e0e0;
+  font-size: 16px;
+  position: relative; z-index: 1;
+}
+
+
+/* ── BACK BUTTON (top of sidebar) ── */
+#back-btn{
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
+  background:#c0c0c0;
+  border-top:2px solid #dfdfdf;border-left:2px solid #dfdfdf;border-right:2px solid #808080;border-bottom:2px solid #808080;
+  color:#000;font-family:'VT323',monospace;font-size:20px;letter-spacing:2px;
+  padding:6px 10px;cursor:pointer;text-decoration:none;
+}
+#back-btn:hover{border-top:2px solid #808080;border-left:2px solid #808080;border-right:2px solid #dfdfdf;border-bottom:2px solid #dfdfdf;}
+.admin-trigger{font-size:13px;color:#333;letter-spacing:2px;cursor:pointer;margin-left:4px;white-space:nowrap;}
+.admin-trigger:hover{color:#666;}
+
+/* ── SOCIAL LINKS (sidebar footer) ── */
+.sidebar-footer{display:flex;align-items:center;gap:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.08);margin-top:auto;flex-shrink:0;}
+.header-link {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 26px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer; text-decoration: none; flex-shrink: 0;
+  transition: border-color .1s;
+}
+.header-link:hover { border-color: var(--accent); }
+.header-link svg { display: block; }
+.admin-trigger{font-size:13px;color:#333;letter-spacing:2px;cursor:pointer;white-space:nowrap;margin-left:auto;}
+.admin-trigger:hover{color:#666;}
+
+/* ── AUTH MODAL ── */
+.auth-modal-inner { padding: 22px 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.auth-modal-title { font-size: 22px; color: var(--accent); letter-spacing: 3px; text-align: center; }
+.auth-modal-sub { font-size: 14px; color: #555; letter-spacing: 1px; text-align: center; line-height: 1.5; }
+.google-btn {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; color: #222; border: none;
+  padding: 10px 16px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  width: 100%; justify-content: center; transition: background .1s;
+}
+.google-btn:hover { background: #f0f0f0; }
+.auth-divider { color: #444; font-size: 13px; letter-spacing: 2px; }
+.auth-anon-note { font-size: 13px; color: #444; text-align: center; letter-spacing: 1px; }
+.verified-badge { color: #00cc66; font-size: 11px; margin-left: 2px; }
+
+/* ── DOWNLOAD CONFIRM ── */
+.dl-confirm-inner { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.dl-confirm-path {
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(0,204,102,0.3);
+  color: #00cc66; font-size: 14px; padding: 8px 12px; letter-spacing: 1px; word-break: break-all;
+}
+.dl-confirm-note { font-size: 13px; color: #555; letter-spacing: 1px; }
+
+/* ── SIDEBAR TABS ── */
+.sidebar-tabs{display:flex;gap:4px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;}
+.sidebar-tab{
+  flex:1;background:transparent;border:1px solid rgba(255,255,255,0.15);
+  color:#888;font-family:'VT323',monospace;font-size:13px;letter-spacing:1px;
+  padding:4px 6px;cursor:pointer;text-align:center;
+}
+.sidebar-tab:hover{background:rgba(255,255,255,0.06);color:#ccc;border-color:rgba(255,255,255,0.25);}
+.sidebar-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* ── LAYOUT ── */
+.app{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;overflow:hidden;transition:right .25s ease;}
+body.chat-open .app{right:calc(23% + 10px);}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width:var(--sidebar); flex-shrink:0;
+  background:transparent;
+  border-right:1px solid rgba(255,255,255,0.1);
+  display:flex;flex-direction:column;gap:5px;
+  overflow:hidden; padding:6px;
+}
+#sidebarMiddle { flex:1; display:grid; grid-template-columns:1fr 36px; grid-template-rows:auto 1fr; min-height:0; gap:3px; row-gap:8px; }
+#sidebarTools { grid-column:2; grid-row:1; }
+#sidebarPanels { grid-column:1 / -1; grid-row:2; min-height:0; overflow:hidden; display:flex; flex-direction:column; }
+#sidebarPanels::-webkit-scrollbar{width:4px;}
+#sidebarPanels::-webkit-scrollbar-track{background:transparent;}
+#sidebarPanels::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);}
+#toolsPanel { grid-column:1; grid-row:1; display:flex; flex-direction:column; }
+#exportPanel { flex-shrink:0; padding-top:5px; border-top:1px solid rgba(255,255,255,0.1); }
+.layer-opacity-slider { width:100%; height:16px; accent-color:var(--accent); display:block; cursor:pointer; margin:1px 0 2px; }
+
+/* panel */
+.panel {
+  background:rgba(0,0,0,0.25);
+  border:1px solid rgba(255,255,255,0.1);
+  padding:5px 6px 7px;
+}
+.panel-title {
+  font-size:13px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:4px;
+  border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:2px;
+}
+
+/* todd thumbs */
+.todd-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.todd-thumb {
+  aspect-ratio:1; background:rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.12);
+  overflow:hidden;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.todd-thumb:hover{border-color:var(--accent);}
+.todd-thumb img{width:100%;height:100%;object-fit:cover;}
+.todd-thumb .add-icon {
+  position:absolute;inset:0;background:rgba(255,214,0,.85);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;opacity:0;transition:opacity .08s;color:#000;
+}
+.todd-thumb:hover .add-icon{opacity:1;}
+
+/* "See more Todds" / "Upload" buttons */
+.add-todd-btn {
+  grid-column:1/-1;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.1);
+  padding:6px 8px;text-align:center;cursor:pointer;
+  font-size:14px;color:#aaa; font-family:'VT323',monospace;letter-spacing:1px;
+}
+.add-todd-btn:hover{color:var(--accent);border-color:rgba(255,214,0,0.4);}
+
+.control-group{display:flex;flex-direction:column;gap:4px;}
+
+/* ── BUTTONS ── */
+.btn {
+  display:flex;align-items:center;gap:6px;
+  padding:4px 8px;
+  border:1px solid rgba(255,255,255,0.15);
+  background:transparent; color:#ccc;
+  font-family:'VT323',monospace; font-size:14px;letter-spacing:.5px;
+  cursor:pointer;text-align:left;width:100%;min-height:24px;
+}
+.btn:hover{background:rgba(255,255,255,0.06);color:#fff;border-color:rgba(255,255,255,0.25);}
+.btn:active{border-color:rgba(255,255,255,0.3);}
+.btn.active{border-color:rgba(255,214,0,0.5);color:var(--accent);}
+.btn.danger{color:rgba(255,100,100,0.8);border-color:rgba(255,58,58,0.25);}
+.btn.danger:hover{background:rgba(255,58,58,0.08);color:var(--red);border-color:rgba(255,58,58,0.4);}
+.btn.primary {
+  background:var(--accent);color:#000;border:1px solid #ffe066;
+  justify-content:center;letter-spacing:2px;font-size:16px;
+}
+.btn.primary:hover{background:#ffe033;}
+.btn-icon{font-size:14px;line-height:1;}
+
+.slider-row{display:flex;align-items:center;gap:6px;font-size:14px;color:#888;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);}
+
+.upload-area {
+  border:1px solid rgba(255,255,255,0.1);
+  background:transparent; padding:12px 8px;text-align:center;cursor:pointer;
+  font-size:14px;color:#888; font-family:'VT323',monospace;letter-spacing:1px;
+}
+.upload-area:hover{color:var(--accent);border-color:rgba(255,214,0,0.4);}
+.upload-area .upload-icon{font-size:22px;display:block;margin-bottom:3px;}
+
+/* ── CANVAS AREA ── */
+.canvas-wrap {
+  flex:1;display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:flex-start;
+  padding:0;overflow:hidden;gap:0;
+  background:transparent;
+}
+#container {
+  border:2px solid rgba(255,255,255,0.15);
+  background:transparent;overflow:hidden;
+  align-self:center;margin-top:auto;margin-bottom:auto;
+}
+#container canvas { outline:none; border:none; }
+#container.eraser-active{outline:2px solid var(--red);}
+#container.pencil-active{cursor:crosshair;}
+
+.statusbar{
+  display:flex;align-items:center;gap:8px;
+  font-size:14px;color:#444;letter-spacing:1px;
+  padding:3px 4px;
+}
+.status-dot{width:7px;height:7px;background:#00cc66;flex-shrink:0;}
+.status-dot.erasing{background:var(--red);animation:blink .5s steps(2) infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── TOAST ── */
+.toast {
+  position:fixed;bottom:16px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:rgba(6,6,8,0.95);
+  border:1px solid rgba(255,255,255,0.2);
+  color:var(--accent); font-size:16px;letter-spacing:1px;padding:6px 20px;
+  z-index:9999;transition:transform .15s steps(3);pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── GALLERY ── */
+.gallery-view{flex:1;overflow-y:auto;padding:12px 14px;position:relative;background:transparent;}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;}
+.gallery-loading,.gallery-empty{color:#555;font-size:16px;font-family:'VT323',monospace;letter-spacing:1px;padding:24px;}
+
+.gallery-card {
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.1);
+  overflow:hidden;cursor:pointer;
+  display:flex;flex-direction:column;
+}
+.gallery-card:hover{border-color:rgba(255,255,255,0.22);}
+.gallery-card-titlebar {
+  background:transparent;border-bottom:1px solid rgba(255,255,255,0.08);
+  color:#aaa; font-size:13px;
+  padding:3px 8px;display:flex;align-items:center;letter-spacing:.5px;flex-shrink:0;
+}
+.gallery-card img{width:100%;display:block;object-fit:contain;background:#000;max-height:300px;flex-shrink:0;}
+.gallery-card-body{padding:6px 8px 8px;display:flex;flex-direction:column;flex:1;}
+.gallery-card-msg{
+  font-size:14px;color:#bbb;margin-top:3px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;line-height:1.4;min-height:2.8em;flex:1;
+}
+.gallery-card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.07);gap:8px;flex-shrink:0;
+}
+
+/* vote buttons */
+.vote-btns{display:flex;gap:4px;align-items:center;}
+.vote-btn {
+  display:flex;align-items:center;gap:4px;
+  background:transparent;border:1px solid rgba(255,255,255,0.15);
+  padding:3px 10px; font-size:14px;
+  color:#aaa;cursor:pointer;white-space:nowrap;min-width:50px;justify-content:center;
+}
+.vote-btn:hover{background:rgba(255,255,255,0.06);color:#fff;}
+.vote-btn.voted-up{color:#00cc66;border-color:rgba(0,204,102,0.4);}
+.vote-btn.voted-down{color:var(--red);border-color:rgba(255,58,58,0.4);}
+.gallery-card-date{font-size:12px;color:#444;}
+
+/* ── LIGHTBOX ── */
+.lightbox{
+  position:absolute;inset:0;background:rgba(0,0,0,.88);
+  display:flex;align-items:center;justify-content:center;z-index:100;padding:14px;
+}
+.lightbox-box {
+  background:rgba(6,6,8,0.96);
+  border:2px solid rgba(255,255,255,0.15);
+  width:96%;max-width:1400px;max-height:96%;
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:lb-in .12s ease-out;
+}
+@keyframes lb-in{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.lightbox-titlebar {
+  background:transparent;border-bottom:1px solid rgba(255,255,255,0.1);
+  color:#ddd; font-size:15px;
+  padding:4px 10px;display:flex;align-items:center;letter-spacing:1px;flex-shrink:0;
+}
+.lightbox-close {
+  margin-left:auto;background:transparent;color:#888;font-size:12px;
+  padding:1px 7px;cursor:pointer;border:1px solid rgba(255,255,255,0.15);
+  letter-spacing:1px;
+}
+.lightbox-close:hover{border-color:var(--red);color:var(--red);}
+.lightbox-img-wrap{
+  background:#000;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;flex:1;min-height:0;
+}
+.lightbox-img-wrap img{max-width:100%;max-height:82vh;object-fit:contain;display:block;}
+.lightbox-footer{
+  padding:10px 14px;border-top:1px solid rgba(255,255,255,0.08);
+  overflow-y:auto;flex-shrink:0;max-height:160px;background:transparent;
+}
+.lightbox-msg{
+  font-size:15px;color:#ccc;line-height:1.5;
+  white-space:pre-wrap;word-break:break-word;margin-bottom:8px;
+}
+.lightbox-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,0.07);padding-top:6px;margin-top:2px;
+}
+
+/* ── PUBLISH MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.82);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+}
+.modal {
+  background:rgba(6,6,8,0.96);
+  border:2px solid rgba(255,255,255,0.15);
+  width:380px;max-width:90vw;overflow:hidden;
+}
+.modal-titlebar {
+  background:transparent;border-bottom:1px solid rgba(255,255,255,0.1);
+  color:#ddd; font-size:15px;
+  padding:4px 10px;display:flex;align-items:center;gap:6px;letter-spacing:1px;
+}
+.modal-titlebar-close {
+  margin-left:auto;background:transparent;color:#888;font-size:11px;
+  padding:1px 6px;cursor:pointer;border:1px solid rgba(255,255,255,0.15);
+}
+.modal-titlebar-close:hover{border-color:var(--red);color:var(--red);}
+.modal > h3{display:none;}
+.modal-inner{padding:14px;}
+.modal-sub{font-size:14px;color:#666;margin-bottom:10px;letter-spacing:.5px;}
+.modal-preview{
+  width:100%;aspect-ratio:16/9;background:#000;
+  border:1px solid rgba(255,255,255,0.1);overflow:hidden;margin-bottom:10px;
+}
+.modal-preview img{width:100%;height:100%;object-fit:contain;}
+.modal-input,.modal-textarea {
+  width:100%;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.13);
+  color:#ddd; font-size:16px;
+  padding:6px 10px;margin-bottom:8px;resize:none;outline:none;
+}
+.modal-input:focus,.modal-textarea:focus{border-color:var(--accent);}
+.modal-textarea{height:64px;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
+
+/* ── TODD PICKER ── */
+.todd-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.todd-picker {
+  background:rgba(6,6,8,0.96);
+  border:2px solid rgba(255,255,255,0.15);
+  width:440px;max-width:92vw;overflow:hidden;
+}
+.todd-picker-titlebar {
+  background:transparent;border-bottom:1px solid rgba(255,255,255,0.1);
+  color:var(--accent); font-size:18px;
+  padding:4px 10px;letter-spacing:2px;display:flex;align-items:center;
+}
+.todd-picker-titlebar-close {
+  margin-left:auto;background:transparent;color:#888;font-size:11px;
+  padding:1px 6px;cursor:pointer;border:1px solid rgba(255,255,255,0.15);
+}
+.todd-picker-titlebar-close:hover{border-color:var(--red);color:var(--red);}
+.todd-picker h3{display:none;}
+.todd-picker-inner{padding:10px;overflow-y:auto;max-height:70vh;}
+.todd-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px;}
+.todd-picker-thumb {
+  aspect-ratio:1;background:rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.12);
+  overflow:hidden;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.todd-picker-thumb:hover{border-color:var(--accent);}
+.todd-picker-thumb img{width:100%;height:100%;object-fit:cover;}
+.todd-picker-close {
+  width:100%;background:transparent;border:1px solid rgba(255,255,255,0.12);
+  color:#aaa; font-size:14px;padding:5px;cursor:pointer;letter-spacing:1px;
+}
+.todd-picker-close:hover{color:var(--accent);border-color:rgba(255,214,0,0.4);}
+
+/* ── CHAT PANEL — fixed right overlay, exact index.html lobby match ── */
+.chat-panel {
+  position:fixed;right:10px;top:10px;width:23%;height:calc(100% - 20px);
+  z-index:100;display:flex;flex-direction:column;background:transparent;
+  border-left:1px solid rgba(255,255,255,0.07);
+  transition:transform .25s ease;
+}
+.chat-panel.chat-hidden{transform:translateX(calc(100% + 10px));}
+@media(max-width:700px){.chat-panel{display:none;}}
+.chat-titlebar {
+  display:flex;align-items:center;gap:6px;padding:8px 12px;
+  background:transparent;border-bottom:1px solid rgba(255,255,255,0.08);
+  font-size:16px;color:#ddd;letter-spacing:2px;flex-shrink:0;
+}
+.chat-live-dot {
+  width:7px;height:7px;background:var(--red);border-radius:50%;
+  box-shadow:0 0 5px var(--red);animation:lbpulse 1.2s steps(2) infinite;flex-shrink:0;
+}
+@keyframes lbpulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.chat-viewer-count{font-size:12px;color:#555;margin-left:auto;}
+.chat-messages{
+  flex:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:2px;
+}
+.chat-messages::-webkit-scrollbar{width:4px;}
+.chat-messages::-webkit-scrollbar-track{background:transparent;}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);}
+
+.chat-msg{font-size:17px;line-height:1.3;word-break:break-word;}
+.chat-msg-name{font-size:18px;font-weight:700;margin-right:3px;}
+.chat-msg-text{color:#ccc;font-size:17px;}
+.buy-alert{background:rgba(0,250,154,0.5);border-left:3px solid #00FA9A;padding:3px 6px;margin:2px 0;}
+.buy-lbl{color:#fff;font-weight:700;letter-spacing:1px;}
+.buy-txt{color:#fff;}
+.chat-icon{width:22px;height:22px;object-fit:cover;vertical-align:middle;margin-right:4px;border-radius:2px;}
+.icon-opt{width:32px;height:32px;object-fit:cover;cursor:pointer;border:2px solid transparent;border-radius:2px;flex-shrink:0;}
+.icon-opt:hover,.icon-opt.selected{border-color:var(--accent);}
+.chat-msg-system{font-size:13px;color:var(--accent);padding:2px 0;opacity:0.85;}
+
+@keyframes msg-in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+@keyframes successPop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+.chat-input-area{
+  padding:8px;border-top:1px solid rgba(255,255,255,0.08);
+  display:flex;flex-direction:column;gap:4px;
+  background:transparent;flex-shrink:0;
+}
+.chat-name-input {
+  width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);
+  color:#ddd;font-family:'VT323',monospace;font-size:17px;padding:3px 7px;outline:none;
+}
+.chat-name-input:focus{border-color:var(--accent);}
+.chat-bottom{display:flex;gap:4px;}
+.chat-msg-input {
+  flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);
+  color:#ddd;font-family:'VT323',monospace;font-size:17px;padding:4px 7px;outline:none;min-width:0;
+}
+.chat-msg-input:focus{border-color:var(--accent);}
+.chat-send-btn {
+  background:var(--accent);color:#000;border:1px solid var(--accent);
+  padding:4px 10px;font-size:18px;cursor:pointer;
+  flex-shrink:0;font-weight:700;font-family:'VT323',monospace;
+}
+.chat-send-btn:hover{background:#ffe033;}
+
+
+@media(max-width:700px){.chat-panel{display:none;}}
+
+/* Hidden on desktop */
+#mobile-bar{display:none;}
+#sidebar-backdrop{display:none;}
+#mobile-drawbar{display:none;}
+
+@media(max-width:599px){
+  /* Top nav bar */
+  #mobile-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    position:fixed;top:0;left:0;right:0;height:44px;
+    background:rgba(0,0,0,0.88);border-bottom:1px solid rgba(255,255,255,0.1);
+    z-index:300;padding:0 12px;
+  }
+  #mobile-back{
+    color:#888;font-family:'VT323',monospace;font-size:16px;
+    letter-spacing:2px;text-decoration:none;
+  }
+  #mobile-back:hover{color:var(--accent);}
+  #mobile-toggle{
+    background:transparent;border:1px solid rgba(255,255,255,0.2);
+    color:var(--accent);font-family:'VT323',monospace;font-size:16px;
+    letter-spacing:2px;padding:4px 12px;cursor:pointer;
+  }
+  /* App: column layout, pushed below both bars */
+  .app{top:44px;right:0;flex-direction:column;}
+  /* Always-visible draw tools bar */
+  #mobile-drawbar{
+    display:flex;align-items:center;
+    height:40px;flex-shrink:0;
+    background:rgba(0,0,0,0.82);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    padding:0 6px;gap:4px;
+  }
+  .mdb-btn{
+    flex:1;height:30px;
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.14);
+    color:#aaa;font-size:16px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .mdb-btn:active{background:rgba(255,255,255,0.08);}
+  .mdb-btn.active{color:var(--accent);border-color:rgba(255,214,0,0.45);}
+  /* Canvas fills remaining space */
+  .canvas-wrap{flex:1;padding:4px;min-height:0;}
+  /* Sidebar: off-canvas overlay */
+  #sidebar{
+    position:fixed;top:44px;left:0;bottom:0;width:220px;
+    transform:translateX(-100%);transition:transform 0.22s ease;
+    z-index:250;background:rgba(0,0,0,0.96);
+    border-right:1px solid rgba(255,255,255,0.12);
+  }
+  .sidebar-open #sidebar{transform:translateX(0);}
+  .sidebar-open #sidebar-backdrop{
+    display:block;position:fixed;inset:0;
+    background:rgba(0,0,0,0.45);z-index:240;
+  }
+  /* Sidebar on mobile: hide tools panel (draw bar covers it) and tabs */
+  .layer-item.layer-active{background:rgba(255,255,255,0.08)!important;border-color:rgba(255,255,255,0.25)!important;}
+  .sidebar-tabs{display:none;}
+  /* Hide sidebar back btn */
+  #back-btn{display:none;}
+}
+#transition{position:fixed;inset:0;z-index:9997;background:#000;opacity:0;pointer-events:none;transition:opacity 0.5s ease;}
+#transition.fade-out{opacity:1;pointer-events:all;}
+
+/* ── CHAT TAB ── */
+#chatTab{
+  position:fixed;right:0;top:50%;transform:translateY(-50%);
+  z-index:150;background:rgba(6,6,8,0.88);
+  border:1px solid rgba(255,255,255,0.15);border-right:none;
+  padding:16px 7px;cursor:pointer;
+  font-family:'VT323',monospace;font-size:15px;letter-spacing:3px;color:#777;
+  writing-mode:vertical-rl;user-select:none;transition:right .25s ease;
+}
+#chatTab:hover{color:var(--accent);border-color:rgba(255,214,0,0.3);}
+body.chat-open #chatTab{
+  right:calc(23% + 10px);
+  border-left:none;border-right:1px solid rgba(255,255,255,0.15);
+}
+@media(max-width:700px){#chatTab{display:none;}}
+
+/* ── CANVAS TOP BAR (undo / redo) ── */
+#canvas-top-bar{
+  display:flex;gap:4px;flex-shrink:0;padding:3px 4px 3px;width:100%;
+}
+#todd-tray{
+  display:flex;flex-direction:row;align-items:center;gap:6px;
+  width:100%;flex-shrink:0;overflow-x:auto;overflow-y:hidden;
+  height:0;padding:0 8px;box-sizing:border-box;
+  background:rgba(0,0,0,0.5);border-bottom:1px solid rgba(255,255,255,0.08);
+  transition:height .2s ease;
+}
+#todd-tray.open{height:70px;}
+#todd-tray img{flex-shrink:0;width:52px;height:52px;object-fit:contain;cursor:pointer;border:1px solid rgba(255,255,255,0.15);padding:2px;box-sizing:border-box;background:rgba(0,0,0,0.3);}
+#todd-tray img:hover{border-color:rgba(255,214,0,0.6);}
+#todd-tray::-webkit-scrollbar{height:4px;}
+#todd-tray::-webkit-scrollbar-track{background:transparent;}
+#todd-tray::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);}
+.ctb-btn{
+  background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.1);
+  color:#555;font-family:'VT323',monospace;font-size:15px;
+  letter-spacing:1px;padding:2px 14px;cursor:pointer;
+}
+.ctb-btn:hover{color:#ccc;border-color:rgba(255,255,255,0.22);}
+.ctb-btn:disabled{opacity:0.3;cursor:default;}
+.ctb-btn.undo-redo{border:1px solid var(--accent);color:var(--accent);}
+.ctb-btn.undo-redo:hover{background:rgba(255,214,0,0.08);border-color:#ffe033;color:#ffe033;}
+.ctb-sep{width:1px;background:rgba(255,255,255,0.1);height:22px;flex-shrink:0;align-self:center;}
+.ctb-todd-thumb{width:28px;height:28px;object-fit:contain;cursor:pointer;border:1px solid rgba(255,255,255,0.15);padding:1px;box-sizing:border-box;background:rgba(0,0,0,0.3);}
+.ctb-todd-thumb:hover{border-color:rgba(255,214,0,0.6);}
+.win95-btn{
+  background:#c0c0c0;
+  border-top:2px solid #dfdfdf;border-left:2px solid #dfdfdf;border-right:2px solid #808080;border-bottom:2px solid #808080;
+  color:#000;font-family:'VT323',monospace;font-size:16px;letter-spacing:1px;
+  padding:3px 12px;cursor:pointer;text-decoration:none;display:inline-block;
+}
+.win95-btn:hover{border-top:2px solid #808080;border-left:2px solid #808080;border-right:2px solid #dfdfdf;border-bottom:2px solid #dfdfdf;}
+
+/* ── TOOL COLOR / SIZE in sidebar ── */
+#ftColor{
+  width:22px;height:18px;padding:0;cursor:pointer;background:transparent;
+  border:1px solid rgba(255,255,255,0.15);
+}
+.color-palette-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:4px 0;}
+.swatch{
+  width:100%;aspect-ratio:1;cursor:pointer;
+  border:1px solid rgba(0,0,0,0.35);transition:transform .1s;
+}
+.swatch:hover{transform:scale(1.18);position:relative;z-index:1;}
+.swatch.active{outline:2px solid #fff;outline-offset:1px;}
+
+#sidebarTools{display:flex;flex-direction:column;width:36px;flex-shrink:0;gap:3px;}
+.sb-tool-btn{
+  height:34px;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);color:#aaa;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'VT323',monospace;
+}
+.sb-tool-btn img{width:18px;height:18px;opacity:0.6;pointer-events:none;}
+.sb-tool-btn:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);}
+.sb-tool-btn.active{border-color:var(--accent);background:rgba(255,214,0,0.07);}
+.sb-tool-btn.active img{opacity:1;filter:invert(86%) sepia(63%) saturate(900%) hue-rotate(358deg) brightness(103%);}
+#pencilSizeRow{display:flex;align-items:center;gap:4px;padding:2px 0;font-size:11px;color:#888;margin-bottom:2px;}
+#eraserSizeRow{display:none;align-items:center;gap:4px;padding:2px 0;font-size:11px;color:#888;margin-bottom:2px;}
+#pencilSizeRow input,#eraserSizeRow input{flex:1;accent-color:var(--accent);}
+@media(max-width:599px){#sidebarTools{display:none;}}
+
+/* ── LAYER PANEL ── */
+#layerList{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+#layerList::-webkit-scrollbar{width:3px;}
+#layerList::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);}
+.layer-item{
+  display:flex;align-items:center;gap:3px;
+  padding:3px 4px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.02);
+  font-family:'VT323',monospace;
+}
+.layer-item:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);}
+.layer-item.layer-selected{border-color:var(--accent);background:rgba(255,214,0,0.06);}
+.layer-item.layer-active{background:rgba(255,255,255,0.08)!important;border-color:rgba(255,255,255,0.25)!important;}
+.layer-thumb{width:22px;height:22px;object-fit:contain;flex-shrink:0;image-rendering:pixelated;}
+.layer-thumb-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+.layer-name{flex:1;font-size:12px;color:#fff;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.layer-act{background:none;border:none;color:#bbb;cursor:pointer;padding:1px 4px;font-size:13px;font-family:'VT323',monospace;line-height:1;}
+.layer-act:hover{color:#fff;}
+.layer-act.del:hover{color:var(--red);}
+.layer-empty{color:#888;font-size:12px;text-align:center;padding:8px 0;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div id="room"></div>
+<div id="transition"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a id="back-btn" href="index.html">← BACK</a>
+
+    <div id="sidebarMiddle">
+
+      <div id="toolsPanel">
+        <div id="colorIndicator" style="width:100%;height:22px;background:#f6d00d;border:1px solid rgba(255,255,255,0.2);box-sizing:border-box;"></div>
+        <div id="colorPickerPanel" style="display:flex;flex-direction:column;gap:3px;padding:4px 0;flex:1;min-height:0">
+          <canvas id="colorSquare" width="178" height="110" style="width:100%;display:block;cursor:crosshair;border:1px solid rgba(255,255,255,0.1);flex:1;min-height:0"></canvas>
+          <canvas id="hueSlider" width="178" height="12" style="width:100%;display:block;cursor:crosshair;border:1px solid rgba(255,255,255,0.1)"></canvas>
+          <input id="hexInput" type="text" placeholder="#rrggbb" maxlength="7"
+            style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#ccc;font-family:'VT323',monospace;font-size:13px;padding:2px 4px;outline:none"
+            oninput="applyHexInput(this.value)" onkeydown="if(event.key==='Enter')applyHexInput(this.value)">
+        </div>
+        <div id="pencilSizeRow">
+          <span>SIZE</span>
+          <input type="range" id="pencilSize" min="1" max="40" value="3" oninput="setToolSize(this.value);document.getElementById('pencilSizeVal').textContent=this.value">
+          <span id="pencilSizeVal">3</span>
+        </div>
+        <div id="eraserSizeRow">
+          <span>SIZE</span>
+          <input type="range" id="eraserSize" min="4" max="60" value="18" oninput="setToolSize(this.value);document.getElementById('eraserSizeVal').textContent=this.value">
+          <span id="eraserSizeVal">18</span>
+        </div>
+      </div>
+
+      <div id="sidebarTools">
+        <button class="sb-tool-btn" id="sb-move"        onclick="setActiveTool('move')"        title="Move">✥</button>
+        <button class="sb-tool-btn" id="sb-pencil"      onclick="setActiveTool('pencil')"      title="Pencil"><img src="Icons/Toolbar/pencil.png" alt="Pencil"></button>
+        <button class="sb-tool-btn" id="sb-eraser"      onclick="setActiveTool('eraser')"      title="Eraser"><img src="Icons/Toolbar/eraser.png" alt="Eraser"></button>
+        <button class="sb-tool-btn" id="sb-line"        onclick="setActiveTool('line')"        title="Line"><img src="Icons/Toolbar/line.png" alt="Line"></button>
+        <button class="sb-tool-btn" id="sb-fill"        onclick="setActiveTool('fill')"        title="Bucket Fill"><img src="Icons/Toolbar/bucket.png" alt="Fill"></button>
+        <button class="sb-tool-btn" id="sb-colorpicker" onclick="setActiveTool('colorpicker')" title="Color Picker"><img src="Icons/Toolbar/colorfinder.png" alt="Color Picker"></button>
+      </div>
+
+      <div id="sidebarPanels">
+      <!-- ── LAYERS PANEL ── -->
+      <div class="panel" id="panel-layers" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+        <p class="panel-title">Layers</p>
+        <div id="layerList">
+          <div class="layer-empty">No layers yet</div>
+        </div>
+        <div style="margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0">
+          <button class="btn" onclick="addEmptyLayer()" style="width:100%">+ New Layer</button>
+        </div>
+      </div>
+      </div><!-- /sidebarPanels -->
+
+    </div><!-- /sidebarMiddle -->
+
+    <div id="exportPanel">
+      <button class="btn primary" onclick="exportImage()" style="margin-bottom:4px;width:100%">Download PNG</button>
+      <button class="win95-btn" onclick="openPublishModal()" style="width:100%;box-sizing:border-box;">Publish to Gallery</button>
+    </div>
+
+  </aside>
+
+  <div id="mobile-drawbar">
+    <button class="mdb-btn" id="mdb-pencil" onclick="togglePencil()" title="Draw">✏</button>
+    <button class="mdb-btn" id="mdb-text"   onclick="openTextModal()" title="Add Text">T</button>
+    <button class="mdb-btn" id="mdb-eraser" onclick="toggleEraser()" title="Eraser">⌫</button>
+    <button class="mdb-btn" onclick="undo()" title="Undo">↩</button>
+    <button class="mdb-btn" onclick="redo()" title="Redo">↪</button>
+  </div>
+
+  <div class="canvas-wrap" id="editorView">
+    <div id="canvas-top-bar">
+      <button class="ctb-btn undo-redo" id="undoBtn" onclick="undo()" title="Undo (Ctrl+Z)">↩ UNDO</button>
+      <button class="ctb-btn undo-redo" id="redoBtn" onclick="redo()" title="Redo (Ctrl+Y)">REDO ↪</button>
+      <button class="win95-btn" onclick="newCanvas()" title="New canvas">NEW</button>
+      <button class="win95-btn" onclick="document.getElementById('toddUpload').click()">UPLOAD</button>
+      <img src="todd1.png" class="ctb-todd-thumb" onclick="addTodd('todd1.png')" title="Add Todd 1">
+      <img src="todd2.png" class="ctb-todd-thumb" onclick="addTodd('todd2.png')" title="Add Todd 2">
+      <img src="todd3.png" class="ctb-todd-thumb" onclick="addTodd('todd3.png')" title="Add Todd 3">
+      <img src="todd4.png" class="ctb-todd-thumb" onclick="addTodd('todd4.png')" title="Add Todd 4">
+      <button class="win95-btn" onclick="openToddPicker()">ADD TODD</button>
+      <input type="file" id="toddUpload" accept="image/*" style="display:none">
+    </div>
+    <div id="todd-tray"></div>
+    <div id="container"></div>
+    <div class="statusbar">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Upload a background, then add a Todd</span>
+      <span id="zoomIndicator" onclick="resetZoom()" title="Click to reset zoom" style="cursor:pointer;display:none;margin-left:auto;color:#666;letter-spacing:1px;font-size:13px"></span>
+    </div>
+  </div>
+
+  <!-- Gallery view -->
+  <div class="gallery-view" id="galleryView" style="display:none">
+    <div class="gallery-grid" id="galleryGrid">
+      <div class="gallery-loading">Loading masterpieces...</div>
+    </div>
+
+    <!-- Lightbox — sits inside gallery-view so chat stays visible -->
+    <div class="lightbox" id="lightbox" style="display:none" onclick="closeLightbox(event)">
+      <div class="lightbox-box">
+        <div class="lightbox-titlebar">
+          <span id="lightboxTitle">📁</span>
+          <div class="lightbox-close" onclick="closeLightbox()">✕</div>
+        </div>
+        <div class="lightbox-img-wrap">
+          <img id="lightboxImg" src="" alt="">
+        </div>
+        <div class="lightbox-footer">
+          <div class="lightbox-msg" id="lightboxMsg"></div>
+          <div class="lightbox-meta">
+            <div class="vote-btns" id="lightboxVotes"></div>
+            <span class="gallery-card-date" id="lightboxDate"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Chat tab (open/close handle) -->
+<div id="chatTab" onclick="toggleChat()">CHAT</div>
+
+<!-- Chat panel — fixed right overlay, same as index.html lobby chat -->
+<aside class="chat-panel chat-hidden" id="chatPanel">
+  <div class="chat-titlebar">
+    <div class="chat-live-dot"></div>
+    <span>LIVE CHAT</span>
+    <span class="chat-viewer-count" id="chatViewerCount"></span>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <!-- messages rendered here -->
+  </div>
+  <div class="chat-input-area">
+    <input type="text" id="chatNameInput" class="chat-name-input" placeholder="Your name" maxlength="20">
+    <div class="chat-bottom">
+      <input type="text" id="chatMsgInput" class="chat-msg-input" placeholder="Say something..." maxlength="200">
+      <button class="chat-send-btn" onclick="sendChatMsg()">➤</button>
+    </div>
+  </div>
+</aside>
+
+<!-- Text input modal -->
+<div class="modal-overlay" id="textModal" style="display:none" onclick="closeTextModal(event)">
+  <div class="modal" style="width:320px">
+    <div class="modal-titlebar">
+      <span>ADD TEXT</span>
+      <div class="modal-titlebar-close" onclick="closeTextModal()">✕</div>
+    </div>
+    <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+      <input type="text" id="textInput" placeholder="Enter text..."
+        style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);
+               color:#e0e0e0;font-family:'VT323',monospace;font-size:20px;
+               padding:8px 10px;letter-spacing:1px;width:100%;outline:none;">
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" onclick="confirmAddText()" style="flex:1">ADD</button>
+        <button class="btn" onclick="closeTextModal()" style="flex:1;justify-content:center">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Publish modal -->
+<div class="modal-overlay" id="publishModal" style="display:none" onclick="closePublishModal(event)">
+  <div class="modal">
+    <div class="modal-titlebar">
+      <span>Publish to Gallery</span>
+      <div class="modal-titlebar-close" onclick="closePublishModal()">✕</div>
+    </div>
+    <h3>Publish to Gallery</h3>
+
+    <!-- Form view -->
+    <div class="modal-inner" id="modalFormView">
+      <p class="modal-sub">Share your Todd masterpiece with the world. No cap.</p>
+      <div class="modal-preview" id="modalPreview"></div>
+      <input type="text" id="publishName" placeholder="Your name / signature" maxlength="40" class="modal-input">
+      <textarea id="publishMsg" placeholder="Add a message or caption... (optional)" maxlength="120" class="modal-textarea"></textarea>
+      <div class="modal-btns">
+        <button class="btn" onclick="closePublishModal()">Cancel</button>
+        <button class="btn primary" onclick="publishToGallery()">PUBLISH</button>
+      </div>
+    </div>
+
+    <!-- Success view -->
+    <div class="modal-inner" id="modalSuccessView" style="display:none;flex-direction:column;align-items:center;gap:14px;padding:28px 24px;text-align:center">
+      <div style="font-family:'VT323',monospace;font-size:72px;line-height:1;color:var(--accent);animation:successPop .3s ease-out;">TODD</div>
+      <div style="font-family:'VT323',monospace;font-size:13px;letter-spacing:4px;color:#666;text-transform:uppercase">[ submission received ]</div>
+      <div style="font-family:'VT323',monospace;font-size:16px;color:#aaa;line-height:1.6;border:1px solid #333;padding:10px 16px;background:#111;width:100%">
+        &gt; upload complete<br>
+        &gt; awaiting moderator approval<br>
+        &gt; your masterpiece will appear once approved<br>
+        &gt; username: <span id="modalSuccessName" style="color:var(--accent)">???</span>
+      </div>
+      <button class="btn" onclick="closePublishModal()" style="width:100%;justify-content:center;font-size:17px;letter-spacing:2px;">[ CLOSE ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- Todd picker modal -->
+<div class="todd-picker-overlay" id="toddPickerModal" style="display:none" onclick="closeToddPicker(event)">
+  <div class="todd-picker">
+    <div class="todd-picker-titlebar">
+      <span>Choose a Todd</span>
+      <div class="todd-picker-titlebar-close" onclick="closeToddPicker()">✕</div>
+    </div>
+    <h3>Choose a Todd</h3>
+    <div class="todd-picker-inner">
+      <div class="todd-picker-grid" id="toddPickerGrid">
+        <!-- populated by JS -->
+      </div>
+      <button class="todd-picker-close" onclick="closeToddPicker()">[ Close Window ]</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Canvas size modal -->
+<div class="modal-overlay" id="canvasModal" style="display:none" onclick="closeCanvasModal(event)">
+  <div class="modal" style="width:300px">
+    <div class="modal-titlebar">
+      <span>Canvas Size</span>
+      <button class="modal-titlebar-close" onclick="closeCanvasModal()">✕ CLOSE</button>
+    </div>
+    <div class="modal-inner">
+      <p class="modal-sub">Choose canvas dimensions (max 1920×1080)</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px">
+        <button class="btn" onclick="setCanvasPreset(1920,1080)">1920×1080</button>
+        <button class="btn" onclick="setCanvasPreset(1280,720)">1280×720</button>
+        <button class="btn" onclick="setCanvasPreset(1080,1080)">1080×1080</button>
+        <button class="btn" onclick="setCanvasPreset(1080,1920)">1080×1920</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <div style="flex:1">
+          <label for="canvasWInput" style="font-size:11px;color:#666;display:block;margin-bottom:2px;letter-spacing:1px">WIDTH</label>
+          <input type="number" id="canvasWInput" min="200" max="1920" class="modal-input" style="text-align:center">
+        </div>
+        <div style="flex:1">
+          <label for="canvasHInput" style="font-size:11px;color:#666;display:block;margin-bottom:2px;letter-spacing:1px">HEIGHT</label>
+          <input type="number" id="canvasHInput" min="200" max="1080" class="modal-input" style="text-align:center">
+        </div>
+      </div>
+      <button class="btn primary" onclick="applyCanvasSize()" style="width:100%">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth modal -->
+<div class="modal-overlay" id="authModal" style="display:none" onclick="closeAuthModal(event)">
+  <div class="modal" style="width:340px">
+    <div class="modal-titlebar">
+      <span>⬡ ACCOUNT</span>
+      <div class="modal-titlebar-close" onclick="closeAuthModal()">✕</div>
+    </div>
+    <div class="auth-modal-inner" id="authModalInner"></div>
+  </div>
+</div>
+
+<!-- Username pick modal — shown after first Google login -->
+<div class="modal-overlay" id="usernameModal" style="display:none">
+  <div class="modal" style="width:360px">
+    <div class="modal-titlebar">
+      <span>⬡ PICK YOUR USERNAME</span>
+    </div>
+    <div class="modal-inner" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="modal-sub">You're signed in. Pick a username — this is what everyone sees. Your email stays private.</div>
+      <div>
+        <input type="text" id="usernamePickInput" class="modal-input" placeholder="e.g. toddlord420" maxlength="24" style="margin-bottom:4px;" oninput="onUsernameInput()">
+        <div id="usernamePickStatus" style="font-family:'VT323',monospace;font-size:14px;height:18px;"></div>
+      </div>
+      <div class="modal-sub" style="font-size:12px;color:#444;">3–24 characters. Letters, numbers, underscores only. Cannot be changed later.</div>
+      <div class="modal-btns">
+        <button class="btn primary" id="usernamePickBtn" onclick="submitUsername()" disabled style="opacity:0.4;width:100%;justify-content:center;font-size:18px;letter-spacing:2px;">CLAIM USERNAME</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Download confirm modal -->
+<div class="modal-overlay" id="dlConfirmModal" style="display:none">
+  <div class="modal" style="width:360px">
+    <div class="modal-titlebar">
+      <span>💾 DOWNLOAD</span>
+      <div class="modal-titlebar-close" onclick="document.getElementById('dlConfirmModal').style.display='none'">✕</div>
+    </div>
+    <div class="dl-confirm-inner">
+      <div style="font-family:'VT323',monospace;font-size:15px;color:#aaa;">Your image will be saved to:</div>
+      <div class="dl-confirm-path" id="dlConfirmPath">~/Downloads/todd-masterpiece.png</div>
+      <div class="dl-confirm-note">↳ Check your browser's default download folder. You can change this in your browser settings.</div>
+      <div class="modal-btns">
+        <button class="btn" onclick="document.getElementById('dlConfirmModal').style.display='none'">Cancel</button>
+        <button class="btn primary" onclick="confirmDownload()">DOWNLOAD ↓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Canvas sizing ──
+function computeCanvasSize() {
+  // Use viewport math — wrap.clientWidth is 0 at inline-script execution time
+  const W = window.innerWidth  - 228; // viewport minus sidebar
+  const H = window.innerHeight;
+  // Reserve ~52px for top-bar (26px) + statusbar (20px) + two 3px gaps
+  return {
+    w: Math.max(200, W),
+    h: Math.max(200, H - 52)
+  };
+}
+
+const sz = computeCanvasSize();
+let CANVAS_W = sz.w, CANVAS_H = sz.h;
+
+const containerEl = document.getElementById('container');
+containerEl.style.width  = CANVAS_W + 'px';
+containerEl.style.height = CANVAS_H + 'px';
+
+const stage = new Konva.Stage({ container:'container', width:CANVAS_W, height:CANVAS_H, scaleX:0.75, scaleY:0.75, x:Math.round(CANVAS_W*0.125), y:Math.round(CANVAS_H*0.125) });
+
+const bgLayer        = new Konva.Layer();
+const toddLayer      = new Konva.Layer();
+const drawLayer      = new Konva.Layer();           // bucket fill only — sits below todd groups
+const transformerLayer = new Konva.Layer(); // handles always on top
+stage.add(bgLayer);
+stage.add(drawLayer);        // fill below todds
+stage.add(toddLayer);        // images, strokes, groups
+stage.add(transformerLayer); // transformer handles
+toddLayer.clip({ x: 0, y: 0, width: CANVAS_W, height: CANVAS_H });
+drawLayer.clip({ x: 0, y: 0, width: CANVAS_W, height: CANVAS_H });
+
+// ── Zoom & Pan ──
+const ZOOM_MIN = 0.15, ZOOM_MAX = 8, ZOOM_FACTOR = 1.12;
+
+function updateZoomIndicator() {
+  const pct = Math.round(stage.scaleX() * 100);
+  const el = document.getElementById('zoomIndicator');
+  if (!el) return;
+  if (pct === 100) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.textContent = pct + '% (click to reset)';
+}
+
+function resetZoom() {
+  stage.scale({ x: 1, y: 1 });
+  stage.position({ x: 0, y: 0 });
+  stage.batchDraw();
+  updateZoomIndicator();
+}
+
+containerEl.addEventListener('wheel', e => {
+  e.preventDefault();
+  const oldScale = stage.scaleX();
+  const pointer  = stage.getPointerPosition();
+  const dir      = e.deltaY < 0 ? 1 : -1;
+  const newScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, oldScale * (dir > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR)));
+  const anchor   = { x: (pointer.x - stage.x()) / oldScale, y: (pointer.y - stage.y()) / oldScale };
+  stage.scale({ x: newScale, y: newScale });
+  stage.position({ x: pointer.x - anchor.x * newScale, y: pointer.y - anchor.y * newScale });
+  stage.batchDraw();
+  updateZoomIndicator();
+}, { passive: false });
+
+// ── Resize handler ──
+let _resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    const newSz = computeCanvasSize();
+    CANVAS_W = newSz.w; CANVAS_H = newSz.h;
+    containerEl.style.width  = CANVAS_W + 'px';
+    containerEl.style.height = CANVAS_H + 'px';
+    stage.width(CANVAS_W); stage.height(CANVAS_H);
+    toddLayer.clip({ x:0, y:0, width:CANVAS_W, height:CANVAS_H });
+    drawLayer.clip({ x:0, y:0, width:CANVAS_W, height:CANVAS_H });
+    canvasBackdrop.width(CANVAS_W); canvasBackdrop.height(CANVAS_H);
+    canvasBg.width(CANVAS_W); canvasBg.height(CANVAS_H);
+    stage.batchDraw();
+  }, 150);
+});
+
+// Middle-mouse pan
+let _panning = false, _panLast = { x: 0, y: 0 };
+containerEl.addEventListener('mousedown', e => {
+  if (e.button !== 1) return;
+  e.preventDefault();
+  _panning = true;
+  _panLast = { x: e.clientX, y: e.clientY };
+});
+window.addEventListener('mousemove', e => {
+  if (!_panning) return;
+  stage.position({ x: stage.x() + (e.clientX - _panLast.x), y: stage.y() + (e.clientY - _panLast.y) });
+  _panLast = { x: e.clientX, y: e.clientY };
+  stage.batchDraw();
+});
+window.addEventListener('mouseup', e => { if (e.button === 1) _panning = false; });
+
+// ── Active tool state ──
+let _activeTool  = null;
+let _toolColor   = '#f6d00d';
+let _toolSize    = 3;
+let lineMode     = false;
+let fillMode     = false;
+let moveMode     = false;
+let _moveTarget  = null;   // group being manually dragged in move mode
+let _moveOffset  = { x: 0, y: 0 };
+let _moveMoved   = false;
+let _lineStart   = null;
+let _previewLine = null;
+
+function setToolColor(hex) {
+  _toolColor = hex;
+  const hexInput = document.getElementById('hexInput');
+  if (hexInput && document.activeElement !== hexInput) hexInput.value = hex;
+  const ci = document.getElementById('colorIndicator');
+  if (ci) ci.style.background = hex;
+  document.querySelectorAll('.swatch').forEach(s =>
+    s.classList.toggle('active', s.dataset.color?.toLowerCase() === hex.toLowerCase())
+  );
+  if (!_cpInteracting) _cpSyncFromColor(hex);
+}
+function setToolSize(v) {
+  _toolSize = parseInt(v) || 3;
+}
+
+function setActiveTool(tool) {
+  const same = _activeTool === tool;
+  // Deactivate everything first
+  pencilMode = false; eraserMode = false; lineMode = false; fillMode = false; moveMode = false; colorPickerMode = false;
+  _activeTool = null;
+  containerEl.classList.remove('pencil-active','eraser-active');
+  containerEl.style.cursor = '';
+  _moveTarget = null; _moveMoved = false;
+  transformer.nodes([]);
+  toddLayer.find('Group').forEach(g => {
+    if (!g._toddId) return;
+    if (g._refreshDelete) g._refreshDelete();
+  });
+  ['pencilBtn','eraserBtn','lineBtn','fillBtn'].forEach(id =>
+    document.getElementById(id)?.classList.remove('active')
+  );
+  ['pencil','line','fill','eraser','move','colorpicker'].forEach(t =>
+    document.getElementById('sb-'+t)?.classList.remove('active')
+  );
+  document.getElementById('eraserSizeRow').style.display = 'none';
+  document.getElementById('mdb-pencil')?.classList.remove('active');
+  document.getElementById('mdb-eraser')?.classList.remove('active');
+  if (same) { setStatus('Ready'); return; } // toggle off
+
+  _activeTool = tool;
+  document.getElementById('sb-' + tool)?.classList.add('active');
+
+  switch (tool) {
+    case 'pencil':
+      pencilMode = true;
+      containerEl.classList.add('pencil-active');
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      document.getElementById('mdb-pencil')?.classList.add('active');
+      setStatus('Pencil — draw on canvas');
+      break;
+    case 'eraser':
+      eraserMode = true;
+      containerEl.classList.add('eraser-active');
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => {
+        if (!g._toddId) return;
+        if (g._refreshDelete) g._refreshDelete();
+      });
+      document.getElementById('eraserSizeRow').style.display = 'flex';
+      document.getElementById('mdb-eraser')?.classList.add('active');
+      setStatus('Eraser — paint over a Todd', true);
+      break;
+    case 'line':
+      lineMode = true;
+      containerEl.classList.add('pencil-active');
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      setStatus('Line — click and drag');
+      break;
+    case 'fill':
+      fillMode = true;
+      containerEl.style.cursor = 'cell';
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      setStatus('Fill — click to flood fill');
+      break;
+    case 'colorpicker':
+      colorPickerMode = true;
+      containerEl.style.cursor = 'crosshair';
+      transformer.nodes([]);
+      toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+      setStatus('Color Finder — click canvas to pick a color');
+      break;
+    case 'move':
+      moveMode = true;
+      containerEl.style.cursor = 'grab';
+      if (_activeLayer) { transformer.nodes([_activeLayer]); _boostAnchorHits(); toddLayer.draw(); }
+      setStatus('Move — click a layer then drag it');
+      break;
+    case 'text':
+      _activeTool = null;
+      openTextModal();
+      break;
+  }
+}
+
+// ── Chat toggle ──
+function toggleChat() {
+  const open = document.body.classList.toggle('chat-open');
+  document.getElementById('chatPanel').classList.toggle('chat-hidden', !open);
+}
+
+
+// (floating toolbar removed — tools are in sidebar)
+
+// ── Pencil state ──
+let pencilMode = false;
+let isPenciling = false;
+let currentPencilLine = null;
+
+// ── Text state ──
+let _textIdCounter = 0;
+
+const canvasBackdrop = new Konva.Rect({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, fill:'rgba(0,0,0,0.5)', listening:false });
+bgLayer.add(canvasBackdrop);
+const canvasBg = new Konva.Rect({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, fill:'transparent', listening:false });
+bgLayer.add(canvasBg);
+
+// Background stroke group — pencil/line strokes drawn on the background layer
+const bgStrokeGroup = new Konva.Group({ listening: false });
+bgLayer.add(bgStrokeGroup);
+bgLayer.draw();
+
+// Proxy object used as _activeLayer when background is selected for drawing
+const _bgProxy = {
+  _isBgProxy: true,
+  _strokeGroup: bgStrokeGroup,
+  _isEmptyLayer: false,
+  _isCached: false,
+  getRelativePointerPosition() { return stage.getRelativePointerPosition(); },
+  batchDraw() { bgLayer.batchDraw(); }
+};
+
+const transformer = new Konva.Transformer({
+  rotateEnabled: false,
+  anchorSize: 12,
+  anchorHitStroke: 16,
+  borderStroke: '#FFD600',
+  borderStrokeWidth: 1.5,
+  anchorFill: '#FFD600',
+  anchorStroke: '#000',
+  anchorStrokeWidth: 1,
+  keepRatio: true,
+  centeredScaling: false,
+  boundBoxFunc: (oldBox, newBox) => {
+    // Never smaller than 20px, never larger than canvas
+    if (newBox.width < 20 || newBox.height < 20) return oldBox;
+    if (newBox.width > CANVAS_W || newBox.height > CANVAS_H) return oldBox;
+    return newBox;
+  }
+});
+transformerLayer.add(transformer);
+
+// When Konva successfully starts a transform (anchor drag), kill any pending manual move
+// so _moveTarget doesn't fight with the transformer's scale operation.
+transformer.on('transformstart', () => {
+  _moveTarget = null;
+  _moveMoved  = false;
+});
+
+// Boost transformer anchor hit areas with a padded hitFunc so they are easy to click.
+// Call this after every transformer.nodes([...]) call that attaches nodes.
+function _boostAnchorHits() {
+  const pad = 12;
+  transformer.find('Rect').forEach(r => {
+    r.hitFunc(function(ctx) {
+      ctx.beginPath();
+      ctx.rect(-pad, -pad, this.width() + pad * 2, this.height() + pad * 2);
+      ctx.closePath();
+      ctx.fill(); // fills current path with the colorKey Konva already set — do NOT use fillStrokeShape which rebuilds the original small rect
+    });
+  });
+  transformerLayer.drawHit();
+}
+
+// Returns true if the current pointer is within ANCHOR_HIT_PX screen-pixels of any
+// transformer anchor, computed purely from the node's transform — no hit canvas needed.
+const ANCHOR_HIT_PX = 20;
+function _pointerOnAnchor() {
+  if (!transformer.nodes().length) return false;
+  const pos = stage.getRelativePointerPosition();
+  if (!pos) return false;
+  const node = transformer.nodes()[0];
+  const w = node._currentW, h = node._currentH;
+  if (!w || !h) return false;
+  const rot = node.rotation() * Math.PI / 180;
+  const cos = Math.cos(rot), sin = Math.sin(rot);
+  const nx = node.x(), ny = node.y();
+  const thresh = ANCHOR_HIT_PX / stage.scaleX();
+  // The 8 anchor positions in node-local space (matches Konva Transformer layout)
+  return [[0,0],[w/2,0],[w,0],[0,h/2],[w,h/2],[0,h],[w/2,h],[w,h]].some(([lx,ly]) => {
+    const wx = nx + lx*cos - ly*sin;
+    const wy = ny + lx*sin + ly*cos;
+    return (pos.x-wx)**2 + (pos.y-wy)**2 <= thresh*thresh;
+  });
+}
+
+// Rotation cursor (Photoshop-style: hover outside corners)
+const ROTATE_CURSOR = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M12 4V2L9 5l3 3V6c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z' fill='black' stroke='black' stroke-width='1.5' stroke-linejoin='round'/><path d='M12 4V2L9 5l3 3V6c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z' fill='white'/></svg>\") 12 12, crosshair";
+const ROTATE_ZONE_MIN_PX = 16; // inner dead-zone — clears scale handles
+const ROTATE_ZONE_MAX_PX = 46; // outer limit
+let _rotating  = false;
+let _rotStart  = null; // { angle, rotation, wCx, wCy }
+
+// Return the 4 actual corner positions of a node in stage-world coords (tracks rotation)
+function _nodeCorners(node) {
+  const w = node._currentW, h = node._currentH;
+  const r = node.rotation() * Math.PI / 180;
+  const c = Math.cos(r), s = Math.sin(r);
+  const nx = node.x(), ny = node.y();
+  return [
+    [nx,                         ny                        ], // TL
+    [nx + w*c,                   ny + w*s                  ], // TR
+    [nx      - h*s,              ny + h*c                  ], // BL
+    [nx + w*c - h*s,             ny + w*s + h*c            ], // BR
+  ];
+}
+
+function _inRotZone() {
+  if (!moveMode || !transformer.nodes().length) return false;
+  const pos = stage.getRelativePointerPosition();
+  if (!pos) return false;
+  const node = transformer.nodes()[0];
+  const w = node._currentW, h = node._currentH;
+  const r = node.rotation() * Math.PI / 180;
+  // Reject if inside the rotated node rect (transform pos to node-local space)
+  const dx = pos.x - node.x(), dy = pos.y - node.y();
+  const lx =  dx*Math.cos(r) + dy*Math.sin(r);
+  const ly = -dx*Math.sin(r) + dy*Math.cos(r);
+  if (lx >= 0 && lx <= w && ly >= 0 && ly <= h) return false;
+  const sc = stage.scaleX();
+  const Rmin = ROTATE_ZONE_MIN_PX / sc, Rmax = ROTATE_ZONE_MAX_PX / sc;
+  for (const [cx, cy] of _nodeCorners(node)) {
+    const d = Math.sqrt((pos.x-cx)**2 + (pos.y-cy)**2);
+    if (d >= Rmin && d <= Rmax) return true;
+  }
+  return false;
+}
+
+// Compute node center in stage-local world coords from node transform
+function _nodeWorldCenter(node) {
+  const w = node._currentW, h = node._currentH;
+  const r = node.rotation() * Math.PI / 180;
+  return {
+    x: node.x() + (w/2)*Math.cos(r) - (h/2)*Math.sin(r),
+    y: node.y() + (w/2)*Math.sin(r) + (h/2)*Math.cos(r)
+  };
+}
+
+let background    = null;
+let bgBounds      = null;
+let selectedGroup = null;
+let eraserMode    = false;
+let _activeLayer  = null;  // layer currently active for drawing/erasing
+let _bgSelected   = false; // true when the background panel item is selected
+let isErasing     = false;
+let toddCount     = 0;
+
+// ── Undo / Redo history ──
+// Each entry is { todds: [...], bgSrc, bgBounds }
+// todds[i] = { src, x, y, w, h, eraseCircles:[{x,y,r},...] }
+let history = [];
+let historyIndex = -1;
+const MAX_HISTORY = 40;
+
+// Store image src by group id so we can restore images
+const srcCache = {};   // groupId -> full image URL (used for history/restore)
+const thumbCache = {}; // groupId -> 22x22 data URL (used for panel thumbnail, renders instantly)
+const imgCache = {};   // url -> Image object (used for sync restore in undo/redo, prevents flicker)
+
+let colorPickerMode = false;
+
+// Cache an empty-layer group to isolate destination-out compositing
+function _cacheEmptyLayer(g) {
+  const bx = g.x(), by = g.y();
+  g.cache({ x: -bx, y: -by, width: CANVAS_W, height: CANVAS_H });
+  g._isCached = true;
+}
+// Refresh cache if one already exists (called after stroke/fill changes on a cached empty layer)
+function _invalidateEmptyLayerCache(g) {
+  if (g._isEmptyLayer && g._isCached) _cacheEmptyLayer(g);
+}
+
+function _snapFill(g) {
+  if (!g._fillNode) return {};
+  const f = g._fillNode;
+  return { fillSrc: f.image().src, fillX: f.x(), fillY: f.y(), fillW: f.width(), fillH: f.height() };
+}
+
+function snapshotState() {
+  const items = [];
+  toddLayer.find('Group').forEach(g => {
+    if (!g._toddId) return;
+    const layerStrokes = g._strokeGroup
+      ? g._strokeGroup.find('Line').map(l => ({ points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth() }))
+      : [];
+    if (g._isEmptyLayer) {
+      const eraseCircles = g.eraseLayer ? g.eraseLayer.getChildren().map(c => ({ x:c.x(), y:c.y(), r:c.radius() })) : [];
+      items.push({ type: 'layer', id: g._toddId, x: g.x(), y: g.y(), w: g._currentW, h: g._currentH, strokes: layerStrokes, eraseCircles, visible: g.visible(), opacity: g.opacity(), ..._snapFill(g) });
+    } else if (g._isText) {
+      const tn = g.findOne('Text');
+      items.push({
+        type: 'text', id: g._toddId,
+        text: tn.text(), fill: tn.fill(), fontSize: tn.fontSize(),
+        x: g.x(), y: g.y(), rotation: g.rotation(),
+        scaleX: g.scaleX(), scaleY: g.scaleY(),
+        mirrored: g._mirrored || false, strokes: layerStrokes,
+        visible: g.visible(), opacity: g.opacity(), ..._snapFill(g)
+      });
+    } else {
+      items.push({
+        type: 'todd', id: g._toddId,
+        src: srcCache[g._toddId],
+        x: g.x(), y: g.y(), w: g._currentW, h: g._currentH,
+        rotation: g.rotation(), mirrored: g._mirrored || false,
+        eraseCircles: g.eraseLayer.getChildren().map(c => ({ x:c.x(), y:c.y(), r:c.radius() })),
+        strokes: layerStrokes, visible: g.visible(), opacity: g.opacity(), ..._snapFill(g)
+      });
+    }
+  });
+  const strokes = drawLayer.find('Line').map(l => ({
+    points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth()
+  }));
+  const bgStrokes = bgStrokeGroup.find('Line').map(l => ({
+    points: l.points().slice(), stroke: l.stroke(), strokeWidth: l.strokeWidth()
+  }));
+  return {
+    items,
+    strokes,
+    bgStrokes,
+    activeLayerId: _activeLayer ? _activeLayer._toddId : null,
+    bgSrc:    background ? background.image().src : null,
+    bgBounds: bgBounds ? {...bgBounds} : null
+  };
+}
+
+function pushHistory() {
+  // Discard any redo states ahead of current index
+  history = history.slice(0, historyIndex + 1);
+  history.push(snapshotState());
+  if (history.length > MAX_HISTORY) history.shift();
+  historyIndex = history.length - 1;
+  updateUndoRedoBtns();
+  refreshLayerPanel();
+}
+
+function updateUndoRedoBtns() {
+  const u = document.getElementById('undoBtn'), r = document.getElementById('redoBtn');
+  if (u) u.style.opacity = historyIndex > 0 ? '1' : '0.4';
+  if (r) r.style.opacity = historyIndex < history.length - 1 ? '1' : '0.4';
+}
+
+function refreshLayerPanel() {
+  const list = document.getElementById('layerList');
+  if (!list) return;
+  // All groups in visual order, reversed so top layer is first
+  const groups = Array.from(toddLayer.getChildren()).filter(n => n._toddId).reverse();
+  if (!groups.length && !background) {
+    list.innerHTML = '<div class="layer-empty">No layers yet</div>';
+    return;
+  }
+  list.innerHTML = '';
+  groups.forEach(g => {
+    const isSel   = transformer.nodes().includes(g);
+    const isActive = _activeLayer === g;
+    const item  = document.createElement('div');
+    item.className = 'layer-item' + (isSel ? ' layer-selected' : '') + (isActive ? ' layer-active' : '');
+
+    // Thumbnail
+    let thumbHtml;
+    if (g._isEmptyLayer) {
+      thumbHtml = `<span class="layer-thumb-icon" style="color:#bbb">▭</span>`;
+    } else if (g._isText) {
+      const fill = g.findOne('Text')?.fill() || '#FFD600';
+      thumbHtml = `<span class="layer-thumb-icon" style="color:${fill}">T</span>`;
+    } else {
+      // Only use the pre-generated data URL from thumbCache — never a remote URL.
+      // Remote URLs cause Chrome to defer painting the list until the img loads.
+      thumbHtml = thumbCache[g._toddId]
+        ? `<img class="layer-thumb" src="${thumbCache[g._toddId]}">`
+        : `<span class="layer-thumb-icon">🖼</span>`;
+    }
+
+    // Name
+    let name;
+    if (g._customName) {
+      name = g._customName;
+    } else if (g._isEmptyLayer) {
+      name = 'Layer ' + g._toddId.replace(/[^0-9]/g,'');
+    } else if (g._isText) {
+      const txt = g.findOne('Text')?.text() || '';
+      name = 'Text: ' + (txt.length > 9 ? txt.slice(0,9) + '…' : txt);
+    } else {
+      name = 'Layer ' + g._toddId.replace(/[^0-9]/g,'');
+    }
+
+    item.innerHTML = `${thumbHtml}
+      <span class="layer-name" ondblclick="event.stopPropagation();renameLayer('${g._toddId}',this)" title="Double-click to rename">${name}</span>
+      <button class="layer-act" onclick="event.stopPropagation();renameLayer('${g._toddId}',this.previousElementSibling)" title="Rename">✎</button>
+      <button class="layer-act" onclick="event.stopPropagation();layerToggleVisible('${g._toddId}')" title="${g.visible() ? 'Hide layer' : 'Show layer'}" style="opacity:${g.visible() ? '1' : '0.4'}">${g.visible() ? '👁' : '○'}</button>
+      <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','up')"   title="Bring forward">▲</button>
+      <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','down')" title="Send backward">▼</button>
+      <button class="layer-act del" onclick="event.stopPropagation();layerRemove('${g._toddId}')" title="Delete">×</button>`;
+
+    // Opacity slider row
+    const opRow = document.createElement('div');
+    opRow.style.cssText = 'padding:0 2px;';
+    const opSlider = document.createElement('input');
+    opSlider.type = 'range'; opSlider.min = '0'; opSlider.max = '100';
+    opSlider.value = Math.round(g.opacity() * 100);
+    opSlider.className = 'layer-opacity-slider';
+    opSlider.title = 'Layer opacity';
+    opSlider.addEventListener('click', e => e.stopPropagation());
+    opSlider.addEventListener('input', e => { e.stopPropagation(); setLayerOpacity(g._toddId, e.target.value); });
+    opSlider.addEventListener('change', e => { e.stopPropagation(); pushHistory(); });
+    opRow.appendChild(opSlider);
+
+    item.addEventListener('click', () => {
+      _activeLayer = g;
+      _bgSelected = false;
+      g._refreshDelete && g._refreshDelete();
+      if (moveMode) {
+        transformer.nodes([g]);
+        _boostAnchorHits();
+        toddLayer.draw();
+      } else {
+        transformer.nodes([]);
+      }
+      refreshLayerPanel();
+    });
+    const wrapper = document.createElement('div');
+    wrapper.appendChild(item);
+    wrapper.appendChild(opRow);
+    list.appendChild(wrapper);
+  });
+
+  // Background is always the bottom-most layer
+  if (background) {
+    const bgItem = document.createElement('div');
+    bgItem.className = 'layer-item' + (_bgSelected ? ' layer-active' : '');
+    bgItem.innerHTML = `<span class="layer-thumb-icon" style="color:#bbb">▨</span>
+      <span class="layer-name">Background</span>
+      <button class="layer-act del" onclick="event.stopPropagation();setTimeout(()=>removeBackground(),0)" title="Remove background">×</button>`;
+    bgItem.addEventListener('click', () => {
+      _bgSelected = true;
+      _activeLayer = _bgProxy;
+      transformer.nodes([]);
+      refreshLayerPanel();
+    });
+    list.appendChild(bgItem);
+  }
+}
+
+function renameLayer(id, nameEl) {
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
+  if (!g || nameEl.tagName === 'INPUT') return;
+  const cur = nameEl.textContent;
+  const inp = document.createElement('input');
+  inp.value = cur;
+  inp.style.cssText = 'flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,214,0,0.5);color:#fff;font-family:\'VT323\',monospace;font-size:12px;padding:0 3px;outline:none;min-width:0';
+  nameEl.replaceWith(inp);
+  inp.focus(); inp.select();
+  function save() {
+    const val = inp.value.trim();
+    g._customName = val || null;
+    refreshLayerPanel();
+  }
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); save(); } if (e.key === 'Escape') refreshLayerPanel(); });
+  inp.addEventListener('blur', save);
+  inp.addEventListener('click', e => e.stopPropagation());
+}
+
+function layerMove(id, dir) {
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
+  if (!g) return;
+  dir === 'up' ? g.moveUp() : g.moveDown();
+  toddLayer.draw();
+  refreshLayerPanel();
+  pushHistory();
+}
+
+function layerRemove(id) {
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
+  if (g && g._removeTodd) g._removeTodd();
+  else if (g) {
+    g.destroy(); toddLayer.draw();
+    refreshLayerPanel(); pushHistory();
+  }
+}
+
+function layerToggleVisible(id) {
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
+  if (!g) return;
+  const vis = !g.visible();
+  g.visible(vis);
+  toddLayer.draw();
+  refreshLayerPanel();
+  pushHistory();
+}
+
+
+function setLayerOpacity(id, val) {
+  const g = Array.from(toddLayer.getChildren()).find(n => n._toddId === id);
+  if (!g) return;
+  g.opacity(parseInt(val) / 100);
+  toddLayer.draw();
+}
+
+function removeBackground() {
+  if (!background) return;
+  if (_activeLayer === _bgProxy) { _activeLayer = null; _bgSelected = false; }
+  background.destroy(); background = null; bgBounds = null;
+  bgStrokeGroup.destroyChildren();
+  canvasBg.visible(true);
+  applyDrawLayerClip();
+  bgLayer.draw();
+  refreshLayerPanel();
+  pushHistory();
+}
+
+function restoreState(snap) {
+  toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); }); // fills destroyed with their groups
+  transformer.nodes([]);
+  toddCount = 0;
+
+  // Restore draw layer (strokes only — fills are restored per-group below)
+  drawLayer.destroyChildren();
+  (snap.strokes || []).forEach(s => {
+    drawLayer.add(new Konva.Line({
+      stroke: s.stroke, strokeWidth: s.strokeWidth,
+      lineCap: 'round', lineJoin: 'round',
+      points: s.points, listening: false
+    }));
+  });
+  drawLayer.draw();
+
+  // Restore background stroke group
+  bgStrokeGroup.destroyChildren();
+  (snap.bgStrokes || []).forEach(s => {
+    bgStrokeGroup.add(new Konva.Line({
+      stroke: s.stroke, strokeWidth: s.strokeWidth,
+      lineCap: 'round', lineJoin: 'round',
+      points: s.points, listening: false
+    }));
+  });
+  bgLayer.batchDraw();
+
+  // Pre-calculate ALL async loads before starting any (prevents race conditions)
+  const items = snap.items || snap.todds || [];
+  // Items with a cached Image object restore synchronously — only uncached ones are async
+  // Also count fill loads (per-group)
+  const toddAsyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text' && !imgCache[td.src]).length;
+  const fillAsyncCount = items.filter(td => td.fillSrc).length;
+  const bgNeedsLoad = !!(snap.bgSrc && snap.bgBounds && (!background || background.image().src !== snap.bgSrc));
+  let totalAsync = toddAsyncCount + fillAsyncCount + (bgNeedsLoad ? 1 : 0);
+  let asyncDone = 0;
+  function _onAsyncDone() {
+    asyncDone++;
+    if (asyncDone === totalAsync) {
+      if (snap.activeLayerId)
+        _activeLayer = Array.from(toddLayer.getChildren()).find(g => g._toddId === snap.activeLayerId) || null;
+      refreshLayerPanel();
+    }
+  }
+
+  // Restore background
+  if (snap.bgSrc && snap.bgBounds) {
+    if (bgNeedsLoad) {
+      if (background) background.destroy();
+      const img = new Image();
+      img.onload = () => {
+        const b = snap.bgBounds;
+        bgBounds = {...b};
+        background = new Konva.Image({ image:img, x:b.x, y:b.y, width:b.w, height:b.h, listening:false });
+        bgLayer.add(background);
+        canvasBg.visible(false);
+        canvasBg.moveToBottom();
+        bgLayer.draw();
+        applyDrawLayerClip();
+        _onAsyncDone();
+      };
+      img.src = snap.bgSrc;
+    } else {
+      bgBounds = {...snap.bgBounds};
+      applyDrawLayerClip();
+    }
+  } else if (!snap.bgSrc) {
+    if (background) { background.destroy(); background = null; bgBounds = null; }
+    canvasBg.visible(true);
+    applyDrawLayerClip();
+    bgLayer.draw();
+  }
+
+  _activeLayer = null;
+  items.forEach(td => {
+    const restoreStrokes = (group) => {
+      (td.strokes || []).forEach(s => {
+        group._strokeGroup.add(new Konva.Line({
+          stroke: s.stroke, strokeWidth: s.strokeWidth,
+          lineCap: 'round', lineJoin: 'round',
+          points: s.points, listening: false
+        }));
+      });
+    };
+    // Restore per-group fill — add as child of group at saved local position
+    const restoreFill = (group, itemData) => {
+      if (!itemData.fillSrc) return;
+      const fi = new Image();
+      fi.onload = () => {
+        const kFill = new Konva.Image({
+          image: fi,
+          x: itemData.fillX ?? 0, y: itemData.fillY ?? 0,
+          width: itemData.fillW ?? CANVAS_W, height: itemData.fillH ?? CANVAS_H,
+          listening: false
+        });
+        kFill._fillOwnerId = group._toddId;
+        group._fillNode = kFill;
+        group.add(kFill);
+        // Place fill above eraseLayer so destination-out doesn't erase it
+        if (group.eraseLayer) kFill.zIndex(group.eraseLayer.zIndex() + 1); else kFill.moveToBottom();
+        toddLayer.batchDraw();
+        _onAsyncDone();
+      };
+      fi.src = itemData.fillSrc;
+    };
+
+    if (td.type === 'layer') {
+      const g = _restoreEmptyLayer(td);
+      if (td.visible === false) g.visible(false);
+      if (td.opacity != null) g.opacity(td.opacity);
+      (td.eraseCircles || []).forEach(c => {
+        g.eraseLayer.add(new Konva.Circle({ x:c.x, y:c.y, radius:c.r, fill:'#000', listening:false, globalCompositeOperation:'destination-out' }));
+      });
+      if ((td.eraseCircles || []).length) _cacheEmptyLayer(g);
+      restoreStrokes(g);
+      restoreFill(g, td);
+    } else if (td.type === 'text') {
+      const g = makeTextGroup(td.text, td.x, td.y, td.id, td.fontSize, td.fill, td.scaleX, td.scaleY, td.rotation, td.mirrored, false);
+      if (td.visible === false) g.visible(false);
+      if (td.opacity != null) g.opacity(td.opacity);
+      restoreStrokes(g);
+      restoreFill(g, td);
+    } else if (imgCache[td.src]) {
+      // Image already loaded — restore synchronously (no flicker on undo/redo)
+      toddCount++;
+      const group = makeToddGroup(imgCache[td.src], td.w, td.h, td.x, td.y, td.id, false);
+      if (td.visible === false) group.visible(false);
+      if (td.opacity != null) group.opacity(td.opacity);
+      if (td.rotation) group.rotation(td.rotation);
+      if (td.mirrored) {
+        group._mirrored = true;
+        const todd = group.findOne('Image');
+        todd.scaleX(-1); todd.x(td.w);
+      }
+      (td.eraseCircles || []).forEach(c => {
+        group.eraseLayer.add(new Konva.Circle({
+          x:c.x, y:c.y, radius:c.r,
+          fill:'#000', listening:false,
+          globalCompositeOperation:'destination-out'
+        }));
+      });
+      restoreStrokes(group);
+      toddLayer.draw();
+      restoreFill(group, td);
+    } else {
+      const img = new Image();
+      img.onload = () => {
+        toddCount++;
+        const group = makeToddGroup(img, td.w, td.h, td.x, td.y, td.id, false);
+        if (td.visible === false) group.visible(false);
+        if (td.opacity != null) group.opacity(td.opacity);
+        if (td.rotation) group.rotation(td.rotation);
+        if (td.mirrored) {
+          group._mirrored = true;
+          const todd = group.findOne('Image');
+          todd.scaleX(-1); todd.x(td.w);
+        }
+        (td.eraseCircles || []).forEach(c => {
+          group.eraseLayer.add(new Konva.Circle({
+            x:c.x, y:c.y, radius:c.r,
+            fill:'#000', listening:false,
+            globalCompositeOperation:'destination-out'
+          }));
+        });
+        restoreStrokes(group);
+        toddLayer.draw();
+        restoreFill(group, td);
+        _onAsyncDone();
+      };
+      if (td.src && td.src.includes('supabase.co')) img.crossOrigin = 'anonymous';
+      img.src = td.src;
+    }
+  });
+
+  updateUndoRedoBtns();
+  setStatus('Ready');
+  if (totalAsync === 0) {
+    if (snap.activeLayerId)
+      _activeLayer = Array.from(toddLayer.getChildren()).find(g => g._toddId === snap.activeLayerId) || null;
+    refreshLayerPanel();
+  }
+}
+
+function undo() {
+  if (historyIndex <= 0) return;
+  historyIndex--;
+  restoreState(history[historyIndex]);
+}
+
+function redo() {
+  if (historyIndex >= history.length - 1) return;
+  historyIndex++;
+  restoreState(history[historyIndex]);
+}
+
+// ── Helpers ──
+function setStatus(msg, erasing=false) {
+  document.getElementById('statusText').textContent = msg;
+  document.getElementById('statusDot').className = 'status-dot' + (erasing ? ' erasing' : '');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Empty (blank drawing) layer ──
+function _makeEmptyLayerGroup(id, x, y, w, h) {
+  const g = new Konva.Group({ x, y, draggable: false });
+  g._toddId = id;
+  g._isEmptyLayer = true;
+  g._currentW = w;
+  g._currentH = h;
+  g._fillNode = null;
+  g._isCached = false;
+  const sg = new Konva.Group({ listening: false });
+  g._strokeGroup = sg;
+  const el = new Konva.Group({ listening: false });
+  g.eraseLayer = el;
+  g.add(sg, el); // strokes first so eraseLayer destination-out erases them
+
+  function refreshDelete() {
+  }
+  g._refreshDelete = refreshDelete;
+  g._removeTodd = () => {
+    if (_activeLayer === g) _activeLayer = null;
+    g.destroy(); toddLayer.draw(); refreshLayerPanel(); pushHistory();
+  };
+  g.on('click tap', ev => {
+    ev.cancelBubble = true;
+    // Canvas clicks never change the active layer — use the panel to select layers
+    refreshLayerPanel();
+  });
+  g.on('mousedown touchstart', ev => {
+    if (!moveMode) return;
+    if (g !== _activeLayer) return;
+    ev.cancelBubble = true;
+    const pos = stage.getRelativePointerPosition();
+    if (!pos) return;
+    _moveTarget = g;
+    _moveOffset = { x: pos.x - g.x(), y: pos.y - g.y() };
+    _moveMoved = false;
+    containerEl.style.cursor = 'grabbing';
+  });
+  toddLayer.add(g);
+  return g;
+}
+
+function addEmptyLayer() {
+  const id = 'layer_' + (++_toddIdCounter);
+  const bx = bgBounds ? bgBounds.x : 0, by = bgBounds ? bgBounds.y : 0;
+  const bw = bgBounds ? bgBounds.w : CANVAS_W, bh = bgBounds ? bgBounds.h : CANVAS_H;
+  const g = _makeEmptyLayerGroup(id, bx, by, bw, bh);
+  _activeLayer = g;
+  refreshLayerPanel();
+  toddLayer.draw();
+  pushHistory();
+  showToast('Layer added');
+}
+
+function _restoreEmptyLayer(td) {
+  return _makeEmptyLayerGroup(td.id, td.x, td.y, td.w, td.h);
+}
+
+// ── Clamp: Todd stays within bgBounds (or canvas if no bg) ──
+function clampToBg(group, w, h) {
+  const margin = 20;
+  const bx = bgBounds ? bgBounds.x : 0;
+  const by = bgBounds ? bgBounds.y : 0;
+  const bw = bgBounds ? bgBounds.w : CANVAS_W;
+  const bh = bgBounds ? bgBounds.h : CANVAS_H;
+  group.x(Math.min(bx + bw - margin, Math.max(bx + margin - w, group.x())));
+  group.y(Math.min(by + bh - margin, Math.max(by + margin - h, group.y())));
+}
+
+
+// ── End a manual move-drag (called from stage mouseup and window mouseup) ──
+function _endMoveDrag() {
+  if (!_moveTarget) return;
+  const target = _moveTarget;
+  _moveTarget = null;
+  if (_moveMoved) {
+    if (target === background) {
+      // Update bgBounds to match the new background position
+      bgBounds = { x: background.x(), y: background.y(), w: bgBounds.w, h: bgBounds.h };
+      applyDrawLayerClip();
+      bgLayer.batchDraw();
+    } else {
+      clampToBg(target, target._currentW, target._currentH);
+      toddLayer.batchDraw();
+    }
+    pushHistory();
+  }
+  _moveMoved = false;
+  if (moveMode) containerEl.style.cursor = 'grab';
+  else containerEl.style.cursor = '';
+}
+window.addEventListener('mouseup', _endMoveDrag);
+
+// Returns true if the stage pointer is within canvas bounds
+function _inCanvas() {
+  const pos = stage.getRelativePointerPosition();
+  return pos && pos.x >= 0 && pos.x <= CANVAS_W && pos.y >= 0 && pos.y <= CANVAS_H;
+}
+
+// ── Apply / clear drawLayer clip based on current bgBounds ──
+function applyDrawLayerClip() {
+  if (bgBounds) {
+    drawLayer.clip({ x: bgBounds.x, y: bgBounds.y, width: bgBounds.w, height: bgBounds.h });
+  } else {
+    drawLayer.clip({ x: 0, y: 0, width: CANVAS_W, height: CANVAS_H });
+  }
+}
+
+// ── Core function to build a Todd group (used by addTodd and restoreState) ──
+let _toddIdCounter = 0;
+function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = true) {
+  let currentW = initW;
+  let currentH = initH;
+  const id = reuseId || ('todd_' + (++_toddIdCounter));
+
+  const group = new Konva.Group({ x: startX, y: startY, draggable: false });
+  group._toddId  = id;
+  group._currentW = currentW;
+  group._currentH = currentH;
+
+  group._fillNode = null;
+  srcCache[id] = img.src;
+  imgCache[img.src] = img; // cache Image object for sync undo/redo restore
+
+  // Generate 22×22 thumbnail data URL synchronously (img is already loaded here).
+  // Stored in thumbCache so the panel can render it instantly without an async network fetch.
+  try {
+    const tc = document.createElement('canvas');
+    tc.width = 22; tc.height = 22;
+    const tctx = tc.getContext('2d');
+    const s = Math.min(22 / img.naturalWidth, 22 / img.naturalHeight);
+    const tw = Math.round(img.naturalWidth * s), th = Math.round(img.naturalHeight * s);
+    tctx.drawImage(img, (22 - tw) / 2, (22 - th) / 2, tw, th);
+    thumbCache[id] = tc.toDataURL('image/jpeg', 0.7);
+  } catch(e) { thumbCache[id] = null; } // CORS taint fallback
+
+  const todd = new Konva.Image({ image:img, width:currentW, height:currentH });
+
+  const strokeGroup = new Konva.Group({ listening:false });
+  const eraseLayer  = new Konva.Group({ listening:false });
+
+  function refreshDelete() {
+  }
+
+  group.on('transformend', () => {
+    const sx = Math.abs(group.scaleX()), sy = Math.abs(group.scaleY());
+    const newW = Math.max(20, currentW * sx);
+    const newH = Math.max(20, currentH * sy);
+    todd.width(newW); todd.height(newH);
+    eraseLayer.getChildren().forEach(c => {
+      c.x(c.x() * sx); c.y(c.y() * sy);
+      if (typeof c.radius === 'function') c.radius(c.radius() * Math.max(sx, sy));
+    });
+    strokeGroup.find('Line').forEach(l => {
+      l.points(l.points().map((v, i) => v * (i % 2 === 0 ? sx : sy)));
+      l.strokeWidth(l.strokeWidth() * Math.max(sx, sy));
+    });
+    currentW = newW; currentH = newH;
+    group._currentW = currentW; group._currentH = currentH;
+    group.scaleX(1); group.scaleY(1);
+    // Re-apply mirror on the image node (group scale reset would clear it if on group)
+    if (group._mirrored) { todd.scaleX(-1); todd.x(currentW); }
+    else { todd.scaleX(1); todd.x(0); }
+    clampToBg(group, currentW, currentH);
+    refreshDelete();
+    toddLayer.draw();
+    pushHistory();
+  });
+
+
+  group.on('click tap', ev => {
+    ev.cancelBubble = true;
+    // Canvas clicks never change the active layer — use the panel to select layers
+    refreshLayerPanel();
+  });
+
+  group.on('mousedown touchstart', ev => {
+    if (!moveMode) return;
+    if (group !== _activeLayer) return;
+    if (_pointerOnAnchor()) return; // anchor click — let Konva handle scale
+    const pos = stage.getRelativePointerPosition();
+    if (!pos) return;
+    _moveTarget = group;
+    _moveOffset = { x: pos.x - group.x(), y: pos.y - group.y() };
+    _moveMoved  = false;
+    containerEl.style.cursor = 'grabbing';
+  });
+
+  function removeTodd() {
+    if (_activeLayer === group) _activeLayer = null;
+    transformer.nodes([]);
+    group.destroy();
+    toddLayer.draw();
+    toddCount--;
+    setStatus(toddCount === 0 ? 'Add a Todd!' : `${toddCount} Todd${toddCount>1?'s':''} on canvas`);
+    refreshLayerPanel();
+    pushHistory();
+  }
+
+  // render order: image → erase → strokes (so new strokes appear above erased areas)
+  group.add(todd, eraseLayer, strokeGroup);
+  group.eraseLayer       = eraseLayer;
+  group._strokeGroup     = strokeGroup;
+  group._refreshDelete   = refreshDelete;
+  group._removeTodd      = removeTodd;
+  group._currentW        = currentW;
+  group._currentH        = currentH;
+
+  toddLayer.add(group);
+  if (autoSelect && moveMode) { transformer.nodes([group]); _boostAnchorHits(); }
+  clampToBg(group, currentW, currentH);
+  refreshDelete();
+  toddLayer.draw();
+
+  return group;
+}
+
+// ── Background upload ──
+// ── Todd upload ──
+document.getElementById('toddUpload').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file) return;
+  e.target.value = '';
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  showToast('Uploading image...');
+  try {
+    const res = await fetch(`${SUPA_URL}/storage/v1/object/canvas-uploads/${filename}`, {
+      method: 'POST',
+      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': file.type || 'image/png' },
+      body: file
+    });
+    if (!res.ok) throw new Error(await res.text());
+    addTodd(`${SUPA_URL}/storage/v1/object/public/canvas-uploads/${filename}`);
+  } catch (err) {
+    showToast('Upload failed ✗');
+    console.error('canvas-uploads error:', err);
+  }
+});
+
+// ── Add Todd ──
+function addTodd(src) {
+  const img = new Image();
+  img.onload = () => {
+    toddCount++;
+    const nat  = img.naturalWidth / img.naturalHeight;
+    const initW = nat >= 1 ? 200 : Math.round(200 * nat);
+    const initH = nat >= 1 ? Math.round(200 / nat) : 200;
+    const sx0 = bgBounds ? bgBounds.x + 20 : CANVAS_W/2 - 100;
+    const sy0 = bgBounds ? bgBounds.y + 20 : CANVAS_H/2 - 100;
+    const g = makeToddGroup(img, initW, initH,
+      sx0 + (Math.random()-0.5)*40,
+      sy0 + (Math.random()-0.5)*40
+    );
+    _activeLayer = g;
+    if (!moveMode) transformer.nodes([]); // don't show resize handles in draw mode
+    refreshLayerPanel();
+    pushHistory();
+    setStatus(`Todd added! ${toddCount} on canvas`);
+    showToast('Todd added! ✓');
+  };
+  img.onerror = () => { toddCount--; showToast('Could not load image ✗'); };
+  if (src.includes('supabase.co')) img.crossOrigin = 'anonymous'; // needed for thumbCache toDataURL
+  img.src = src;
+}
+
+// ── Deselect ──
+stage.on('click tap', ev => {
+  if (pencilMode || lineMode || eraserMode || moveMode || fillMode) return;
+  if (ev.target === stage) {
+    transformer.nodes([]);   // clear FIRST so refreshDelete sees no selection
+    selectedGroup = null;
+    toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+    toddLayer.draw();
+    refreshLayerPanel();
+    setStatus('Ready');
+  }
+});
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', ev => {
+  // Don't fire when typing in an input
+  if (ev.target.tagName === 'INPUT') return;
+
+  // Delete / Backspace — delete selected Todd
+  if (ev.key === 'Delete' || ev.key === 'Backspace') {
+    deleteSelected();
+  }
+
+  // Ctrl+Z — undo
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z' && !ev.shiftKey) {
+    ev.preventDefault();
+    undo();
+  }
+
+  // Ctrl+Y or Ctrl+Shift+Z — redo
+  if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'y' || (ev.key === 'z' && ev.shiftKey))) {
+    ev.preventDefault();
+    redo();
+  }
+});
+
+// ── Eraser ──
+// ── Text tool ──
+function openTextModal() {
+  document.getElementById('textInput').value = '';
+  document.getElementById('textModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('textInput').focus(), 50);
+}
+function closeTextModal(ev) {
+  if (ev && ev.target !== document.getElementById('textModal')) return;
+  document.getElementById('textModal').style.display = 'none';
+}
+function confirmAddText() {
+  const txt = document.getElementById('textInput').value.trim();
+  document.getElementById('textModal').style.display = 'none';
+  if (!txt) return;
+  makeTextGroup(txt, CANVAS_W/2 - 80, CANVAS_H/2 - 20);
+  pushHistory();
+  showToast('Text added!');
+}
+document.getElementById('textInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmAddText();
+  if (e.key === 'Escape') { document.getElementById('textModal').style.display = 'none'; }
+});
+
+function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, scaleY, rotation, mirrored, autoSelect = true) {
+  const id = reuseId || ('text_' + (++_textIdCounter));
+  const textNode = new Konva.Text({
+    text: txt,
+    fontSize: fontSize || 36,
+    fontFamily: 'VT323, monospace',
+    fill: fill || '#FFD600',
+    letterSpacing: 1,
+    listening: true
+  });
+  const w = textNode.width();
+  const h = textNode.height();
+
+  const group = new Konva.Group({ x: startX, y: startY, draggable: false, scaleX: scaleX||1, scaleY: scaleY||1 });
+  group._toddId = id;
+  group._isText = true;
+  group._currentW = w;
+  group._currentH = h;
+  group._fillNode = null;
+  if (rotation) group.rotation(rotation);
+  if (mirrored) {
+    group._mirrored = true;
+    textNode.scaleX(-1);
+    textNode.x(w);
+  }
+
+  function refreshDelete() {
+  }
+  function removeItem() {
+    if (_activeLayer === group) _activeLayer = null;
+    transformer.nodes([]);
+    group.destroy();
+    toddLayer.draw();
+    setStatus('Ready');
+    pushHistory();
+  }
+  group.on('click tap', ev => {
+    ev.cancelBubble = true;
+    // Canvas clicks never change the active layer — use the panel to select layers
+    refreshLayerPanel();
+  });
+  group.on('mousedown touchstart', ev => {
+    if (!moveMode) return;
+    if (group !== _activeLayer) return;
+    if (_pointerOnAnchor()) return; // anchor click — let Konva handle scale
+    const pos = stage.getRelativePointerPosition();
+    if (!pos) return;
+    _moveTarget = group;
+    _moveOffset = { x: pos.x - group.x(), y: pos.y - group.y() };
+    _moveMoved  = false;
+    containerEl.style.cursor = 'grabbing';
+  });
+  group.on('transformend', () => { refreshDelete(); pushHistory(); });
+  group._refreshDelete = refreshDelete;
+  group._removeTodd = removeItem;
+
+  const textStrokeGroup = new Konva.Group({ listening: false });
+  group._strokeGroup = textStrokeGroup;
+  group.add(textNode, textStrokeGroup);
+  toddLayer.add(group);
+  if (autoSelect) { transformer.nodes([group]); _boostAnchorHits(); }
+  refreshDelete();
+  toddLayer.draw();
+  return group;
+}
+
+// ── Mirror / Flip horizontal ──
+function flipSelected() {
+  const nodes = transformer.nodes();
+  if (!nodes.length || !nodes[0]._toddId) return;
+  const group = nodes[0];
+  group._mirrored = !group._mirrored;
+  if (group._isText) {
+    const tn = group.findOne('Text');
+    if (group._mirrored) { tn.scaleX(-1); tn.x(group._currentW); }
+    else                  { tn.scaleX(1);  tn.x(0); }
+  } else {
+    const todd = group.findOne('Image');
+    if (group._mirrored) { todd.scaleX(-1); todd.x(group._currentW); }
+    else                  { todd.scaleX(1);  todd.x(0); }
+  }
+  toddLayer.draw();
+  pushHistory();
+}
+
+// ── Layer ordering ──
+function deleteSelected() {
+  const nodes = transformer.nodes();
+  if (nodes.length && nodes[0]._removeTodd) nodes[0]._removeTodd();
+}
+
+function moveLayer(dir) {
+  const nodes = transformer.nodes();
+  if (!nodes.length || !nodes[0]._toddId) return;
+  const group = nodes[0];
+  if (dir === 'up') group.moveUp();
+  else group.moveDown();
+  // Keep transformer on top
+  transformer.moveToTop();
+  toddLayer.draw();
+  pushHistory();
+}
+
+function toggleEraser() { setActiveTool(_activeTool === 'eraser' ? null : 'eraser'); }
+
+const eraserSizeSlider = document.getElementById('eraserSize');
+const eraserSizeVal    = document.getElementById('eraserSizeVal');
+eraserSizeSlider.addEventListener('input', () => { eraserSizeVal.textContent = eraserSizeSlider.value; });
+
+stage.on('mousedown touchstart', ev => {
+  if (ev.evt && ev.evt.button === 1) return; // ignore middle mouse — don't erase while panning
+  if (!eraserMode) return;
+  if (_activeLayer && _activeLayer._isBgProxy) return; // bg layer not erasable
+  // If a layer is active, erase within it; otherwise find group under pointer
+  if (_activeLayer && _activeLayer.eraseLayer) {
+    selectedGroup = _activeLayer; isErasing = true; return;
+  }
+  let node = ev.target;
+  while (node) {
+    if (node.eraseLayer) { selectedGroup = node; isErasing = true; return; }
+    node = node.getParent ? node.getParent() : null;
+  }
+});
+stage.on('mouseup touchend', () => {
+  if (_rotating) {
+    _rotating = false; _rotStart = null;
+    containerEl.style.cursor = moveMode ? 'grab' : '';
+    pushHistory();
+  }
+  if (isErasing) { isErasing = false; pushHistory(); }
+  if (isPenciling) {
+    isPenciling = false;
+    currentPencilLine = null;
+    pushHistory();
+  }
+  if (lineMode && _previewLine) {
+    _previewLine = null;
+    _lineStart = null;
+    pushHistory();
+  }
+  _endMoveDrag();
+});
+stage.on('mousemove touchmove', (ev) => {
+  // Rotation zone cursor — skip if hovering over a transformer anchor (let Konva set resize cursor)
+  if (moveMode && !_rotating && !_moveTarget && transformer.nodes().length) {
+    const overAnchor = ev.target && ev.target.getParent && ev.target.getParent() === transformer;
+    if (!overAnchor) containerEl.style.cursor = _inRotZone() ? ROTATE_CURSOR : 'grab';
+  }
+  // Active rotation
+  if (_rotating && _rotStart && transformer.nodes().length) {
+    const pos = stage.getRelativePointerPosition();
+    if (pos) {
+      const node = transformer.nodes()[0];
+      const a = Math.atan2(pos.y - _rotStart.wCy, pos.x - _rotStart.wCx);
+      const newRot = _rotStart.rotation + (a - _rotStart.angle) * 180 / Math.PI;
+      const newRotRad = newRot * Math.PI / 180;
+      const w = node._currentW, h = node._currentH;
+      node.rotation(newRot);
+      // Reposition so center stays pinned
+      node.x(_rotStart.wCx - (w/2)*Math.cos(newRotRad) + (h/2)*Math.sin(newRotRad));
+      node.y(_rotStart.wCy - (w/2)*Math.sin(newRotRad) - (h/2)*Math.cos(newRotRad));
+      toddLayer.batchDraw();
+    }
+  }
+  if (_moveTarget) {
+    const pos = stage.getRelativePointerPosition();
+    if (pos) {
+      _moveTarget.x(pos.x - _moveOffset.x);
+      _moveTarget.y(pos.y - _moveOffset.y);
+      _moveMoved = true;
+      if (_moveTarget === background) bgLayer.batchDraw();
+      else toddLayer.batchDraw();
+    }
+  }
+  if (isErasing && selectedGroup) {
+    const pos = selectedGroup.getRelativePointerPosition();
+    selectedGroup.eraseLayer.add(new Konva.Circle({
+      x:pos.x, y:pos.y,
+      radius: parseInt(eraserSizeSlider.value),
+      fill:'#000', listening:false,
+      globalCompositeOperation:'destination-out'
+    }));
+    if (selectedGroup._isEmptyLayer) _cacheEmptyLayer(selectedGroup);
+    toddLayer.batchDraw();
+  }
+  if (isPenciling && currentPencilLine && _inCanvas()) {
+    const rpos = _activeLayer.getRelativePointerPosition();
+    currentPencilLine.points(currentPencilLine.points().concat([rpos.x, rpos.y]));
+    _invalidateEmptyLayerCache(_activeLayer);
+    if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
+  }
+  if (lineMode && _previewLine && _lineStart && _activeLayer) {
+    const rpos = _activeLayer.getRelativePointerPosition();
+    _previewLine.points([_lineStart.x, _lineStart.y, rpos.x, rpos.y]);
+    if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
+  }
+});
+stage.on('mousedown touchstart', ev => {
+  if (ev.evt && ev.evt.button === 1) return; // ignore middle mouse — don't draw while panning
+  if (!_inCanvas()) return; // outside canvas — don't draw
+  // In move mode: clicking canvas drags the active layer (needed for empty layers with no hit area)
+  if (moveMode) {
+    const pos = stage.getRelativePointerPosition();
+    if (!pos) return;
+    // Skip rotation zone check if the click landed on a transformer anchor or border.
+    // (Those should trigger scale, not rotation — handled by Konva internally.)
+    const _isTransformerChild = ev.target && ev.target.getParent && ev.target.getParent() === transformer;
+    if (!_isTransformerChild && _inRotZone()) {
+      const node = transformer.nodes()[0];
+      const c = _nodeWorldCenter(node);
+      _rotStart = { angle: Math.atan2(pos.y - c.y, pos.x - c.x), rotation: node.rotation(), wCx: c.x, wCy: c.y };
+      _rotating = true;
+      containerEl.style.cursor = ROTATE_CURSOR;
+      return;
+    }
+    // Group image clicks: group.on('mousedown') already set _moveTarget — ev.target is
+    // the image shape (not stage), so we return here without double-handling.
+    // Transformer anchor clicks: ev.target is the anchor rect — also return here.
+    if (ev.target !== stage) return;
+    if (_bgSelected && background) {
+      _moveTarget = background;
+      _moveOffset = { x: pos.x - background.x(), y: pos.y - background.y() };
+      _moveMoved = false;
+      containerEl.style.cursor = 'grabbing';
+      return;
+    }
+    if (_activeLayer && !_activeLayer._isBgProxy) {
+      _moveTarget = _activeLayer;
+      _moveOffset = { x: pos.x - _activeLayer.x(), y: pos.y - _activeLayer.y() };
+      _moveMoved = false;
+      containerEl.style.cursor = 'grabbing';
+      return;
+    }
+  }
+  if (lineMode) {
+    if (!_activeLayer) { showToast('Select a layer first'); return; }
+    const rpos = _activeLayer.getRelativePointerPosition();
+    _lineStart = { x: rpos.x, y: rpos.y };
+    _previewLine = new Konva.Line({
+      stroke: _toolColor, strokeWidth: _toolSize,
+      lineCap: 'round', points: [rpos.x, rpos.y, rpos.x, rpos.y], listening: false
+    });
+    _activeLayer._strokeGroup.add(_previewLine);
+    if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
+    return;
+  }
+  if (!pencilMode) return;
+  if (!_activeLayer) { showToast('Select a layer first'); return; }
+  isPenciling = true;
+  const rpos = _activeLayer.getRelativePointerPosition();
+  currentPencilLine = new Konva.Line({
+    stroke: _toolColor, strokeWidth: _toolSize,
+    lineCap: 'round', lineJoin: 'round',
+    points: [rpos.x, rpos.y, rpos.x, rpos.y],
+    listening: false
+  });
+  _activeLayer._strokeGroup.add(currentPencilLine);
+  if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
+});
+
+// ── Stage background click: fill or deselect ──
+stage.on('click tap', () => {
+  if (fillMode) {
+    const pos = stage.getRelativePointerPosition();
+    doBucketFill(Math.round(pos.x), Math.round(pos.y));
+    return;
+  }
+  if (colorPickerMode) {
+    const pos = stage.getRelativePointerPosition();
+    doColorPick(Math.round(pos.x), Math.round(pos.y));
+    return;
+  }
+  // In any active tool mode, don't deselect the layer on canvas click
+  if (pencilMode || lineMode || eraserMode || moveMode) return;
+  transformer.nodes([]);
+  refreshLayerPanel();
+});
+
+function _floodFill(data, sx, sy, fR, fG, fB, w, h, tol) {
+  const i0 = (sy * w + sx) * 4;
+  const tR = data[i0], tG = data[i0+1], tB = data[i0+2], tA = data[i0+3];
+  if (tR===fR && tG===fG && tB===fB && tA===255) return;
+  const fillingTransparent = tA < 10;
+  const stack = [sx + sy * w];
+  const vis   = new Uint8Array(w * h);
+  while (stack.length) {
+    const p = stack.pop();
+    if (vis[p]) continue;
+    const cx = p % w, cy = (p / w) | 0, i = p * 4;
+    if (fillingTransparent) {
+      // filling a transparent region — use full RGBA check to stay in transparent area
+      if (Math.abs(data[i]-tR)+Math.abs(data[i+1]-tG)+Math.abs(data[i+2]-tB)+Math.abs(data[i+3]-tA) > tol) continue;
+    } else {
+      // filling an opaque region — RGB only so anti-aliased edges don't block the fill
+      if (data[i+3] < 20) continue; // don't spill into transparent
+      if (Math.abs(data[i]-tR)+Math.abs(data[i+1]-tG)+Math.abs(data[i+2]-tB) > tol) continue;
+    }
+    vis[p] = 1;
+    data[i]=fR; data[i+1]=fG; data[i+2]=fB; data[i+3]=255;
+    if (cx > 0)   stack.push(p-1);
+    if (cx < w-1) stack.push(p+1);
+    if (cy > 0)   stack.push(p-w);
+    if (cy < h-1) stack.push(p+w);
+  }
+}
+
+async function doBucketFill(lx, ly) {
+  if (!_activeLayer || _activeLayer._isBgProxy) { showToast('Select a layer first'); return; }
+  const activeGroup = _activeLayer; // snapshot — user may change active layer during awaits
+  const dw = CANVAS_W, dh = CANVAS_H;
+
+  // Capture full composite at 1:1 canvas coords.
+  // Temporarily reset zoom/pan so the export matches canvas coordinates exactly.
+  // stage.toDataURL in Konva v9 is synchronous, so no browser paint occurs between reset and restore.
+  const savedScale = stage.scaleX();
+  const savedPos = { x: stage.x(), y: stage.y() };
+  transformerLayer.visible(false);
+  stage.scale({ x: 1, y: 1 });
+  stage.position({ x: 0, y: 0 });
+  const srcDataURL = stage.toDataURL({ x: 0, y: 0, width: dw, height: dh, pixelRatio: 1 });
+  stage.scale({ x: savedScale, y: savedScale });
+  stage.position(savedPos);
+  transformerLayer.visible(true);
+  stage.batchDraw();
+
+  const srcImg = new Image();
+  await new Promise(r => { srcImg.onload = r; srcImg.src = srcDataURL; });
+
+  const srcCanvas = document.createElement('canvas');
+  srcCanvas.width = dw; srcCanvas.height = dh;
+  const srcCtx = srcCanvas.getContext('2d');
+  srcCtx.drawImage(srcImg, 0, 0);
+
+  const compositeId = srcCtx.getImageData(0, 0, dw, dh);
+  const beforeData  = compositeId.data.slice();
+
+  const hex = _toolColor.replace('#','');
+  const fR = parseInt(hex.slice(0,2),16), fG = parseInt(hex.slice(2,4),16), fB = parseInt(hex.slice(4,6),16);
+  if (lx >= 0 && lx < dw && ly >= 0 && ly < dh)
+    _floodFill(compositeId.data, lx, ly, fR, fG, fB, dw, dh, 40);
+
+  // Build fill canvas: existing fill pixels underneath, new flood-fill pixels on top
+  const fillCanvas = document.createElement('canvas');
+  fillCanvas.width = dw; fillCanvas.height = dh;
+  const fillCtx = fillCanvas.getContext('2d');
+  if (activeGroup._fillNode) {
+    const ef = activeGroup._fillNode;
+    fillCtx.drawImage(ef.image(), activeGroup.x() + ef.x(), activeGroup.y() + ef.y(), ef.width(), ef.height());
+  }
+  const fillId = fillCtx.getImageData(0, 0, dw, dh);
+  for (let i = 0; i < compositeId.data.length; i += 4) {
+    if (compositeId.data[i] !== beforeData[i] || compositeId.data[i+1] !== beforeData[i+1] || compositeId.data[i+2] !== beforeData[i+2] || compositeId.data[i+3] !== beforeData[i+3]) {
+      fillId.data[i] = fR; fillId.data[i+1] = fG; fillId.data[i+2] = fB; fillId.data[i+3] = 255;
+    }
+  }
+  fillCtx.putImageData(fillId, 0, 0);
+
+  // Crop to bounding box of all opaque pixels so the transformer shows tight handles
+  let minX = dw, minY = dh, maxX = -1, maxY = -1;
+  for (let i = 0; i < fillId.data.length; i += 4) {
+    if (fillId.data[i+3] > 0) {
+      const px = (i / 4) % dw, py = Math.floor((i / 4) / dw);
+      if (px < minX) minX = px; if (px > maxX) maxX = px;
+      if (py < minY) minY = py; if (py > maxY) maxY = py;
+    }
+  }
+  if (maxX < 0) return; // nothing painted
+
+  const cropW = maxX - minX + 1, cropH = maxY - minY + 1;
+  const cropCanvas = document.createElement('canvas');
+  cropCanvas.width = cropW; cropCanvas.height = cropH;
+  cropCanvas.getContext('2d').drawImage(fillCanvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+
+  // Replace fill node — store as child of group at local coords
+  if (activeGroup._fillNode) { activeGroup._fillNode.destroy(); activeGroup._fillNode = null; }
+  const fi = new Image();
+  await new Promise(r => { fi.onload = r; fi.src = cropCanvas.toDataURL(); });
+  const kFill = new Konva.Image({
+    image: fi,
+    x: minX - activeGroup.x(), y: minY - activeGroup.y(),
+    width: cropW, height: cropH,
+    listening: false
+  });
+  kFill._fillOwnerId = activeGroup._toddId;
+  activeGroup._fillNode = kFill;
+  activeGroup.add(kFill);
+  if (activeGroup.eraseLayer) kFill.zIndex(activeGroup.eraseLayer.zIndex() + 1); else kFill.moveToBottom();
+  _invalidateEmptyLayerCache(activeGroup);
+  toddLayer.batchDraw();
+  pushHistory();
+}
+
+// ── Color picker / eyedropper ──
+async function doColorPick(lx, ly) {
+  const savedScale = stage.scaleX();
+  const savedPos   = { x: stage.x(), y: stage.y() };
+  transformerLayer.visible(false);
+  stage.scale({ x:1, y:1 }); stage.position({ x:0, y:0 });
+  // Capture full canvas then sample the clicked pixel (more reliable than 1x1 crop)
+  const dataURL = stage.toDataURL({ x:0, y:0, width:CANVAS_W, height:CANVAS_H, pixelRatio:1 });
+  stage.scale({ x: savedScale, y: savedScale }); stage.position(savedPos);
+  transformerLayer.visible(true); stage.batchDraw();
+  const img = new Image();
+  await new Promise(r => { img.onload = r; img.src = dataURL; });
+  const c = document.createElement('canvas');
+  c.width = CANVAS_W; c.height = CANVAS_H;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const [r, g, b] = ctx.getImageData(lx, ly, 1, 1).data;
+  const hex = '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+  setToolColor(hex);
+  setActiveTool(null);
+}
+
+function applyHexInput(val) {
+  const v = val.trim();
+  const hex = v.startsWith('#') ? v : '#' + v;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) setToolColor(hex);
+}
+
+// ── Custom inline color picker ──
+let _cpHue = 45, _cpSat = 80, _cpVal = 90, _cpReady = false, _cpInteracting = false;
+
+function _hsvToHex(h, s, v) {
+  s /= 100; v /= 100;
+  const f = n => { const k = (n + h/60) % 6; return v - v*s*Math.max(0, Math.min(k, 4-k, 1)); };
+  return '#' + [f(5),f(3),f(1)].map(x => Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
+function _hexToHsv(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max-min;
+  let h = 0, s = max ? d/max*100 : 0, v = max*100;
+  if (d) {
+    if (max===r) h=(g-b)/d+(g<b?6:0);
+    else if (max===g) h=(b-r)/d+2;
+    else h=(r-g)/d+4;
+    h*=60;
+  }
+  return [h, s, v];
+}
+function _drawColorSquare() {
+  const cv = document.getElementById('colorSquare'); if (!cv) return;
+  const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  ctx.fillStyle = `hsl(${_cpHue},100%,50%)`; ctx.fillRect(0,0,W,H);
+  const wg = ctx.createLinearGradient(0,0,W,0);
+  wg.addColorStop(0,'rgba(255,255,255,1)'); wg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle = wg; ctx.fillRect(0,0,W,H);
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'rgba(0,0,0,0)'); bg.addColorStop(1,'rgba(0,0,0,1)');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  const cx = _cpSat/100*W, cy = (1-_cpVal/100)*H;
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=0.5;
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.stroke();
+}
+function _drawHueSlider() {
+  const cv = document.getElementById('hueSlider'); if (!cv) return;
+  const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const grd = ctx.createLinearGradient(0,0,W,0);
+  for (let i=0;i<=6;i++) grd.addColorStop(i/6,`hsl(${i*60},100%,50%)`);
+  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+  const cx = _cpHue/360*W;
+  ctx.strokeStyle='#fff'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+}
+function _cpSyncFromColor(hex) {
+  const panel = document.getElementById('colorPickerPanel');
+  if (!panel) return;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    [_cpHue,_cpSat,_cpVal] = _hexToHsv(hex);
+    _drawColorSquare(); _drawHueSlider();
+  }
+}
+function _initCpListeners() {
+  if (_cpReady) return; _cpReady = true;
+  const sq = document.getElementById('colorSquare');
+  const hs = document.getElementById('hueSlider');
+  let dSq = false, dHs = false;
+  function pickSq(e) {
+    const r = sq.getBoundingClientRect();
+    _cpSat = Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*100;
+    _cpVal = (1-Math.max(0,Math.min(1,(e.clientY-r.top)/r.height)))*100;
+    _drawColorSquare();
+    _cpInteracting = true; setToolColor(_hsvToHex(_cpHue,_cpSat,_cpVal)); _cpInteracting = false;
+  }
+  function pickHs(e) {
+    const r = hs.getBoundingClientRect();
+    _cpHue = Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*360;
+    _drawColorSquare(); _drawHueSlider();
+    _cpInteracting = true; setToolColor(_hsvToHex(_cpHue,_cpSat,_cpVal)); _cpInteracting = false;
+  }
+  sq.addEventListener('mousedown', e => { dSq=true; pickSq(e); e.preventDefault(); });
+  hs.addEventListener('mousedown', e => { dHs=true; pickHs(e); e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if(dSq) pickSq(e); if(dHs) pickHs(e); });
+  window.addEventListener('mouseup', () => { dSq=false; dHs=false; });
+}
+
+// ── Pencil tool ──
+const pencilSizeSlider = document.getElementById('pencilSize');
+const pencilSizeVal    = document.getElementById('pencilSizeVal');
+pencilSizeSlider.addEventListener('input', () => {
+  pencilSizeVal.textContent = pencilSizeSlider.value;
+  setToolSize(pencilSizeSlider.value);
+});
+
+function togglePencil() { setActiveTool(_activeTool === 'pencil' ? null : 'pencil'); }
+
+// ── New canvas (clear all with confirmation) ──
+function newCanvas() {
+  if (!confirm('Start a new canvas? All unsaved work will be lost.')) return;
+  clearAll();
+}
+
+// ── Crop canvas to background bounds ──
+// ── Clear all ──
+function clearAll() {
+  _activeLayer = null;
+  _bgSelected = false;
+  toddLayer.find('Group').forEach(g => { if (g._toddId) g.destroy(); });
+  if (background) { background.destroy(); background = null; bgBounds = null; }
+  canvasBg.visible(true);
+  applyDrawLayerClip();
+  transformer.nodes([]);
+  toddCount = 0;
+  drawLayer.destroyChildren();
+  bgStrokeGroup.destroyChildren();
+  bgLayer.draw(); toddLayer.draw(); drawLayer.draw();
+  pushHistory();
+  setStatus('Canvas cleared');
+  showToast('Canvas cleared');
+}
+
+// ── Export ──
+let _pendingDownloadURL = null;
+
+// ── Canvas size modal ──
+function openCanvasModal() {
+  document.getElementById('canvasWInput').value = CANVAS_W;
+  document.getElementById('canvasHInput').value = CANVAS_H;
+  document.getElementById('canvasModal').style.display = 'flex';
+}
+function closeCanvasModal(e) {
+  if (e && e.target !== document.getElementById('canvasModal')) return;
+  document.getElementById('canvasModal').style.display = 'none';
+}
+function setCanvasPreset(w, h) {
+  document.getElementById('canvasWInput').value = w;
+  document.getElementById('canvasHInput').value = h;
+}
+function applyCanvasSize() {
+  const w = Math.max(200, Math.min(1920, parseInt(document.getElementById('canvasWInput').value) || CANVAS_W));
+  const h = Math.max(200, Math.min(1080, parseInt(document.getElementById('canvasHInput').value) || CANVAS_H));
+  CANVAS_W = w; CANVAS_H = h;
+  containerEl.style.width  = w + 'px';
+  containerEl.style.height = h + 'px';
+  stage.width(w); stage.height(h);
+  canvasBg.width(w); canvasBg.height(h);
+  toddLayer.clip({ x: 0, y: 0, width: w, height: h });
+  applyDrawLayerClip();
+  bgLayer.draw(); toddLayer.draw(); drawLayer.draw();
+  document.getElementById('canvasModal').style.display = 'none';
+  showToast('Canvas: ' + w + '×' + h);
+}
+
+async function exportImage() {
+  // Hide transformer
+  transformer.nodes([]);
+  toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+  toddLayer.draw();
+
+  const crop = bgBounds
+    ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y),
+        w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
+    : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
+
+  const origW = background?.image()?.naturalWidth || CANVAS_W;
+  const exportRatio = Math.min(origW, 2400) / crop.w;
+  _pendingDownloadURL = await new Promise(resolve => stage.toDataURL({
+    x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+    pixelRatio: exportRatio,
+    mimeType: 'image/png',
+    callback: resolve
+  }));
+
+  // Show confirm modal
+  document.getElementById('dlConfirmPath').textContent = '~/Downloads/todd-masterpiece.png';
+  document.getElementById('dlConfirmModal').style.display = 'flex';
+}
+
+function confirmDownload() {
+  if (!_pendingDownloadURL) return;
+  const a = document.createElement('a');
+  a.href = _pendingDownloadURL;
+  a.download = 'todd-masterpiece.png';
+  a.click();
+  _pendingDownloadURL = null;
+  document.getElementById('dlConfirmModal').style.display = 'none';
+  showToast('Downloaded! 🎉');
+  setStatus('Exported ✓');
+}
+
+
+updateUndoRedoBtns();
+_initCpListeners();
+new ResizeObserver(() => {
+  const sq = document.getElementById('colorSquare'); if (!sq) return;
+  const r = sq.getBoundingClientRect();
+  if (r.width > 0 && r.height > 0) { sq.width = Math.round(r.width); sq.height = Math.round(r.height); _drawColorSquare(); }
+}).observe(document.getElementById('colorSquare'));
+setToolColor(_toolColor);
+window.addEventListener('load', () => {
+  if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
+  _drawColorSquare();
+  _drawHueSlider();
+});
+
+// ── CHAT (Supabase real-time) ──
+const SUPA_URL  = 'https://cfaqadeoxskwhebyirok.supabase.co';
+const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYXFhZGVveHNrd2hlYnlpcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMTYyOTMsImV4cCI6MjA4Nzc5MjI5M30.5LQTCPiNn5nfYLPZqeVevBu_rxiGVBvNd4kbbwa2d9Q';
+const CHAT_MAX  = 120;
+const NAME_COLORS = ['#ff7eb3','#7eb3ff','#7effb3','#ffb37e','#d07eff','#ff7e7e','#7effe0','#fff07e','#ff9f7e','#a78bfa'];
+
+function nameColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return NAME_COLORS[Math.abs(h) % NAME_COLORS.length];
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function cleanName(n){return String(n).replace(/\s*✔\s*$/,'').trim();}
+const msgTimes=[];
+function antiSpam(){const now=Date.now();msgTimes.splice(0,msgTimes.length,...msgTimes.filter(t=>now-t<10000));if(msgTimes.length>=5){const box=document.getElementById('chatMessages');const el=document.createElement('div');el.style.cssText='font-size:15px;color:#FF3A3A;padding:2px 4px;letter-spacing:1px;';el.textContent='— slow down — max 5 messages per 10 seconds';box.appendChild(el);box.scrollTop=box.scrollHeight;setTimeout(()=>{if(el.parentNode)el.parentNode.removeChild(el);},3000);return false;}msgTimes.push(now);return true;}
+
+const VALID_ICONS=['guest','1','2','3'];
+function appendChatMsg(msg) {
+  const box = document.getElementById('chatMessages');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  const el = document.createElement('div');
+  if (msg.name === 'BUYALERT') {
+    el.className = 'chat-msg buy-alert';
+    el.innerHTML = `<span class="buy-lbl">[BUY]</span> <span class="buy-txt">${escapeHtml(msg.text)}</span>`;
+    box.appendChild(el);
+    while (box.children.length > CHAT_MAX) box.removeChild(box.firstChild);
+    if (atBottom) box.scrollTop = box.scrollHeight;
+    updateViewerCount();
+    return;
+  }
+  el.className = 'chat-msg';
+  const color = nameColor(msg.name);
+  const icon = VALID_ICONS.includes(msg.icon) ? msg.icon : 'guest';
+  el.innerHTML = `<img class="chat-icon" src="Icons/${icon}.png" alt=""><span class="chat-msg-name" style="color:${color}">${escapeHtml(cleanName(msg.name))}:</span> <span class="chat-msg-text">${escapeHtml(msg.text)}</span>`;
+  box.appendChild(el);
+  // trim to max
+  while (box.children.length > CHAT_MAX) box.removeChild(box.firstChild);
+  if (atBottom) box.scrollTop = box.scrollHeight;
+  updateViewerCount();
+}
+
+function updateViewerCount() {
+  const box = document.getElementById('chatMessages');
+  const names = new Set();
+  box.querySelectorAll('.chat-msg-name').forEach(el => names.add(el.textContent.replace(':','')));
+  const count = Math.max(names.size, 1);
+  document.getElementById('chatViewerCount').textContent = count + (count === 1 ? ' viewer' : ' viewers');
+}
+
+// Load last 80 messages on startup
+async function loadChat() {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/chat_messages?select=id,name,text,icon,created_at&order=created_at.asc&limit=80`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+    });
+    const msgs = await res.json();
+    const box = document.getElementById('chatMessages');
+    box.innerHTML = '';
+    if (Array.isArray(msgs)) msgs.forEach(appendChatMsg);
+    box.scrollTop = box.scrollHeight;
+  } catch(e) { console.error('Chat load error:', e); }
+}
+
+// Subscribe to new messages via Supabase real-time
+function subscribeChat() {
+  const wsUrl = SUPA_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?apikey=' + SUPA_KEY + '&vsn=1.0.0';
+  let ws, pingInterval;
+
+  function connect() {
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ topic:'realtime:public:chat_messages', event:'phx_join', payload:{}, ref:'1' }));
+      pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN)
+          ws.send(JSON.stringify({ topic:'phoenix', event:'heartbeat', payload:{}, ref:'hb' }));
+      }, 20000);
+    };
+
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.event === 'INSERT' && msg.payload?.record) {
+          appendChatMsg(msg.payload.record);
+        }
+      } catch(err) {}
+    };
+
+    ws.onclose = () => {
+      clearInterval(pingInterval);
+      setTimeout(connect, 3000); // reconnect
+    };
+    ws.onerror = () => ws.close();
+  }
+
+  connect();
+}
+
+async function sendChatMsg() {
+  const nameEl = document.getElementById('chatNameInput');
+  const msgEl  = document.getElementById('chatMsgInput');
+  const name   = (_currentUser?.username)
+    ? _currentUser.username
+    : (nameEl.value || '').trim() || getGuestName();
+  const text   = (msgEl.value || '').trim();
+  if (!text) return;
+  if (!antiSpam()) return;
+
+  msgEl.value = '';
+
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/chat_messages`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ name, text, icon: _currentUser?.icon || (_currentUser?.username ? '1' : 'guest') })
+    });
+  } catch(e) { console.error('Chat send error:', e); }
+}
+
+// ── GOOGLE AUTH + USERNAME SYSTEM ──
+let _currentUser = null; // { username, email, userId, avatar, verified }
+let _usernameCheckTimer = null;
+
+// ── Update all UI that shows the user's identity ──
+function updateAuthUI() {
+  const nameInput = document.getElementById('chatNameInput');
+
+  if (_currentUser && _currentUser.username) {
+    nameInput.value = _currentUser.username;
+    nameInput.readOnly = true;
+    nameInput.style.color = '#00cc66';
+    nameInput.style.borderColor = '#00cc66';
+    nameInput.title = _currentUser.username;
+  } else {
+    const guestName = getGuestName();
+    nameInput.value = guestName;
+    nameInput.readOnly = true;
+    nameInput.style.color = '#888';
+    nameInput.style.borderColor = '';
+    nameInput.title = 'Guest — login to get a username';
+  }
+}
+
+function getGuestName() {
+  try {
+    let id = localStorage.getItem('todd_guest_id');
+    if (!id) {
+      const fp = [navigator.userAgent.length,screen.width,screen.height,screen.colorDepth,
+        new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0,navigator.language.length
+      ].reduce((a,b)=>(a*31+b)&0xffff,0x4d32);
+      id = String(1000+(Math.abs(fp)%9000));
+      localStorage.setItem('todd_guest_id',id);
+    }
+    return 'guest'+id;
+  } catch(e){ return 'guest'+Math.floor(1000+Math.random()*9000); }
+}
+
+function getStoredAccessToken() {
+  try {
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith('sb-')&&k.endsWith('-auth-token'));
+    if (keys.length) { const s=JSON.parse(localStorage.getItem(keys[0])); return s?.access_token||''; }
+  } catch(e){}
+  return '';
+}
+
+// Fetch username from Supabase for a given user_id
+async function fetchUsername(userId, token) {
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(userId)}&select=username,icon&limit=1`,
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` } }
+    );
+    if (res.ok) {
+      const rows = await res.json();
+      return rows[0] || null;
+    }
+  } catch(e){}
+  return null;
+}
+
+function showIconPicker(currentIcon){const row=document.getElementById('icon-picker-row');if(row)row.style.display='flex';updateIconSelection(currentIcon);}
+function updateIconSelection(icon){document.querySelectorAll('.icon-opt').forEach(el=>el.classList.toggle('selected',el.dataset.icon===icon));}
+async function selectIcon(icon){const VALID=['1','2','3'];if(!VALID.includes(icon))return;updateIconSelection(icon);if(_currentUser)_currentUser.icon=icon;try{const u=JSON.parse(localStorage.getItem('todd_user_data')||'null');if(u){u.icon=icon;localStorage.setItem('todd_user_data',JSON.stringify(u));}}catch(e){}const token=getStoredAccessToken();if(!token)return;try{const ur=await fetch(`${SUPA_URL}/auth/v1/user`,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}});if(ur.ok){const user=await ur.json();if(user?.id){await fetch(`${SUPA_URL}/rest/v1/usernames?user_id=eq.${encodeURIComponent(user.id)}`,{method:'PATCH',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({icon})});}}}catch(e){}}
+
+async function checkAuthSession() {
+  // First check cached user
+  try {
+    const raw = localStorage.getItem('todd_user_data');
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u.verified && u.username) { _currentUser = u; updateAuthUI(); return; }
+    }
+  } catch(e){}
+
+  const token = getStoredAccessToken();
+  if (!token) { _currentUser = null; updateAuthUI(); return; }
+
+  try {
+    const res = await fetch(`${SUPA_URL}/auth/v1/user`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const user = await res.json();
+      if (user?.id) {
+        const row = await fetchUsername(user.id, token);
+        const username = row?.username || null;
+        if (username) {
+          // Has username — fully set up
+          _currentUser = { username, icon: row.icon || '1', email: user.email, userId: user.id, avatar: user.user_metadata?.avatar_url||null, verified: true };
+          localStorage.setItem('todd_user_data', JSON.stringify(_currentUser));
+          updateAuthUI();
+        } else {
+          // Logged in but no username yet — show picker
+          _currentUser = { email: user.email, userId: user.id, avatar: user.user_metadata?.avatar_url||null, verified: true, username: null };
+          updateAuthUI();
+          showUsernamePicker();
+        }
+        return;
+      }
+    }
+  } catch(e){}
+  _currentUser = null;
+  updateAuthUI();
+}
+
+function handleOAuthCallback() {
+  const hash = window.location.hash;
+  if (!hash.includes('access_token')) return false;
+
+  // Parse all params from the hash
+  const params = {};
+  hash.slice(1).split('&').forEach(p => {
+    const [k, v] = p.split('=');
+    params[decodeURIComponent(k)] = decodeURIComponent(v || '');
+  });
+
+  const accessToken  = params['access_token'];
+  const refreshToken = params['refresh_token'];
+  const expiresIn    = parseInt(params['expires_in'] || '3600');
+
+  if (!accessToken) return false;
+
+  // Store in the format Supabase expects
+  const sessionKey = `sb-cfaqadeoxskwhebyirok-auth-token`;
+  const session = {
+    access_token:  accessToken,
+    refresh_token: refreshToken,
+    expires_at:    Math.floor(Date.now() / 1000) + expiresIn,
+    token_type:    'bearer'
+  };
+  try {
+    localStorage.setItem(sessionKey, JSON.stringify(session));
+    history.replaceState(null, '', window.location.pathname);
+  } catch(e) {}
+
+  setTimeout(() => checkAuthSession(), 300);
+  return true;
+}
+
+// ── Username picker ──
+function showUsernamePicker() {
+  document.getElementById('usernamePickInput').value = '';
+  document.getElementById('usernamePickStatus').textContent = '';
+  document.getElementById('usernamePickBtn').disabled = true;
+  document.getElementById('usernamePickBtn').style.opacity = '0.4';
+  document.getElementById('usernameModal').style.display = 'flex';
+}
+
+function onUsernameInput() {
+  const val = document.getElementById('usernamePickInput').value.trim();
+  const statusEl = document.getElementById('usernamePickStatus');
+  const btn = document.getElementById('usernamePickBtn');
+
+  // Clear previous timer
+  clearTimeout(_usernameCheckTimer);
+  btn.disabled = true;
+  btn.style.opacity = '0.4';
+
+  if (!val) { statusEl.textContent = ''; return; }
+
+  // Validate format
+  if (!/^[a-zA-Z0-9_]{3,24}$/.test(val)) {
+    statusEl.style.color = '#ff5555';
+    statusEl.textContent = '✗ Letters, numbers and _ only (3–24 chars)';
+    return;
+  }
+
+  statusEl.style.color = '#777';
+  statusEl.textContent = 'Checking...';
+
+  _usernameCheckTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/usernames?username=eq.${encodeURIComponent(val)}&select=username&limit=1`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${getStoredAccessToken()}` } }
+      );
+      const rows = await res.json();
+      if (rows.length > 0) {
+        statusEl.style.color = '#ff5555';
+        statusEl.textContent = '✗ Already taken';
+        btn.disabled = true;
+        btn.style.opacity = '0.4';
+      } else {
+        statusEl.style.color = '#00cc66';
+        statusEl.textContent = '✔ Available!';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    } catch(e) {
+      statusEl.style.color = '#ff5555';
+      statusEl.textContent = 'Error checking — try again';
+    }
+  }, 500);
+}
+
+async function submitUsername() {
+  const val = document.getElementById('usernamePickInput').value.trim();
+  if (!val || !_currentUser?.userId) return;
+
+  const btn = document.getElementById('usernamePickBtn');
+  btn.disabled = true;
+  btn.textContent = 'Claiming...';
+
+  try {
+    const token = getStoredAccessToken();
+    const res = await fetch(`${SUPA_URL}/rest/v1/usernames`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ user_id: _currentUser.userId, username: val })
+    });
+
+    if (res.ok || res.status === 201) {
+      _currentUser.username = val;
+      localStorage.setItem('todd_user_data', JSON.stringify(_currentUser));
+      document.getElementById('usernameModal').style.display = 'none';
+      updateAuthUI();
+      showToast('Username claimed! Welcome, ' + val);
+    } else {
+      const err = await res.text();
+      if (err.includes('unique') || err.includes('duplicate')) {
+        document.getElementById('usernamePickStatus').textContent = '✗ Just taken — try another';
+        document.getElementById('usernamePickStatus').style.color = '#ff5555';
+      } else {
+        showToast('Error — try again');
+      }
+      btn.disabled = false;
+      btn.textContent = 'CLAIM USERNAME';
+      btn.style.opacity = '1';
+    }
+  } catch(e) {
+    showToast('Error — try again');
+    btn.disabled = false;
+    btn.textContent = 'CLAIM USERNAME';
+    btn.style.opacity = '1';
+  }
+}
+
+// ── Auth modal (account info / sign out) ──
+function openAuthModal() {
+  const inner = document.getElementById('authModalInner');
+  if (_currentUser?.username) {
+    inner.innerHTML = `
+      <div class="auth-modal-title">⬡ ACCOUNT</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        ${_currentUser.avatar ? `<img src="${_currentUser.avatar}" style="width:48px;height:48px;border-radius:50%;border:2px solid #00cc66;">` : '<div style="font-size:36px">👤</div>'}
+        <div style="font-family:'VT323',monospace;font-size:24px;color:#fff;">${escHtml(_currentUser.username)}</div>
+        <div style="font-family:'VT323',monospace;font-size:12px;color:#444;">signed in with Google</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#555;letter-spacing:1px;margin-bottom:6px;">AVATAR</div>
+        <div style="display:flex;gap:6px;" id="auth-icon-picker">
+          <img src="Icons/1.png" class="icon-opt" data-icon="1" onclick="selectIcon('1')" alt="">
+          <img src="Icons/2.png" class="icon-opt" data-icon="2" onclick="selectIcon('2')" alt="">
+          <img src="Icons/3.png" class="icon-opt" data-icon="3" onclick="selectIcon('3')" alt="">
+        </div>
+      </div>
+      <button class="btn danger" style="width:100%;justify-content:center;" onclick="signOut()">Sign Out</button>`;
+  } else if (_currentUser) {
+    // Logged in but no username
+    inner.innerHTML = `
+      <div class="auth-modal-title">⬡ ACCOUNT</div>
+      <div class="auth-modal-sub">You need to pick a username first.</div>
+      <button class="btn primary" style="width:100%;justify-content:center;" onclick="closeAuthModal();showUsernamePicker();">Pick Username</button>`;
+  } else {
+    inner.innerHTML = `
+      <div class="auth-modal-title">⬡ LOGIN</div>
+      <div class="auth-modal-sub">Sign in with Google to get a username.</div>
+      <button class="google-btn" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>`;
+  }
+  document.getElementById('authModal').style.display = 'flex';
+  if (_currentUser?.username) updateIconSelection(_currentUser.icon || '1');
+}
+
+function closeAuthModal(e) {
+  if (e && e.target !== document.getElementById('authModal')) return;
+  document.getElementById('authModal').style.display = 'none';
+}
+
+function signInWithGoogle() {
+  const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+  const redirectTo = encodeURIComponent(base + 'app.html');
+  window.location.href = `${SUPA_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
+}
+
+async function signOut() {
+  try {
+    const token = getStoredAccessToken();
+    await fetch(`${SUPA_URL}/auth/v1/logout`, { method:'POST', headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${token}`} });
+    Object.keys(localStorage).filter(k=>k.startsWith('sb-')).forEach(k=>localStorage.removeItem(k));
+  } catch(e){}
+  localStorage.removeItem('todd_user_data');
+  _currentUser = null;
+  closeAuthModal();
+  window.location.href = 'index.html';
+}
+
+// ── Init ──
+if (!handleOAuthCallback()) {
+  checkAuthSession();
+}
+
+checkAuthSession();
+
+// Enter key to send
+document.getElementById('chatMsgInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); sendChatMsg(); }
+});
+
+// Escape closes lightbox
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('lightbox').style.display = 'none';
+    document.getElementById('galleryView').style.overflow = 'auto';
+  }
+});
+
+loadChat().then(() => subscribeChat());
+
+
+// ── Todd Picker ──
+function openToddPicker() {
+  const tray = document.getElementById('todd-tray');
+  if (tray.classList.contains('open')) { tray.classList.remove('open'); return; }
+  tray.innerHTML = '';
+  const todds = ['todd1.png','todd2.png','todd3.png','todd4.png','todd5.png','todd10.png','toddchan.png'];
+  todds.forEach(src => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.title = src;
+    img.onerror = () => img.style.display = 'none';
+    img.onclick = () => { addTodd(src); tray.classList.remove('open'); };
+    tray.appendChild(img);
+  });
+  tray.classList.add('open');
+}
+
+function closeToddPicker(e) {
+  if (e && e.target !== document.getElementById('toddPickerModal')) return;
+  document.getElementById('toddPickerModal').style.display = 'none';
+}
+
+// ── Tab switching ──
+function switchTab(tab) {
+  const isEditor = tab === 'editor';
+  document.getElementById('editorView').style.display  = isEditor ? 'flex' : 'none';
+  document.getElementById('galleryView').style.display = isEditor ? 'none'  : 'block';
+  document.getElementById('sidebarPanels').style.display = isEditor ? '' : 'none';
+  document.getElementById('tabEditor').classList.toggle('active', isEditor);
+  document.getElementById('tabGallery').classList.toggle('active', !isEditor);
+  if (!isEditor) loadGallery();
+}
+
+// ── Publish modal ──
+var _publishDataURL = null;
+var _publishBlob = null;
+
+async function openPublishModal() {
+  transformer.nodes([]);
+  toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
+  toddLayer.draw();
+
+  const crop = bgBounds
+    ? { x: Math.round(bgBounds.x), y: Math.round(bgBounds.y), w: Math.round(bgBounds.w), h: Math.round(bgBounds.h) }
+    : { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
+
+  // Use var locals to avoid Chrome TDZ bug (let/const in async functions)
+  var localPreviewURL, localBlob;
+  try {
+    const PREV_W = 600;
+    localPreviewURL = stage.toDataURL({
+      x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+      pixelRatio: Math.min(1, PREV_W / crop.w),
+      mimeType: 'image/jpeg', quality: 0.8
+    });
+    const origW = background?.image()?.naturalWidth || CANVAS_W;
+    const uploadRatio = Math.min(origW, 2400) / crop.w;
+    const uploadDataURL = stage.toDataURL({
+      x: crop.x, y: crop.y, width: crop.w, height: crop.h,
+      pixelRatio: uploadRatio,
+      mimeType: 'image/png'
+    });
+    localBlob = await fetch(uploadDataURL).then(r => r.blob());
+  } catch(err) {
+    showToast('Publish error: ' + err.message);
+    return;
+  }
+
+  // Assign to globals OUTSIDE the try block (avoids Chrome TDZ bug)
+  _publishDataURL = localPreviewURL;
+  _publishBlob = localBlob;
+
+  const prevEl = document.getElementById('modalPreview');
+  prevEl.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = _publishDataURL;
+  prevEl.appendChild(img);
+
+  document.getElementById('modalFormView').style.display = '';
+  document.getElementById('modalSuccessView').style.display = 'none';
+  document.getElementById('publishModal').style.display = 'flex';
+
+  const nameInput = document.getElementById('publishName');
+  if (_currentUser?.username) {
+    nameInput.value = _currentUser.username + ' ✔';
+    nameInput.disabled = true;
+    nameInput.style.color = '#00cc66';
+    nameInput.style.borderColor = '#00cc66';
+  } else {
+    nameInput.value = getGuestName();
+    nameInput.disabled = true;
+    nameInput.style.color = '#888';
+    nameInput.style.borderColor = '';
+  }
+}
+
+function closePublishModal(e) {
+  if (e && e.target !== document.getElementById('publishModal')) return;
+  document.getElementById('publishModal').style.display = 'none';
+  _publishDataURL = null;
+  _publishBlob = null;
+}
+
+async function publishToGallery() {
+  const name = _currentUser?.username
+    ? _currentUser.username + ' ✔'
+    : getGuestName();
+  const msg  = document.getElementById('publishMsg').value.trim();
+  if (!_publishBlob) return showToast('Nothing to publish!');
+
+  const btn = document.querySelector('#publishModal .btn.primary');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Publishing...'; }
+
+  try {
+    // 1. Upload image to Supabase Storage
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.png`;
+    const uploadRes = await fetch(`${SUPA_URL}/storage/v1/object/gallery/${filename}`, {
+      method: 'POST',
+      headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, 'Content-Type': 'image/png' },
+      body: _publishBlob
+    });
+    if (!uploadRes.ok) throw new Error('Storage upload failed: ' + await uploadRes.text());
+
+    const imageUrl = `${SUPA_URL}/storage/v1/object/public/gallery/${filename}`;
+
+    // 2. Insert URL into gallery_posts
+    const res = await fetch(`${SUPA_URL}/rest/v1/gallery_posts`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ name, message: msg, image: imageUrl })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Supabase error status:', res.status, errText);
+      showToast('Error ' + res.status + ': ' + errText.slice(0, 80));
+      throw new Error(errText);
+    }
+
+    // Show success screen inside modal
+    document.getElementById('modalFormView').style.display = 'none';
+    document.getElementById('modalSuccessView').style.display = 'flex';
+    document.getElementById('modalSuccessName').textContent = name;
+
+    // Clear fields for next time
+    document.getElementById('publishName').value = '';
+    document.getElementById('publishMsg').value  = '';
+    _publishDataURL = null;
+    _publishBlob = null;
+
+  } catch(err) {
+    console.error('Publish error:', err);
+    showToast('Publish failed — ' + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'PUBLISH'; }
+  }
+}
+
+// ── Gallery loading ──
+let _galleryPosts = []; // store for lightbox access
+
+async function loadGallery() {
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '<div class="gallery-loading">Loading masterpieces...</div>';
+
+  try {
+    // Load my votes from localStorage
+    let myVotes = {};
+    try { myVotes = JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) {}
+
+    const res = await fetch(`${SUPA_URL}/rest/v1/gallery_posts?select=id,name,message,image,created_at,votes_up,votes_down&order=created_at.desc&limit=100&approved=eq.true`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+    });
+    const posts = await res.json();
+
+    if (!Array.isArray(posts) || !posts.length) {
+      grid.innerHTML = '';
+      return;
+    }
+
+    // Sort by score
+    posts.sort((a, b) => (b.votes_up - b.votes_down) - (a.votes_up - a.votes_down));
+    _galleryPosts = posts;
+
+    grid.innerHTML = '';
+    posts.forEach(post => {
+      const date   = new Date(post.created_at).toLocaleDateString();
+      const myVote = myVotes[post.id] || null;
+      const card   = document.createElement('div');
+      card.className = 'gallery-card';
+      card.id = 'card_' + post.id;
+      card.style.cursor = 'pointer';
+      card.innerHTML = `
+        <div class="gallery-card-titlebar">📁 ${escHtml(post.name)}</div>
+        <img src="${post.image}" alt="Todd by ${escHtml(post.name)}" loading="lazy" onclick="openLightbox(event,'${post.id}')">
+        <div class="gallery-card-body">
+          <div class="gallery-card-msg">${post.message ? '"' + escHtml(post.message) + '"' : ''}</div>
+          <div class="gallery-card-footer">
+            <div class="vote-btns">
+              <button class="vote-btn up ${myVote==='up'?'voted-up':''}" onclick="vote('${post.id}','up')">
+                👍 <span id="up_${post.id}">${post.votes_up}</span>
+              </button>
+              <button class="vote-btn down ${myVote==='down'?'voted-down':''}" onclick="vote('${post.id}','down')">
+                👎 <span id="dn_${post.id}">${post.votes_down}</span>
+              </button>
+            </div>
+            <span class="gallery-card-date">${date}</span>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  } catch(err) {
+    grid.innerHTML = '<div class="gallery-empty">Failed to load gallery.</div>';
+    console.error(err);
+  }
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Lightbox ──
+function openLightbox(e, postId) {
+  e.stopPropagation();
+  const post = _galleryPosts.find(p => String(p.id) === String(postId));
+  if (!post) return;
+
+  const myVotes = (() => { try { return JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) { return {}; } })();
+  const myVote  = myVotes[post.id] || null;
+  const date    = new Date(post.created_at).toLocaleDateString();
+
+  document.getElementById('lightboxTitle').textContent  = '📁 ' + post.name;
+  document.getElementById('lightboxImg').src            = post.image;
+  document.getElementById('lightboxMsg').textContent    = post.message ? '"' + post.message + '"' : '';
+  document.getElementById('lightboxDate').textContent   = date;
+  document.getElementById('lightboxVotes').innerHTML    = `
+    <button class="vote-btn up ${myVote==='up'?'voted-up':''}" onclick="vote('${post.id}','up')">
+      👍 <span id="lbup_${post.id}">${post.votes_up}</span>
+    </button>
+    <button class="vote-btn down ${myVote==='down'?'voted-down':''}" onclick="vote('${post.id}','down')">
+      👎 <span id="lbdn_${post.id}">${post.votes_down}</span>
+    </button>`;
+
+  document.getElementById('lightbox').style.display = 'flex';
+  // Prevent gallery scrolling while lightbox open
+  document.getElementById('galleryView').style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  if (e && e.target !== document.getElementById('lightbox')) return;
+  document.getElementById('lightbox').style.display = 'none';
+  document.getElementById('galleryView').style.overflow = 'auto';
+}
+
+function updateLightboxVotes(postId) {
+  // Sync counts from card to lightbox
+  const upCard = document.getElementById('up_'   + postId);
+  const dnCard = document.getElementById('dn_'   + postId);
+  const upLb   = document.getElementById('lbup_' + postId);
+  const dnLb   = document.getElementById('lbdn_' + postId);
+  if (upCard && upLb) upLb.textContent = upCard.textContent;
+  if (dnCard && dnLb) dnLb.textContent = dnCard.textContent;
+
+  // Sync highlight state
+  let myVotes = {};
+  try { myVotes = JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) {}
+  const myVote = myVotes[postId] || null;
+  const lbVotes = document.getElementById('lightboxVotes');
+  if (lbVotes) {
+    lbVotes.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('voted-up','voted-down'));
+    if (myVote === 'up')   lbVotes.querySelector('.vote-btn.up')?.classList.add('voted-up');
+    if (myVote === 'down') lbVotes.querySelector('.vote-btn.down')?.classList.add('voted-down');
+  }
+}
+async function vote(postId, dir) {
+  let myVotes = {};
+  try { myVotes = JSON.parse(localStorage.getItem('todd_my_votes') || '{}'); } catch(e) {}
+
+  const prev = myVotes[postId] || null;
+  const isUnvoting = prev === dir; // clicking same button = remove vote
+
+  const upEl = document.getElementById('up_'   + postId);
+  const dnEl = document.getElementById('dn_'   + postId);
+  const card = document.getElementById('card_' + postId);
+
+  // Optimistic UI — adjust counts
+  if (prev === 'up'   && upEl) upEl.textContent = Math.max(0, parseInt(upEl.textContent) - 1);
+  if (prev === 'down' && dnEl) dnEl.textContent = Math.max(0, parseInt(dnEl.textContent) - 1);
+  if (!isUnvoting && dir === 'up'   && upEl) upEl.textContent = parseInt(upEl.textContent) + 1;
+  if (!isUnvoting && dir === 'down' && dnEl) dnEl.textContent = parseInt(dnEl.textContent) + 1;
+
+  // Update button highlight state
+  if (card) {
+    card.querySelectorAll('.vote-btn').forEach(b => b.classList.remove('voted-up','voted-down'));
+    if (!isUnvoting) {
+      const upBtn = card.querySelector('.vote-btn.up');
+      const dnBtn = card.querySelector('.vote-btn.down');
+      if (dir === 'up'   && upBtn) upBtn.classList.add('voted-up');
+      if (dir === 'down' && dnBtn) dnBtn.classList.add('voted-down');
+    }
+  }
+
+  // Update stored vote
+  if (isUnvoting) {
+    delete myVotes[postId];
+  } else {
+    myVotes[postId] = dir;
+  }
+  try { localStorage.setItem('todd_my_votes', JSON.stringify(myVotes)); } catch(e) {}
+
+  // Build Supabase PATCH payload from current displayed counts
+  const update = {
+    votes_up:   parseInt(upEl?.textContent || 0),
+    votes_down: parseInt(dnEl?.textContent || 0)
+  };
+
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/gallery_posts?id=eq.${postId}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(update)
+    });
+  } catch(err) { console.error('Vote error:', err); }
+
+  // Sync lightbox if open
+  updateLightboxVotes(postId);
+}
+
+
+function toggleMobileSidebar(){
+  document.querySelector('.app').classList.toggle('sidebar-open');
+}
+function closeMobileSidebar(){
+  document.querySelector('.app').classList.remove('sidebar-open');
+}
+
+</script>
+<div id="mobile-bar">
+  <a href="index.html" id="mobile-back">← BACK</a>
+  <button id="mobile-toggle" onclick="toggleMobileSidebar()">≡ TOOLS</button>
+</div>
+<div id="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+
+</body>
+</html>
