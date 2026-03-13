@@ -1976,7 +1976,10 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   }
 
   group.on('transformend', () => {
+    // Guard: this path is dead when anchors are non-listening (our custom resize handles
+    // everything). If somehow triggered, only act if Konva actually applied a scale.
     const sx = Math.abs(group.scaleX()), sy = Math.abs(group.scaleY());
+    if (sx === 1 && sy === 1) return; // nothing to bake
     const newW = Math.max(20, currentW * sx);
     const newH = Math.max(20, currentH * sy);
     todd.width(newW); todd.height(newH);
