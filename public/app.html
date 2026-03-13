@@ -969,6 +969,7 @@ function resetZoom() {
   stage.position({ x: 0, y: 0 });
   stage.batchDraw();
   updateZoomIndicator();
+  if (transformer.nodes().length) _boostAnchorHits();
 }
 
 containerEl.addEventListener('wheel', e => {
