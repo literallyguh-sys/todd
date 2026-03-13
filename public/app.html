@@ -2349,22 +2349,24 @@ stage.on('mousemove touchmove', (ev) => {
     if (pos) {
       const { nw, nh, cos, sin, fwx, fwy, flx, fly, iax, iay, imx, imy } = _resizeData;
       const MIN = 20;
+      const maxW = bgBounds ? bgBounds.w : CANVAS_W;
+      const maxH = bgBounds ? bgBounds.h : CANVAS_H;
       let sx = 1, sy = 1;
       if (['TL','TR','BL','BR'].includes(_resizeAnchor)) {
         const ivx = iax-fwx, ivy = iay-fwy, d2 = ivx*ivx+ivy*ivy;
         if (d2 > 0) {
           const proj = ((pos.x-fwx)*ivx + (pos.y-fwy)*ivy) / d2;
-          const s = Math.max(MIN/nw, MIN/nh, proj);
+          const s = Math.min(maxW/nw, maxH/nh, Math.max(MIN/nw, MIN/nh, proj));
           sx = s; sy = s;
         }
       } else {
         const dx = pos.x-imx, dy = pos.y-imy;
         const ldx = dx*cos+dy*sin, ldy = -dx*sin+dy*cos;
         switch (_resizeAnchor) {
-          case 'MR': sx = Math.max(MIN/nw, (nw+ldx)/nw); break;
-          case 'ML': sx = Math.max(MIN/nw, (nw-ldx)/nw); break;
-          case 'BC': sy = Math.max(MIN/nh, (nh+ldy)/nh); break;
-          case 'TC': sy = Math.max(MIN/nh, (nh-ldy)/nh); break;
+          case 'MR': sx = Math.min(maxW/nw, Math.max(MIN/nw, (nw+ldx)/nw)); break;
+          case 'ML': sx = Math.min(maxW/nw, Math.max(MIN/nw, (nw-ldx)/nw)); break;
+          case 'BC': sy = Math.min(maxH/nh, Math.max(MIN/nh, (nh+ldy)/nh)); break;
+          case 'TC': sy = Math.min(maxH/nh, Math.max(MIN/nh, (nh-ldy)/nh)); break;
         }
       }
       const node = transformer.nodes()[0];
