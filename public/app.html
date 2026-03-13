@@ -2360,6 +2360,31 @@ stage.on('mousedown touchstart', ev => {
   if (moveMode) {
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
+    // Custom resize: detect anchor zone click and take over from Konva's broken anchor drag
+    const _resizeHit = (transformer.nodes().length && !transformer.nodes()[0]._isEmptyLayer)
+                       ? _nearestAnchorName() : null;
+    if (_resizeHit) {
+      const node = transformer.nodes()[0];
+      const r = node.rotation() * Math.PI / 180;
+      const nw = node._currentW, nh = node._currentH;
+      const cos = Math.cos(r), sin = Math.sin(r);
+      const nx = node.x(), ny = node.y();
+      const FL = { TL:[nw,nh], TC:[nw/2,nh], TR:[0,nh], ML:[nw,nh/2], MR:[0,nh/2], BL:[nw,0], BC:[nw/2,0], BR:[0,0] };
+      const DL = { TL:[0,0], TC:[nw/2,0], TR:[nw,0], ML:[0,nh/2], MR:[nw,nh/2], BL:[0,nh], BC:[nw/2,nh], BR:[nw,nh] };
+      const [flx,fly] = FL[_resizeHit], [dlx,dly] = DL[_resizeHit];
+      _resizeData = {
+        nw, nh, cos, sin, flx, fly,
+        fwx: nx + flx*cos - fly*sin,
+        fwy: ny + flx*sin + fly*cos,
+        iax: nx + dlx*cos - dly*sin,
+        iay: ny + dlx*sin + dly*cos,
+        imx: pos.x, imy: pos.y,
+      };
+      _resizeAnchor = _resizeHit;
+      _resizing = true;
+      return;
+    }
+
     // Skip rotation zone check if the click landed on a transformer anchor or border.
     // (Those should trigger scale, not rotation — handled by Konva internally.)
     const _isTransformerChild = ev.target && ev.target.getParent && ev.target.getParent() === transformer;
