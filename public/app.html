@@ -2285,40 +2285,53 @@ stage.on('mousedown touchstart', ev => {
     node = node.getParent ? node.getParent() : null;
   }
 });
-stage.on('mouseup touchend', () => {
-  if (_resizing) {
-    _resizing = false; _resizeAnchor = null; _resizeData = null;
-    if (transformer.nodes().length) {
-      const node = transformer.nodes()[0];
-      const sx = Math.abs(node.scaleX()), sy = Math.abs(node.scaleY());
-      const _maxW = bgBounds ? bgBounds.w : CANVAS_W;
-      const _maxH = bgBounds ? bgBounds.h : CANVAS_H;
-      const newW = Math.min(_maxW, Math.max(20, node._currentW * sx));
-      const newH = Math.min(_maxH, Math.max(20, node._currentH * sy));
-      if (!node._isText) {
-        const img = node.findOne('Image');
-        if (img) { img.width(newW); img.height(newH); }
-        if (node.eraseLayer) node.eraseLayer.getChildren().forEach(c => {
-          c.x(c.x()*sx); c.y(c.y()*sy);
-          if (typeof c.radius === 'function') c.radius(c.radius() * Math.max(sx, sy));
-        });
-        const sg = node._strokeGroup;
-        if (sg) sg.find('Line').forEach(l => {
-          l.points(l.points().map((v,i) => v*(i%2===0?sx:sy)));
-          l.strokeWidth(l.strokeWidth() * Math.max(sx, sy));
-        });
-        const img2 = node.findOne('Image');
-        if (img2) { if (node._mirrored) { img2.scaleX(-1); img2.x(newW); } else { img2.scaleX(1); img2.x(0); } }
-      }
-      node._currentW = newW; node._currentH = newH;
-      node.scaleX(1); node.scaleY(1);
-      clampToBg(node, newW, newH);
-      toddLayer.draw();
-      _boostAnchorHits();
-      pushHistory();
+function _bakeResize() {
+  if (!_resizing) return;
+  const savedData = _resizeData;
+  _resizing = false; _resizeAnchor = null; _resizeData = null;
+  if (transformer.nodes().length) {
+    const node = transformer.nodes()[0];
+    const rawSx = Math.abs(node.scaleX()), rawSy = Math.abs(node.scaleY());
+    const _maxW = bgBounds ? bgBounds.w : CANVAS_W;
+    const _maxH = bgBounds ? bgBounds.h : CANVAS_H;
+    const newW = Math.min(_maxW, Math.max(20, node._currentW * rawSx));
+    const newH = Math.min(_maxH, Math.max(20, node._currentH * rawSy));
+    // Effective scale (may be less than rawSx/rawSy if cap was hit)
+    const effSx = newW / node._currentW;
+    const effSy = newH / node._currentH;
+    // Reposition to keep fixed point stable using the actual (capped) scale
+    if (savedData) {
+      const { cos, sin, fwx, fwy, flx, fly } = savedData;
+      node.x(fwx - flx * effSx * cos + fly * effSy * sin);
+      node.y(fwy - flx * effSx * sin - fly * effSy * cos);
     }
-    containerEl.style.cursor = moveMode ? 'grab' : '';
+    if (!node._isText) {
+      const img = node.findOne('Image');
+      if (img) { img.width(newW); img.height(newH); }
+      if (node.eraseLayer) node.eraseLayer.getChildren().forEach(c => {
+        c.x(c.x()*effSx); c.y(c.y()*effSy);
+        if (typeof c.radius === 'function') c.radius(c.radius() * Math.max(effSx, effSy));
+      });
+      const sg = node._strokeGroup;
+      if (sg) sg.find('Line').forEach(l => {
+        l.points(l.points().map((v,i) => v*(i%2===0?effSx:effSy)));
+        l.strokeWidth(l.strokeWidth() * Math.max(effSx, effSy));
+      });
+      const img2 = node.findOne('Image');
+      if (img2) { if (node._mirrored) { img2.scaleX(-1); img2.x(newW); } else { img2.scaleX(1); img2.x(0); } }
+    }
+    node._currentW = newW; node._currentH = newH;
+    node.scaleX(1); node.scaleY(1);
+    clampToBg(node, newW, newH);
+    toddLayer.draw();
+    _boostAnchorHits();
+    pushHistory();
   }
+  containerEl.style.cursor = moveMode ? 'grab' : '';
+}
+
+stage.on('mouseup touchend', () => {
+  if (_resizing) _bakeResize();
   if (_rotating) {
     _rotating = false; _rotStart = null;
     containerEl.style.cursor = moveMode ? 'grab' : '';
