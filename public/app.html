@@ -1259,13 +1259,19 @@ function _getAnchorCursor() {
   ];
   const CURSOR_MAP = ['ns-resize','nesw-resize','ew-resize','nwse-resize',
                       'ns-resize','nesw-resize','ew-resize','nwse-resize'];
-  for (const [lx, ly, baseAngle] of ANCHORS) {
+  const thresh2 = thresh * thresh;
+  let nearestIdx = -1, nearestD2 = Infinity;
+  for (let i = 0; i < ANCHORS.length; i++) {
+    const [lx, ly] = ANCHORS[i];
     const wx = nx + lx*cos - ly*sin;
     const wy = ny + lx*sin + ly*cos;
-    if ((pos.x-wx)**2 + (pos.y-wy)**2 <= thresh*thresh) {
-      const effective = ((baseAngle + rot) % 360 + 360) % 360;
-      return CURSOR_MAP[Math.round(effective / 45) % 8];
-    }
+    const d2 = (pos.x-wx)**2 + (pos.y-wy)**2;
+    if (d2 <= thresh2 && d2 < nearestD2) { nearestIdx = i; nearestD2 = d2; }
+  }
+  if (nearestIdx >= 0) {
+    const effective = ((ANCHORS[nearestIdx][2] + rot) % 360 + 360) % 360;
+    return CURSOR_MAP[Math.round(effective / 45) % 8];
+    if (false) {
   }
   return null;
 }
