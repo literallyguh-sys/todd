@@ -1928,6 +1928,7 @@ function _endMoveDrag() {
   else containerEl.style.cursor = '';
 }
 window.addEventListener('mouseup', _endMoveDrag);
+window.addEventListener('mouseup', () => { if (_resizing) _bakeResize(); });
 
 // Returns true if the stage pointer is within canvas bounds
 function _inCanvas() {
