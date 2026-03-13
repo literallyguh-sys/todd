@@ -1980,7 +1980,7 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   group.on('mousedown touchstart', ev => {
     if (!moveMode) return;
     if (group !== _activeLayer) return;
-    if (_pointerOnAnchor()) return; // anchor click — let Konva handle scale
+    if (_getAnchorCursor()) return; // anchor click — let Konva handle scale
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
     _moveTarget = group;
@@ -2170,7 +2170,7 @@ function makeTextGroup(txt, startX, startY, reuseId, fontSize, fill, scaleX, sca
   group.on('mousedown touchstart', ev => {
     if (!moveMode) return;
     if (group !== _activeLayer) return;
-    if (_pointerOnAnchor()) return; // anchor click — let Konva handle scale
+    if (_getAnchorCursor()) return; // anchor click — let Konva handle scale
     const pos = stage.getRelativePointerPosition();
     if (!pos) return;
     _moveTarget = group;
