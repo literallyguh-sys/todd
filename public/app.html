@@ -2291,8 +2291,10 @@ stage.on('mouseup touchend', () => {
     if (transformer.nodes().length) {
       const node = transformer.nodes()[0];
       const sx = Math.abs(node.scaleX()), sy = Math.abs(node.scaleY());
-      const newW = Math.max(20, node._currentW * sx);
-      const newH = Math.max(20, node._currentH * sy);
+      const _maxW = bgBounds ? bgBounds.w : CANVAS_W;
+      const _maxH = bgBounds ? bgBounds.h : CANVAS_H;
+      const newW = Math.min(_maxW, Math.max(20, node._currentW * sx));
+      const newH = Math.min(_maxH, Math.max(20, node._currentH * sy));
       if (!node._isText) {
         const img = node.findOne('Image');
         if (img) { img.width(newW); img.height(newH); }
