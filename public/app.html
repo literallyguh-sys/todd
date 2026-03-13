@@ -2278,6 +2278,37 @@ stage.on('mousedown touchstart', ev => {
   }
 });
 stage.on('mouseup touchend', () => {
+  if (_resizing) {
+    _resizing = false; _resizeAnchor = null; _resizeData = null;
+    if (transformer.nodes().length) {
+      const node = transformer.nodes()[0];
+      const sx = Math.abs(node.scaleX()), sy = Math.abs(node.scaleY());
+      const newW = Math.max(20, node._currentW * sx);
+      const newH = Math.max(20, node._currentH * sy);
+      if (!node._isText) {
+        const img = node.findOne('Image');
+        if (img) { img.width(newW); img.height(newH); }
+        if (node.eraseLayer) node.eraseLayer.getChildren().forEach(c => {
+          c.x(c.x()*sx); c.y(c.y()*sy);
+          if (typeof c.radius === 'function') c.radius(c.radius() * Math.max(sx, sy));
+        });
+        const sg = node._strokeGroup;
+        if (sg) sg.find('Line').forEach(l => {
+          l.points(l.points().map((v,i) => v*(i%2===0?sx:sy)));
+          l.strokeWidth(l.strokeWidth() * Math.max(sx, sy));
+        });
+        const img2 = node.findOne('Image');
+        if (img2) { if (node._mirrored) { img2.scaleX(-1); img2.x(newW); } else { img2.scaleX(1); img2.x(0); } }
+      }
+      node._currentW = newW; node._currentH = newH;
+      node.scaleX(1); node.scaleY(1);
+      clampToBg(node, newW, newH);
+      toddLayer.draw();
+      _boostAnchorHits();
+      pushHistory();
+    }
+    containerEl.style.cursor = moveMode ? 'grab' : '';
+  }
   if (_rotating) {
     _rotating = false; _rotStart = null;
     containerEl.style.cursor = moveMode ? 'grab' : '';
