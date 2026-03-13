@@ -1276,6 +1276,9 @@ const ROTATE_ZONE_MIN_PX = 16; // inner dead-zone — clears scale handles
 const ROTATE_ZONE_MAX_PX = 46; // outer limit
 let _rotating  = false;
 let _rotStart  = null; // { angle, rotation, wCx, wCy }
+let _resizing    = false;
+let _resizeAnchor = null; // 'TL'|'TC'|'TR'|'ML'|'MR'|'BL'|'BC'|'BR'
+let _resizeData   = null; // stored state at drag start
 
 // Return the 4 actual corner positions of a node in stage-world coords (tracks rotation)
 function _nodeCorners(node) {
