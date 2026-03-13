@@ -1282,17 +1282,20 @@ function _nearestAnchorName() {
   const cos = Math.cos(rot), sin = Math.sin(rot);
   const nx = node.x(), ny = node.y();
   const thresh = ANCHOR_HIT_PX / stage.scaleX();
+  const thresh2 = thresh * thresh;
   const ANCHORS = [
     [0,   0,   'TL'], [w/2, 0,   'TC'], [w,   0,   'TR'],
     [0,   h/2, 'ML'], [w,   h/2, 'MR'],
     [0,   h,   'BL'], [w/2, h,   'BC'], [w,   h,   'BR'],
   ];
+  let nearest = null, nearestD2 = Infinity;
   for (const [lx, ly, name] of ANCHORS) {
     const wx = nx + lx*cos - ly*sin;
     const wy = ny + lx*sin + ly*cos;
-    if ((pos.x-wx)**2 + (pos.y-wy)**2 <= thresh*thresh) return name;
+    const d2 = (pos.x-wx)**2 + (pos.y-wy)**2;
+    if (d2 <= thresh2 && d2 < nearestD2) { nearest = name; nearestD2 = d2; }
   }
-  return null;
+  return nearest;
 }
 
 // Rotation cursor (Photoshop-style: hover outside corners)
