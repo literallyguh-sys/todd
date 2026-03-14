@@ -1707,13 +1707,13 @@ function restoreState(snap) {
         }));
       });
     };
-    // Restore per-group fill — add as child of group at saved local position
+    // Restore per-group fill — add as child of group at saved local position.
+    // If the image is already in imgCache, restore synchronously (no gap frame during undo/redo).
     const restoreFill = (group, itemData) => {
       if (!itemData.fillSrc) return;
-      const fi = new Image();
-      fi.onload = () => {
+      const _addFill = (img) => {
         const kFill = new Konva.Image({
-          image: fi,
+          image: img,
           x: itemData.fillX ?? 0, y: itemData.fillY ?? 0,
           width: itemData.fillW ?? CANVAS_W, height: itemData.fillH ?? CANVAS_H,
           listening: false
@@ -1721,11 +1721,13 @@ function restoreState(snap) {
         kFill._fillOwnerId = group._toddId;
         group._fillNode = kFill;
         group.add(kFill);
-        // Place fill above eraseLayer so destination-out doesn't erase it
         if (group.eraseLayer) kFill.zIndex(group.eraseLayer.zIndex() + 1); else kFill.moveToBottom();
         toddLayer.batchDraw();
-        _onAsyncDone();
       };
+      const cached = imgCache[itemData.fillSrc];
+      if (cached) { _addFill(cached); return; } // sync — no flicker
+      const fi = new Image();
+      fi.onload = () => { imgCache[fi.src] = fi; _addFill(fi); _onAsyncDone(); };
       fi.src = itemData.fillSrc;
     };
 
