@@ -2279,7 +2279,7 @@ const eraserSizeVal    = document.getElementById('eraserSizeVal');
 eraserSizeSlider.addEventListener('input', () => { eraserSizeVal.textContent = eraserSizeSlider.value; });
 
 stage.on('mousedown touchstart', ev => {
-  if (ev.evt && ev.evt.button === 1) return; // ignore middle mouse — don't erase while panning
+  if (ev.evt && (ev.evt.button === 1 || ev.evt.button === 2)) return; // ignore middle/right mouse — don't erase while panning
   if (!eraserMode) return;
   if (_activeLayer && _activeLayer._isBgProxy) return; // bg layer not erasable
   // If a layer is active, erase within it; otherwise find group under pointer
