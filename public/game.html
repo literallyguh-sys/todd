@@ -237,7 +237,7 @@ function cost(u) { return u.base; } // buy-once, cost never changes
 const SAVE_KEY = 'wristgame_v2';
 
 function save() {
-  const d = { pts, totalPts, cpc, pps, spdMult, frac, maxStamina, drainPerSec, cooldownDur, counts:{} };
+  const d = { pts, totalPts, cpc, pps, spdMult, frac, maxStamina, staminaPerPoint, cooldownDur, counts:{} };
   UPS.forEach(u => d.counts[u.id] = u.count);
   localStorage.setItem(SAVE_KEY, JSON.stringify(d));
 }
