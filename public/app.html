@@ -1604,17 +1604,7 @@ function refreshLayerPanel() {
       refreshLayerPanel();
     });
     const wrapper = document.createElement('div');
-    wrapper.draggable = true;
     wrapper.dataset.layerId = g._toddId;
-    wrapper.addEventListener('dragstart', e => {
-      _dragLayerId = g._toddId;
-      e.dataTransfer.effectAllowed = 'move';
-      setTimeout(() => item.style.opacity = '0.4', 0);
-    });
-    wrapper.addEventListener('dragend', () => {
-      item.style.opacity = '';
-      document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
-    });
     wrapper.appendChild(item);
     wrapper.appendChild(opRow);
     list.appendChild(wrapper);
