@@ -536,11 +536,14 @@ function renderShop() {
   const list = document.getElementById('shop-items');
   list.innerHTML = '';
   UPS.filter(u => u.cat === activeTab).forEach(u => {
-    // Section dividers for stamina tab
-    if (activeTab === 'stamina' && STAMINA_DIVIDERS[u.id]) {
+    // Section dividers
+    const dividerLabel =
+      (activeTab === 'stamina' && STAMINA_DIVIDERS[u.id]) ||
+      (activeTab === 'passive' && PASSIVE_DIVIDERS[u.id]);
+    if (dividerLabel) {
       const div = document.createElement('div');
       div.className = 'shop-divider';
-      div.textContent = STAMINA_DIVIDERS[u.id];
+      div.textContent = dividerLabel;
       list.appendChild(div);
     }
     const owned  = u.count >= 1;
