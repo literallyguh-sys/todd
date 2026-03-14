@@ -1393,10 +1393,12 @@ const imgCache = {};   // url -> Image object (used for sync restore in undo/red
 
 let colorPickerMode = false;
 
-// Cache a group to isolate destination-out compositing (works for both empty layers and todd groups)
+// Cache a group to isolate destination-out compositing.
+// pixelRatio matches current zoom so the cache is always sharp at the current view.
 function _cacheEmptyLayer(g) {
   const bx = g.x(), by = g.y();
-  g.cache({ x: -bx, y: -by, width: CANVAS_W, height: CANVAS_H, pixelRatio: window.devicePixelRatio || 1 });
+  const pr = Math.min(4, Math.max(1, stage.scaleX() * (window.devicePixelRatio || 1)));
+  g.cache({ x: -bx, y: -by, width: CANVAS_W, height: CANVAS_H, pixelRatio: pr });
   g._isCached = true;
 }
 // Refresh cache if one already exists (called after stroke/fill/erase changes on any cached group)
