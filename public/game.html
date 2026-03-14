@@ -436,6 +436,17 @@ function dismissEvent() {
   if (fn) fn();
 }
 
+function showAnnouncement(msg) {
+  // Shows the event overlay in result-only mode — no choice buttons
+  activeEvent = { yesPost:null, noPost:null };
+  _postDismissFn = null;
+  document.getElementById('event-msg').textContent           = '';
+  document.getElementById('event-choice-btns').style.display = 'none';
+  document.getElementById('event-result-msg').textContent    = msg;
+  document.getElementById('event-result-area').style.display = 'flex';
+  document.getElementById('event-overlay').classList.add('show');
+}
+
 function cost(u) { return u.base; } // buy-once, cost never changes
 
 // ─────────────────────────────────────────────
