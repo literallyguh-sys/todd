@@ -1097,7 +1097,6 @@ function setActiveTool(tool) {
       containerEl.classList.add('pencil-active');
       transformer.nodes([]);
       toddLayer.find('Group').forEach(g => { if (g._refreshDelete) g._refreshDelete(); });
-      document.getElementById('pencilSizeRow').style.display = 'flex';
       document.getElementById('mdb-pencil')?.classList.add('active');
       setStatus('Pencil — draw on canvas');
       break;
