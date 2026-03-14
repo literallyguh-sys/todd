@@ -60,6 +60,17 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 #equip-label { font-size:12px; color:#444; letter-spacing:3px; }
 #val-equip { font-size:19px; color:#e0e0e0; letter-spacing:2px; display:block; margin-top:1px; }
 
+/* ── Effects box ── */
+#effects-box { position:absolute; bottom:14px; right:14px; pointer-events:none;
+  border:1px solid rgba(255,255,255,0.12); padding:7px 12px; background:rgba(0,0,0,0.55);
+  min-width:120px; display:none; }
+#effects-box.visible { display:block; }
+#effects-label { font-size:12px; color:#444; letter-spacing:3px; }
+#effects-list { margin-top:3px; display:flex; flex-direction:column; gap:2px; }
+.effect-entry { font-size:14px; letter-spacing:1px; }
+.effect-debuff { color:var(--red); }
+.effect-buff   { color:var(--green); }
+
 #click-hint { font-size:16px; color:#333; letter-spacing:3px; pointer-events:none; }
 #scene-wrap.cooldown #click-hint { color:var(--red); }
 
