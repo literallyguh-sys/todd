@@ -443,6 +443,7 @@ function showAnnouncement(msg) {
   _postDismissFn = null;
   document.getElementById('event-msg').textContent           = '';
   document.getElementById('event-choice-btns').style.display = 'none';
+  document.getElementById('event-close').style.display       = '';
   document.getElementById('event-result-msg').textContent    = msg;
   document.getElementById('event-result-area').style.display = 'flex';
   document.getElementById('event-overlay').classList.add('show');
