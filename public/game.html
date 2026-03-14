@@ -265,7 +265,7 @@ function resetGame() {
   if (!confirm('Wipe all progress and start over?')) return;
   localStorage.removeItem(SAVE_KEY);
   pts=0; totalPts=0; cpc=1; pps=0; spdMult=1; frac=0;
-  maxStamina=100; stamina=100; drainPerSec=4; cooldownDur=10;
+  maxStamina=100; stamina=100; staminaPerPoint=0.1; cooldownDur=10;
   onCooldown=false; cooldownLeft=0;
   UPS.forEach(u => u.count=0);
   updatePassiveAnim();
