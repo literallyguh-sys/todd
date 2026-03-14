@@ -697,6 +697,25 @@ function fmtDec(n) {
 // ─────────────────────────────────────────────
 //  Render
 // ─────────────────────────────────────────────
+function renderEffects() {
+  const box  = document.getElementById('effects-box');
+  const list = document.getElementById('effects-list');
+  const effects = [];
+
+  if (momDebuffUntil > 0 && Date.now() < momDebuffUntil) {
+    const msLeft = momDebuffUntil - Date.now();
+    const hLeft  = Math.floor(msLeft / 3600000);
+    const mLeft  = Math.floor((msLeft % 3600000) / 60000);
+    const timeStr = hLeft > 0 ? hLeft + 'h ' + mLeft + 'm' : mLeft + 'm';
+    effects.push({ cls:'effect-debuff', text:'-20% POINTS (' + timeStr + ')' });
+  }
+
+  if (!effects.length) { box.classList.remove('visible'); return; }
+  box.classList.add('visible');
+  list.innerHTML = effects.map(e =>
+    `<div class="effect-entry ${e.cls}">${e.text}</div>`).join('');
+}
+
 function renderEquipment() {
   const owned = UPS.filter(u => u.cat === 'click' && u.count > 0);
   const current = owned.length ? owned[owned.length - 1] : null;
