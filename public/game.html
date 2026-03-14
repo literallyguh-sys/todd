@@ -223,9 +223,10 @@ let frac     = 0;    // fractional accumulator
 let maxStamina      = 100;
 let stamina         = 100;
 let staminaPerPoint = 0.1;  // stamina cost per point earned (click or passive)
-let cooldownDur     = 10;   // seconds of cooldown when stamina hits 0
+let cooldownDur     = 900;  // 15 minutes in seconds
 let onCooldown      = false;
 let cooldownLeft    = 0;
+const STAMINA_REGEN = 100 / 3600; // 100 stamina per hour = ~0.0278/sec
 
 let lastTs      = null;
 let activeTab   = 'click';
