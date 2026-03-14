@@ -658,6 +658,7 @@ function tick(ts) {
       }
     }
     if (!onCooldown) renderStamina();
+    if (ts - lastEffectsTs > 1000) { renderEffects(); lastEffectsTs = ts; }
   }
   lastTs = ts;
   requestAnimationFrame(tick);
