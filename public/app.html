@@ -1084,7 +1084,6 @@ function setActiveTool(tool) {
     document.getElementById('sb-'+t)?.classList.remove('active')
   );
   document.getElementById('eraserSizeRow').style.display = 'none';
-  document.getElementById('pencilSizeRow').style.display = 'none';
   document.getElementById('mdb-pencil')?.classList.remove('active');
   document.getElementById('mdb-eraser')?.classList.remove('active');
   if (same) { setStatus('Ready'); return; } // toggle off
