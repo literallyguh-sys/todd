@@ -3006,48 +3006,18 @@ _initCpListeners();
 function _getDragTarget(clientY) {
   const wrappers = [...document.querySelectorAll('#layerList > [data-layer-id]')];
   if (!wrappers.length) return null;
+  const ll = document.getElementById('layerList');
+  const llRect = ll.getBoundingClientRect();
+  const y = Math.max(llRect.top, Math.min(llRect.bottom, clientY));
   let closest = null, closestDist = Infinity;
   for (const w of wrappers) {
     const rect = w.getBoundingClientRect();
     const mid  = rect.top + rect.height / 2;
-    const dist = Math.abs(clientY - mid);
+    const dist = Math.abs(y - mid);
     if (dist < closestDist) { closestDist = dist; closest = w; }
   }
   return closest;
 }
-(function() {
-  const ll = document.getElementById('layerList');
-  ll.addEventListener('dragover', e => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    const target = _getDragTarget(e.clientY);
-    document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
-    if (target) target.querySelector('.layer-item')?.classList.add('layer-drag-over');
-  });
-  ll.addEventListener('dragleave', e => {
-    // Only clear if leaving the list entirely (not just moving between children)
-    if (!ll.contains(e.relatedTarget)) {
-      document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
-    }
-  });
-  ll.addEventListener('drop', e => {
-    e.preventDefault();
-    document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
-    if (!_dragLayerId) return;
-    const target = _getDragTarget(e.clientY);
-    const targetId = target?.dataset.layerId;
-    if (!targetId || targetId === _dragLayerId) { _dragLayerId = null; return; }
-    const dragGroup   = toddLayer.getChildren().find(n => n._toddId === _dragLayerId);
-    const targetGroup = toddLayer.getChildren().find(n => n._toddId === targetId);
-    if (dragGroup && targetGroup) {
-      dragGroup.zIndex(targetGroup.zIndex());
-      toddLayer.draw();
-      refreshLayerPanel();
-      pushHistory();
-    }
-    _dragLayerId = null;
-  });
-})();
 new ResizeObserver(() => {
   const sq = document.getElementById('colorSquare'); if (!sq) return;
   const r = sq.getBoundingClientRect();
