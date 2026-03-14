@@ -2986,6 +2986,21 @@ function confirmDownload() {
 
 updateUndoRedoBtns();
 _initCpListeners();
+
+// Layer list: accept drops anywhere in the list so dragging between items or
+// near the top/bottom doesn't show the red no-drop cursor.
+(function() {
+  const ll = document.getElementById('layerList');
+  ll.addEventListener('dragover', e => e.preventDefault());
+  ll.addEventListener('drop', e => {
+    e.preventDefault();
+    if (!_dragLayerId) return;
+    // Dropped onto empty list space — move dragged layer to bottom of list (lowest z-index)
+    const dragGroup = toddLayer.getChildren().find(n => n._toddId === _dragLayerId);
+    if (dragGroup) { dragGroup.moveToBottom(); toddLayer.draw(); refreshLayerPanel(); pushHistory(); }
+    _dragLayerId = null;
+  });
+})();
 new ResizeObserver(() => {
   const sq = document.getElementById('colorSquare'); if (!sq) return;
   const r = sq.getBoundingClientRect();
