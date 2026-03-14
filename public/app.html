@@ -2415,6 +2415,7 @@ stage.on('mouseup touchend', () => {
   if (lineMode && _previewLine) {
     _previewLine = null;
     _lineStart = null;
+    if (_activeLayer) { _updateLayerThumb(_activeLayer); refreshLayerPanel(); }
     pushHistory();
   }
   _endMoveDrag();
