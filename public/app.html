@@ -2968,17 +2968,50 @@ function confirmDownload() {
 updateUndoRedoBtns();
 _initCpListeners();
 
-// Layer list: accept drops anywhere in the list so dragging between items or
-// near the top/bottom doesn't show the red no-drop cursor.
+// Layer list: position-based drag-and-drop — finds the closest layer to the cursor
+// regardless of whether the cursor is between items, above, or below the list.
+function _getDragTarget(clientY) {
+  const wrappers = [...document.querySelectorAll('#layerList > [data-layer-id]')];
+  if (!wrappers.length) return null;
+  let closest = null, closestDist = Infinity;
+  for (const w of wrappers) {
+    const rect = w.getBoundingClientRect();
+    const mid  = rect.top + rect.height / 2;
+    const dist = Math.abs(clientY - mid);
+    if (dist < closestDist) { closestDist = dist; closest = w; }
+  }
+  return closest;
+}
 (function() {
   const ll = document.getElementById('layerList');
-  ll.addEventListener('dragover', e => e.preventDefault());
+  ll.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const target = _getDragTarget(e.clientY);
+    document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
+    if (target) target.querySelector('.layer-item')?.classList.add('layer-drag-over');
+  });
+  ll.addEventListener('dragleave', e => {
+    // Only clear if leaving the list entirely (not just moving between children)
+    if (!ll.contains(e.relatedTarget)) {
+      document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
+    }
+  });
   ll.addEventListener('drop', e => {
     e.preventDefault();
+    document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
     if (!_dragLayerId) return;
-    // Dropped onto empty list space — move dragged layer to bottom of list (lowest z-index)
-    const dragGroup = toddLayer.getChildren().find(n => n._toddId === _dragLayerId);
-    if (dragGroup) { dragGroup.moveToBottom(); toddLayer.draw(); refreshLayerPanel(); pushHistory(); }
+    const target = _getDragTarget(e.clientY);
+    const targetId = target?.dataset.layerId;
+    if (!targetId || targetId === _dragLayerId) { _dragLayerId = null; return; }
+    const dragGroup   = toddLayer.getChildren().find(n => n._toddId === _dragLayerId);
+    const targetGroup = toddLayer.getChildren().find(n => n._toddId === targetId);
+    if (dragGroup && targetGroup) {
+      dragGroup.zIndex(targetGroup.zIndex());
+      toddLayer.draw();
+      refreshLayerPanel();
+      pushHistory();
+    }
     _dragLayerId = null;
   });
 })();
