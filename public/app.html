@@ -1497,6 +1497,9 @@ function updateUndoRedoBtns() {
 function refreshLayerPanel() {
   const list = document.getElementById('layerList');
   if (!list) return;
+  // Only the active layer should capture hit events; all others pass through to layers below
+  toddLayer.getChildren().forEach(g => { if (g._toddId) g.listening(g === _activeLayer); });
+  toddLayer.drawHit();
   // All groups in visual order, reversed so top layer is first
   const groups = Array.from(toddLayer.getChildren()).filter(n => n._toddId).reverse();
   if (!groups.length && !background) {
