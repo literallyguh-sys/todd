@@ -2923,6 +2923,7 @@ function clearAll() {
   drawLayer.destroyChildren();
   bgStrokeGroup.destroyChildren();
   bgLayer.draw(); toddLayer.draw(); drawLayer.draw();
+  addEmptyLayer(true);
   pushHistory();
   setStatus('Canvas cleared');
   showToast('Canvas cleared');
