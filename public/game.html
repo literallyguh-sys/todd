@@ -345,16 +345,39 @@ function startCooldown() {
   _clickBurst = false;
   document.getElementById('click-hint').textContent = '[ EXHAUSTED ]';
   document.getElementById('scene-wrap').classList.add('cooldown');
+  document.getElementById('sore-overlay').classList.add('show');
+  renderSoreOverlay();
 }
 
 function endCooldown() {
   onCooldown   = false;
   cooldownLeft = 0;
-  stamina      = maxStamina;
+  // Stamina does NOT restore to full — it stays at whatever it regenerated to
   document.getElementById('click-hint').textContent = '[ CLICK TO STROKE ]';
   document.getElementById('scene-wrap').classList.remove('cooldown');
+  document.getElementById('sore-overlay').classList.remove('show');
   updatePassiveAnim();
   renderStamina();
+}
+
+function skipCooldown() {
+  if (!onCooldown) return;
+  endCooldown();
+}
+
+function fullStamina() {
+  stamina = maxStamina;
+  renderStamina();
+  save();
+}
+
+function renderSoreOverlay() {
+  const mins = Math.floor(cooldownLeft / 60);
+  const secs = Math.floor(cooldownLeft % 60);
+  document.getElementById('sore-timer').textContent =
+    String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+  document.getElementById('sore-stam').textContent     = Math.ceil(stamina);
+  document.getElementById('sore-stam-max').textContent = maxStamina;
 }
 
 // ─────────────────────────────────────────────
