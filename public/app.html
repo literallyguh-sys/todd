@@ -974,16 +974,22 @@ function resetZoom() {
 
 containerEl.addEventListener('wheel', e => {
   e.preventDefault();
-  const oldScale = stage.scaleX();
-  const pointer  = stage.getPointerPosition();
-  const dir      = e.deltaY < 0 ? 1 : -1;
-  const newScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, oldScale * (dir > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR)));
-  const anchor   = { x: (pointer.x - stage.x()) / oldScale, y: (pointer.y - stage.y()) / oldScale };
-  stage.scale({ x: newScale, y: newScale });
-  stage.position({ x: pointer.x - anchor.x * newScale, y: pointer.y - anchor.y * newScale });
+  if (e.ctrlKey) {
+    // Ctrl+scroll = zoom (also what trackpads send for pinch-to-zoom)
+    const oldScale = stage.scaleX();
+    const pointer  = stage.getPointerPosition();
+    const dir      = e.deltaY < 0 ? 1 : -1;
+    const newScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, oldScale * (dir > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR)));
+    const anchor   = { x: (pointer.x - stage.x()) / oldScale, y: (pointer.y - stage.y()) / oldScale };
+    stage.scale({ x: newScale, y: newScale });
+    stage.position({ x: pointer.x - anchor.x * newScale, y: pointer.y - anchor.y * newScale });
+    updateZoomIndicator();
+    if (transformer.nodes().length) _boostAnchorHits();
+  } else {
+    // Two-finger scroll (or plain scroll wheel) = pan
+    stage.position({ x: stage.x() - e.deltaX, y: stage.y() - e.deltaY });
+  }
   stage.batchDraw();
-  updateZoomIndicator();
-  if (transformer.nodes().length) _boostAnchorHits();
 }, { passive: false });
 
 // ── Resize handler ──
