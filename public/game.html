@@ -397,6 +397,7 @@ function rollEvent() {
   const available = EVENTS.filter(ev => {
     if (ev.minPts && totalPts < ev.minPts) return false;
     if (ev.id === 'coke' && (cokeDeclined || pillGiven)) return false;
+    if (ev.id === 'porn' && pornEventDone) return false;
     return true;
   });
   if (!available.length) return;
