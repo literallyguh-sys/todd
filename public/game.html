@@ -177,13 +177,15 @@ let spdMult  = 1;    // multiplier on pps
 let frac     = 0;    // fractional accumulator
 
 // Stamina
-let maxStamina   = 100;
-let stamina      = 100;
-let drainPerSec  = 4;   // stamina drained per second passively
-let clickDrain   = 2;   // stamina drained per manual click
-let cooldownDur  = 10;  // seconds of cooldown when stamina hits 0
-let onCooldown   = false;
-let cooldownLeft = 0;
+// Formula: every 1 point earned costs STAMINA_PER_POINT stamina.
+// Default: 100 pts = 10 stamina  →  STAMINA_PER_POINT = 0.1
+// Energy drinks reduce this multiplier; tiers increase maxStamina.
+let maxStamina      = 100;
+let stamina         = 100;
+let staminaPerPoint = 0.1;  // stamina cost per point earned (click or passive)
+let cooldownDur     = 10;   // seconds of cooldown when stamina hits 0
+let onCooldown      = false;
+let cooldownLeft    = 0;
 
 let lastTs      = null;
 let activeTab   = 'click';
