@@ -374,7 +374,7 @@ function renderShop() {
 
 function buy(id) {
   const u = UPS.find(x => x.id === id);
-  if (u.cat === 'grip' && u.count >= 1) return;
+  if (u.count >= 1) return;
   const c = cost(u);
   if (pts < c) return;
   pts -= c;
