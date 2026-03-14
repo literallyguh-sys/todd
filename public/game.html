@@ -419,16 +419,20 @@ function tick(ts) {
   if (lastTs !== null) {
     const dt = Math.min((ts - lastTs) / 1000, 0.5);
 
+    // Stamina regenerates at 100/hour always (during cooldown and after)
+    if (stamina < maxStamina) {
+      stamina = Math.min(maxStamina, stamina + STAMINA_REGEN * dt);
+    }
+
     if (onCooldown) {
       cooldownLeft -= dt;
       if (cooldownLeft <= 0) endCooldown();
-      else renderStamina();
+      else { renderStamina(); renderSoreOverlay(); }
     } else {
       // Passive income — stamina only drains when points are actually earned
       frac += pps * spdMult * dt;
       if (frac >= 1) {
         const whole = Math.floor(frac);
-        // Cost = points earned × staminaPerPoint (same formula as clicking)
         stamina = Math.max(0, stamina - whole * staminaPerPoint);
         pts      += whole;
         totalPts += whole;
@@ -438,6 +442,9 @@ function tick(ts) {
         const r = document.getElementById('scene').getBoundingClientRect();
         spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(whole));
         if (stamina <= 0) { startCooldown(); } else { renderStamina(); }
+      } else {
+        // Still render stamina bar so regen is visible even when no points tick
+        renderStamina();
       }
     }
   }
