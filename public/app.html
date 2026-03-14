@@ -1655,7 +1655,7 @@ function restoreState(snap) {
   // Items with a cached Image object restore synchronously — only uncached ones are async
   // Also count fill loads (per-group)
   const toddAsyncCount = items.filter(td => td.type !== 'layer' && td.type !== 'text' && !imgCache[td.src]).length;
-  const fillAsyncCount = items.filter(td => td.fillSrc).length;
+  const fillAsyncCount = items.filter(td => td.fillSrc && !imgCache[td.fillSrc]).length;
   const bgNeedsLoad = !!(snap.bgSrc && snap.bgBounds && (!background || background.image().src !== snap.bgSrc));
   let totalAsync = toddAsyncCount + fillAsyncCount + (bgNeedsLoad ? 1 : 0);
   let asyncDone = 0;
