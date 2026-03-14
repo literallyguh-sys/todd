@@ -437,10 +437,19 @@ function handleClick(e) {
 // ─────────────────────────────────────────────
 //  Stamina & cooldown
 // ─────────────────────────────────────────────
+function fmtTime(s) {
+  s = Math.ceil(s);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+}
+
 function startCooldown(type = 'sore') {
   cooldownType = type;
   onCooldown   = true;
-  cooldownLeft = type === 'rift' ? RIFT_CD : cooldownDur;
+  cooldownLeft = type === 'rift' ? RIFT_CD : type === 'coke' ? COKE_CD : cooldownDur;
   if (type === 'sore') stamina = 0;
   handEl.classList.remove('passive-on', 'click-burst');
   _clickBurst = false;
