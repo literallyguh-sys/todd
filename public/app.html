@@ -2409,7 +2409,11 @@ stage.on('mouseup touchend', () => {
   if (isPenciling) {
     isPenciling = false;
     currentPencilLine = null;
-    if (_activeLayer) { _updateLayerThumb(_activeLayer); refreshLayerPanel(); }
+    if (_activeLayer) {
+      _cacheEmptyLayer(_activeLayer); // re-cache with new stroke included
+      _updateLayerThumb(_activeLayer);
+      refreshLayerPanel();
+    }
     pushHistory();
   }
   if (lineMode && _previewLine) {
