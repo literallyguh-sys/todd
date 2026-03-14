@@ -360,7 +360,18 @@ const EVENTS = [
     noFn:      () => { cokeDeclined = true; save(); },
     noPost:    null,
   },
-  // event 2 — TBD
+  {
+    id:        'mom',
+    prompt:    'YOUR MOM WALKS IN ON YOU. WHAT THE FUCK.',
+    yesLabel:  'COVER YOURSELF WITH A BLANKET',
+    yesResult: 'YOUR MOM FEELS AWKWARD ABOUT IT AND PRETENDS NOT TO NOTICE.',
+    yesFn:     null,
+    yesPost:   null,
+    noLabel:   'CONTINUE',
+    noResult:  'YOUR MOM IS DISGUSTED AND CURSES YOU OUT.',
+    noFn:      () => { momDebuffUntil = Date.now() + 24 * 60 * 60 * 1000; save(); },
+    noPost:    () => showAnnouncement('WHAT AN EMBARRASSMENT.\nPOINT GAINS REDUCED BY 20%\nFOR THE NEXT 24 HOURS.'),
+  },
   // event 3 — TBD
 ];
 
