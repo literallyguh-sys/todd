@@ -299,6 +299,12 @@ let _postDismissFn  = null;
 let cokeCount       = 0;     // times coke was accepted
 let cokeDeclined    = false; // declined once → never offered again
 let pillGiven       = false; // pill was offered (accepted or not) → coke gone
+let momDebuffUntil  = 0;     // timestamp (ms) when mom debuff expires; 0 = inactive
+let lastEffectsTs   = 0;
+
+function pointMult() {
+  return (momDebuffUntil > 0 && Date.now() < momDebuffUntil) ? 0.8 : 1;
+}
 
 // ─────────────────────────────────────────────
 //  Upgrades
