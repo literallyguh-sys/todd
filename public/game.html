@@ -336,7 +336,11 @@ function handleClick(e) {
   renderShop();
   renderStamina();
   save();
-  if (stamina <= 0) startCooldown();
+  if (stamina <= 0) {
+    startCooldown('sore');
+  } else if (Math.random() < RIFT_CHANCE) {
+    startCooldown('rift');
+  }
 }
 
 // ─────────────────────────────────────────────
