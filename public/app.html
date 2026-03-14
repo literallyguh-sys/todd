@@ -1547,6 +1547,7 @@ function refreshLayerPanel() {
     opSlider.value = Math.round(g.opacity() * 100);
     opSlider.className = 'layer-opacity-slider';
     opSlider.title = 'Layer opacity';
+    opSlider.addEventListener('mousedown', e => e.stopPropagation()); // prevent drag from starting
     opSlider.addEventListener('click', e => e.stopPropagation());
     opSlider.addEventListener('input', e => { e.stopPropagation(); setLayerOpacity(g._toddId, e.target.value); });
     opSlider.addEventListener('change', e => { e.stopPropagation(); pushHistory(); });
