@@ -455,8 +455,10 @@ function startCooldown(type = 'sore') {
   _clickBurst = false;
   document.getElementById('click-hint').textContent = '[ EXHAUSTED ]';
   document.getElementById('scene-wrap').classList.add('cooldown');
-  document.getElementById('sore-overlay').classList.add('show');
-  renderSoreOverlay();
+  if (type !== 'coke') {
+    document.getElementById('sore-overlay').classList.add('show');
+    renderSoreOverlay();
+  }
 }
 
 function endCooldown() {
