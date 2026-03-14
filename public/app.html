@@ -2490,7 +2490,7 @@ stage.on('mousemove touchmove', (ev) => {
     selectedGroup.eraseLayer.moveToTop(); // must be above fill and strokes for destination-out to erase all content
     selectedGroup.eraseLayer.add(new Konva.Circle({
       x:pos.x, y:pos.y,
-      radius: parseInt(eraserSizeSlider.value),
+      radius: _toolSize,
       fill:'#000', listening:false,
       globalCompositeOperation:'destination-out'
     }));
