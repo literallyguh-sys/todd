@@ -2021,16 +2021,16 @@ function makeToddGroup(img, initW, initH, startX, startY, reuseId, autoSelect = 
   srcCache[id] = img.src;
   imgCache[img.src] = img; // cache Image object for sync undo/redo restore
 
-  // Generate 22×22 thumbnail data URL synchronously (img is already loaded here).
-  // Stored in thumbCache so the panel can render it instantly without an async network fetch.
+  // Generate 39×22 (16:9) thumbnail synchronously. Stored in thumbCache for instant panel render.
   try {
+    const TW = 39, TH = 22;
     const tc = document.createElement('canvas');
-    tc.width = 22; tc.height = 22;
+    tc.width = TW; tc.height = TH;
     const tctx = tc.getContext('2d');
-    const s = Math.min(22 / img.naturalWidth, 22 / img.naturalHeight);
+    const s = Math.min(TW / img.naturalWidth, TH / img.naturalHeight);
     const tw = Math.round(img.naturalWidth * s), th = Math.round(img.naturalHeight * s);
-    tctx.drawImage(img, (22 - tw) / 2, (22 - th) / 2, tw, th);
-    thumbCache[id] = tc.toDataURL('image/jpeg', 0.7);
+    tctx.drawImage(img, (TW - tw) / 2, (TH - th) / 2, tw, th);
+    thumbCache[id] = tc.toDataURL('image/png');
   } catch(e) { thumbCache[id] = null; } // CORS taint fallback
 
   const todd = new Konva.Image({ image:img, width:currentW, height:currentH });
