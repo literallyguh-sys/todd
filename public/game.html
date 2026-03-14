@@ -288,6 +288,10 @@ function tick(ts) {
       totalPts += whole;
       frac     -= whole;
       renderStats();
+      // Floatie from center of scene
+      const sceneEl = document.getElementById('scene');
+      const r = sceneEl.getBoundingClientRect();
+      spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(whole));
     }
   }
   lastTs = ts;
