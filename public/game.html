@@ -353,9 +353,11 @@ function showPillEvent() {
   showEvent({
     id:        'pill',
     prompt:    'YOUR BUDDY FEELS BAD ABOUT ALL THE COKE.\nHE HANDS YOU A VITALITY PILL.',
+    yesLabel:  'TAKE IT',
     yesResult: 'VITALITY PILL TAKEN. MAX STAMINA +10%.',
     yesFn:     () => { maxStamina = Math.round(maxStamina * 1.1); renderStamina(); save(); },
     yesPost:   null,
+    noLabel:   'REFUSE IT',
     noResult:  'YOU DECLINE. IT IS GONE FOREVER.',
     noFn:      null,
     noPost:    null,
