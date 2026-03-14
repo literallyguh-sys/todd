@@ -773,7 +773,7 @@ function setTab(tab) {
 function renderShop() {
   const list = document.getElementById('shop-items');
   list.innerHTML = '';
-  UPS.filter(u => u.cat === activeTab).forEach(u => {
+  UPS.filter(u => u.cat === activeTab && !(u.hidden && !(u.id === 'uo1' && hentaiChosen))).forEach(u => {
     // Section dividers
     const dividerLabel =
       (activeTab === 'stamina' && STAMINA_DIVIDERS[u.id]) ||
