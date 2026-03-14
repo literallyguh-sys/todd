@@ -2593,7 +2593,7 @@ async function doBucketFill(lx, ly) {
   stage.scale({ x: savedScale, y: savedScale });
   stage.position(savedPos);
   transformerLayer.visible(true);
-  stage.batchDraw();
+  stage.draw(); // synchronous — prevents one-frame flicker at wrong scale before rAF fires
 
   const srcImg = new Image();
   await new Promise(r => { srcImg.onload = r; srcImg.src = srcDataURL; });
