@@ -253,9 +253,9 @@ function load() {
     pps         = d.pps         || 0;
     spdMult     = d.spdMult     || 1;
     frac        = d.frac        || 0;
-    maxStamina  = d.maxStamina  || 100;
-    drainPerSec = d.drainPerSec || 4;
-    cooldownDur = d.cooldownDur || 10;
+    maxStamina      = d.maxStamina      || 100;
+    staminaPerPoint = d.staminaPerPoint || 0.1;
+    cooldownDur     = d.cooldownDur     || 10;
     if (d.counts) UPS.forEach(u => { u.count = d.counts[u.id] || 0; });
     stamina = maxStamina; // always start fresh with full stamina
   } catch(e) {}
