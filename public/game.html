@@ -22,7 +22,6 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 #back-btn { background:#c0c0c0; border-top:2px solid #dfdfdf; border-left:2px solid #dfdfdf; border-right:2px solid #808080; border-bottom:2px solid #808080; color:#000; font-family:'VT323',monospace; font-size:17px; letter-spacing:2px; padding:3px 10px; cursor:pointer; text-decoration:none; flex-shrink:0; }
 #back-btn:hover { border-top:2px solid #808080; border-left:2px solid #808080; border-right:2px solid #dfdfdf; border-bottom:2px solid #dfdfdf; }
 #game-title { font-size:26px; letter-spacing:4px; color:var(--accent); flex:1; }
-#stat-pts { font-size:22px; letter-spacing:2px; }
 #stat-pts span { color:var(--accent); }
 
 /* ── Sub-stats ── */
@@ -30,27 +29,24 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 #substats b { color:#888; }
 
 /* ── Scene ── */
-#scene-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; cursor:pointer; user-select:none; -webkit-user-select:none; position:relative; }
-#scene-wrap:active #scene { filter:brightness(1.15); }
-#scene { position:relative; width:260px; height:360px; }
+#scene-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  cursor:pointer; user-select:none; -webkit-user-select:none; position:relative; }
+#scene-wrap.cooldown { cursor:not-allowed; }
+#scene-wrap:not(.cooldown):active #scene { filter:brightness(1.15); }
+#scene-wrap.cooldown #scene { filter:brightness(0.45) saturate(0.3); }
+#scene { position:relative; width:260px; height:340px; }
 
-/* Character image — replace src with your drawing */
 #char-img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
-  /* placeholder style — remove when you have a real image */
   display:flex; align-items:center; justify-content:center; }
 #char-img img { width:100%; height:100%; object-fit:contain; }
 .char-placeholder { font-size:120px; line-height:1; filter:grayscale(1) opacity(0.2); pointer-events:none; }
 
-/* Hand — positioned over character, adjust top/left to match your drawing */
 #hand { position:absolute; bottom:80px; left:50%; transform:translateX(-50%); pointer-events:none; }
 #hand img { width:70px; height:auto; display:block; }
 .hand-placeholder { font-size:56px; line-height:1; display:block; }
 
-/* Passive slow loop */
-#hand.passive-on { animation: stroke var(--hand-spd,6s) ease-in-out infinite; }
-/* Click burst — overrides passive */
+#hand.passive-on  { animation: stroke var(--hand-spd,6s) ease-in-out infinite; }
 #hand.click-burst { animation: stroke 0.22s ease-in-out 1 !important; }
-
 @keyframes stroke {
   0%   { transform:translateX(-50%) translateY(0px); }
   38%  { transform:translateX(-50%) translateY(-34px); }
@@ -58,7 +54,28 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   100% { transform:translateX(-50%) translateY(0px); }
 }
 
+/* ── Equipment box ── */
+#equip-box { position:absolute; bottom:14px; left:14px; pointer-events:none;
+  border:1px solid rgba(255,255,255,0.12); padding:7px 12px; background:rgba(0,0,0,0.55); }
+#equip-label { font-size:12px; color:#444; letter-spacing:3px; }
+#val-equip { font-size:19px; color:#e0e0e0; letter-spacing:2px; display:block; margin-top:1px; }
+
 #click-hint { font-size:16px; color:#333; letter-spacing:3px; pointer-events:none; }
+#scene-wrap.cooldown #click-hint { color:var(--red); }
+
+/* ── Stamina bar ── */
+#stamina-section { padding:10px 18px 14px; flex-shrink:0; border-top:1px solid rgba(255,255,255,0.06); }
+#stamina-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; }
+#stamina-title { font-size:14px; letter-spacing:3px; color:#555; }
+#stamina-status { font-size:15px; letter-spacing:1px; color:#555; }
+#stamina-track { height:16px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); position:relative; overflow:hidden; }
+#stamina-fill { height:100%; width:100%; background:var(--green); transition:width 0.12s linear, background 0.4s; }
+#stamina-fill.low      { background:#ffaa00; }
+#stamina-fill.critical { background:var(--red); }
+#stamina-fill.empty    { background:rgba(255,58,58,0.25); animation:cdpulse 1s steps(2) infinite; }
+@keyframes cdpulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+#cooldown-text { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:13px; letter-spacing:2px; color:var(--red); pointer-events:none; }
 
 /* ── Floaties ── */
 .floatie { position:fixed; pointer-events:none; font-size:19px; color:var(--accent);
@@ -75,27 +92,19 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 .shop-tab:hover { color:#bbb; }
 .shop-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
 
-#shop-items { flex:1; overflow-y:auto; padding:6px 6px; display:flex; flex-direction:column; gap:3px; }
+#shop-items { flex:1; overflow-y:auto; padding:6px; display:flex; flex-direction:column; gap:3px; }
 #shop-items::-webkit-scrollbar { width:3px; }
 #shop-items::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.12); }
 
-.shop-item { padding:8px 10px; border:1px solid rgba(255,255,255,0.08);
-  cursor:pointer; transition:border-color .1s, background .1s; }
+.shop-item { padding:8px 10px; border:1px solid rgba(255,255,255,0.08); cursor:pointer; transition:border-color .1s, background .1s; }
 .shop-item:hover:not(.locked) { border-color:rgba(255,214,0,0.4); background:rgba(255,214,0,0.04); }
 .shop-item.locked { opacity:0.38; cursor:default; }
 .si-row1 { display:flex; justify-content:space-between; align-items:baseline; gap:6px; }
 .si-name { font-size:17px; color:#ddd; letter-spacing:1px; }
 .si-cost { font-size:15px; color:var(--accent); white-space:nowrap; }
 .si-desc { font-size:13px; color:#555; letter-spacing:1px; margin-top:1px; }
-.si-owned { font-size:12px; color:#383838; letter-spacing:1px; margin-top:1px; }
+.shop-divider { font-size:12px; color:#333; letter-spacing:3px; padding:6px 4px 2px; }
 
-/* ── Equipment box ── */
-#equip-box { position:absolute; bottom:14px; left:14px; pointer-events:none;
-  border:1px solid rgba(255,255,255,0.12); padding:7px 12px; background:rgba(0,0,0,0.55); }
-#equip-label { font-size:12px; color:#444; letter-spacing:3px; }
-#val-equip { font-size:19px; color:#e0e0e0; letter-spacing:2px; display:block; margin-top:1px; }
-
-/* ── Reset button ── */
 #reset-btn { margin:6px; padding:5px; background:transparent; border:1px solid rgba(255,58,58,0.25);
   color:#3a1a1a; font-family:'VT323',monospace; font-size:13px; letter-spacing:2px;
   cursor:pointer; text-align:center; flex-shrink:0; transition:border-color .1s, color .1s; }
@@ -105,7 +114,6 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 <body>
 <div id="app">
 
-  <!-- ── Main area ── -->
   <div id="main">
     <div id="topbar">
       <a id="back-btn" href="index.html">← BACK</a>
@@ -120,17 +128,10 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 
     <div id="scene-wrap" onclick="handleClick(event)">
       <div id="scene">
-        <!-- CHARACTER: swap the placeholder div for <img src="character.png"> -->
-        <div id="char-img">
-          <span class="char-placeholder">🧍</span>
-        </div>
-
-        <!-- HAND: swap the placeholder for <img src="hand.png">
-             Adjust bottom/left CSS to position over the character's hand area -->
-        <div id="hand">
-          <span class="hand-placeholder">✋</span>
-          <!-- <img src="hand.png"> -->
-        </div>
+        <!-- CHARACTER: replace with <img src="character.png"> -->
+        <div id="char-img"><span class="char-placeholder">🧍</span></div>
+        <!-- HAND: replace with <img src="hand.png">, adjust bottom/left -->
+        <div id="hand"><span class="hand-placeholder">✋</span></div>
       </div>
       <div id="equip-box">
         <div id="equip-label">EQUIPPED</div>
@@ -138,69 +139,103 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
       </div>
       <div id="click-hint">[ CLICK TO STROKE ]</div>
     </div>
+
+    <!-- ── Stamina bar ── -->
+    <div id="stamina-section">
+      <div id="stamina-header">
+        <span id="stamina-title">STAMINA</span>
+        <span id="stamina-status">100 / 100</span>
+      </div>
+      <div id="stamina-track">
+        <div id="stamina-fill"></div>
+        <div id="cooldown-text"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- ── Shop sidebar ── -->
   <div id="sidebar">
     <div id="shop-header"><div id="shop-label">UPGRADE SHOP</div></div>
     <div id="shop-tabs">
-      <button class="shop-tab active" onclick="setTab('grip')">GRIP</button>
-      <button class="shop-tab" onclick="setTab('stamina')">STAMINA</button>
-      <button class="shop-tab" onclick="setTab('speed')">SPEED</button>
+      <button class="shop-tab active" onclick="setTab('click')">CLICK</button>
+      <button class="shop-tab"        onclick="setTab('passive')">PASSIVE</button>
+      <button class="shop-tab"        onclick="setTab('stamina')">STAMINA</button>
     </div>
     <div id="shop-items"></div>
     <button id="reset-btn" onclick="resetGame()">RESET PROGRESS</button>
   </div>
 
 </div>
-
 <script>
 // ─────────────────────────────────────────────
 //  Game state
 // ─────────────────────────────────────────────
-let pts         = 0;   // current spendable points
-let totalPts    = 0;   // all-time total (never decreases)
-let cpc         = 1;   // points per click
-let pps         = 0;   // points per second (base)
-let spdMult     = 1;   // multiplier on pps
-let frac        = 0;   // fractional point accumulator
+let pts      = 0;
+let totalPts = 0;
+let cpc      = 1;    // points per click
+let pps      = 0;    // passive points per second
+let spdMult  = 1;    // multiplier on pps
+let frac     = 0;    // fractional accumulator
+
+// Stamina
+let maxStamina   = 100;
+let stamina      = 100;
+let drainPerSec  = 4;   // stamina drained per second passively
+let clickDrain   = 2;   // stamina drained per manual click
+let cooldownDur  = 10;  // seconds of cooldown when stamina hits 0
+let onCooldown   = false;
+let cooldownLeft = 0;
+
 let lastTs      = null;
-let activeTab   = 'grip';
+let activeTab   = 'click';
 let _clickBurst = false;
 
 // ─────────────────────────────────────────────
-//  Upgrade definitions
+//  Upgrades
 // ─────────────────────────────────────────────
 const UPS = [
-  // GRIP — points per click
-  { id:'g1', cat:'grip',    name:'Chapstick',       desc:'+1 per click',   fn:()=>cpc+=1,        base:10,    mult:1.5 },
-  { id:'g2', cat:'grip',    name:'Premium Lotion',  desc:'+3 per click',   fn:()=>cpc+=3,        base:80,    mult:1.6 },
-  { id:'g3', cat:'grip',    name:'Ergonomic Grip',  desc:'+10 per click',  fn:()=>cpc+=10,       base:550,   mult:1.7 },
-  { id:'g4', cat:'grip',    name:'Robo-Hand 3000',  desc:'+50 per click',  fn:()=>cpc+=50,       base:4500,  mult:1.8 },
-  { id:'g5', cat:'grip',    name:'Quantum Knuckle', desc:'+250 per click', fn:()=>cpc+=250,      base:40000, mult:1.9 },
-  // STAMINA — passive income
-  { id:'s1', cat:'stamina', name:'Autopilot Mode',  desc:'+0.5/sec',       fn:()=>pps+=0.5,      base:20,    mult:1.5 },
-  { id:'s2', cat:'stamina', name:'Wrist Training',  desc:'+2/sec',         fn:()=>pps+=2,        base:120,   mult:1.6 },
-  { id:'s3', cat:'stamina', name:'Gym Membership',  desc:'+10/sec',        fn:()=>pps+=10,       base:900,   mult:1.7 },
-  { id:'s4', cat:'stamina', name:'Neural Override', desc:'+50/sec',        fn:()=>pps+=50,       base:7500,  mult:1.8 },
-  { id:'s5', cat:'stamina', name:'Astral Arm',      desc:'+250/sec',       fn:()=>pps+=250,      base:65000, mult:1.9 },
-  // SPEED — multiplier on pps
-  { id:'p1', cat:'speed',   name:'Pre-Workout',     desc:'1.5× passive',   fn:()=>spdMult*=1.5,  base:30,    mult:2.0 },
-  { id:'p2', cat:'speed',   name:'Espresso Shot',   desc:'2× passive',     fn:()=>spdMult*=2,    base:250,   mult:2.2 },
-  { id:'p3', cat:'speed',   name:'Red Bull Wings',  desc:'3× passive',     fn:()=>spdMult*=3,    base:2500,  mult:2.5 },
-  { id:'p4', cat:'speed',   name:'IV Drip',         desc:'5× passive',     fn:()=>spdMult*=5,    base:25000, mult:2.8 },
+  // ── CLICK ──
+  { id:'c1', cat:'click',   name:'Chapstick',       desc:'+1 per click',         fn:()=>cpc+=1,               base:10    },
+  { id:'c2', cat:'click',   name:'Premium Lotion',  desc:'+3 per click',         fn:()=>cpc+=3,               base:80    },
+  { id:'c3', cat:'click',   name:'Ergonomic Grip',  desc:'+10 per click',        fn:()=>cpc+=10,              base:550   },
+  { id:'c4', cat:'click',   name:'Robo-Hand 3000',  desc:'+50 per click',        fn:()=>cpc+=50,              base:4500  },
+  { id:'c5', cat:'click',   name:'Quantum Knuckle', desc:'+250 per click',       fn:()=>cpc+=250,             base:40000 },
+
+  // ── PASSIVE ──
+  { id:'p1', cat:'passive', name:'Autopilot Mode',  desc:'+0.5/sec',             fn:()=>pps+=0.5,             base:20    },
+  { id:'p2', cat:'passive', name:'2× Boost',        desc:'Doubles passive rate', fn:()=>spdMult*=2,           base:60    },
+  { id:'p3', cat:'passive', name:'Wrist Training',  desc:'+2/sec',               fn:()=>pps+=2,               base:150   },
+  { id:'p4', cat:'passive', name:'3× Boost',        desc:'Triples passive rate', fn:()=>spdMult*=3,           base:400   },
+  { id:'p5', cat:'passive', name:'Gym Membership',  desc:'+10/sec',              fn:()=>pps+=10,              base:1000  },
+  { id:'p6', cat:'passive', name:'5× Boost',        desc:'5× passive rate',      fn:()=>spdMult*=5,           base:3500  },
+  { id:'p7', cat:'passive', name:'Neural Override', desc:'+50/sec',              fn:()=>pps+=50,              base:8000  },
+  { id:'p8', cat:'passive', name:'10× Boost',       desc:'10× passive rate',     fn:()=>spdMult*=10,          base:35000 },
+  { id:'p9', cat:'passive', name:'Astral Arm',      desc:'+250/sec',             fn:()=>pps+=250,             base:70000 },
+
+  // ── STAMINA — tiers ──
+  { id:'st2', cat:'stamina', name:'Level 2',         desc:'Max stamina +50',    fn:()=>maxStamina+=50,                              base:30   },
+  { id:'st3', cat:'stamina', name:'Level 3',         desc:'Max stamina +100',   fn:()=>maxStamina+=100,                             base:180  },
+  { id:'st4', cat:'stamina', name:'Level 4',         desc:'Max stamina +200',   fn:()=>maxStamina+=200,                             base:1000 },
+  { id:'st5', cat:'stamina', name:'Level 5',         desc:'Max stamina +500',   fn:()=>maxStamina+=500,                             base:6000 },
+  // ── STAMINA — energy drinks ──
+  { id:'ed1', cat:'stamina', name:'Energy Drink',    desc:'-1 drain/sec',       fn:()=>drainPerSec=Math.max(0.5,drainPerSec-1),     base:50   },
+  { id:'ed2', cat:'stamina', name:'Monster',         desc:'-1.5 drain/sec',     fn:()=>drainPerSec=Math.max(0.5,drainPerSec-1.5),   base:300  },
+  { id:'ed3', cat:'stamina', name:'Red Bull',        desc:'-1.5 drain/sec',     fn:()=>drainPerSec=Math.max(0.5,drainPerSec-1.5),   base:2000 },
+  // ── STAMINA — viagra ──
+  { id:'vi1', cat:'stamina', name:'Viagra',          desc:'-2s cooldown',       fn:()=>cooldownDur=Math.max(2,cooldownDur-2),        base:70   },
+  { id:'vi2', cat:'stamina', name:'Cialis',          desc:'-3s cooldown',       fn:()=>cooldownDur=Math.max(2,cooldownDur-3),        base:450  },
+  { id:'vi3', cat:'stamina', name:'The Blue Pill+',  desc:'-3s cooldown',       fn:()=>cooldownDur=Math.max(2,cooldownDur-3),        base:3500 },
 ];
 UPS.forEach(u => u.count = 0);
 
-function cost(u) { return Math.floor(u.base * Math.pow(u.mult, u.count)); }
+function cost(u) { return u.base; } // buy-once, cost never changes
 
 // ─────────────────────────────────────────────
 //  Save / Load
 // ─────────────────────────────────────────────
-const SAVE_KEY = 'wristgame_v1';
+const SAVE_KEY = 'wristgame_v2';
 
 function save() {
-  const d = { pts, totalPts, cpc, pps, spdMult, frac, counts:{} };
+  const d = { pts, totalPts, cpc, pps, spdMult, frac, maxStamina, drainPerSec, cooldownDur, counts:{} };
   UPS.forEach(u => d.counts[u.id] = u.count);
   localStorage.setItem(SAVE_KEY, JSON.stringify(d));
 }
@@ -210,13 +245,17 @@ function load() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return;
     const d = JSON.parse(raw);
-    pts      = d.pts      || 0;
-    totalPts = d.totalPts || 0;
-    cpc      = d.cpc      || 1;
-    pps      = d.pps      || 0;
-    spdMult  = d.spdMult  || 1;
-    frac     = d.frac     || 0;
+    pts         = d.pts         || 0;
+    totalPts    = d.totalPts    || 0;
+    cpc         = d.cpc         || 1;
+    pps         = d.pps         || 0;
+    spdMult     = d.spdMult     || 1;
+    frac        = d.frac        || 0;
+    maxStamina  = d.maxStamina  || 100;
+    drainPerSec = d.drainPerSec || 4;
+    cooldownDur = d.cooldownDur || 10;
     if (d.counts) UPS.forEach(u => { u.count = d.counts[u.id] || 0; });
+    stamina = maxStamina; // always start fresh with full stamina
   } catch(e) {}
 }
 
@@ -224,9 +263,13 @@ function resetGame() {
   if (!confirm('Wipe all progress and start over?')) return;
   localStorage.removeItem(SAVE_KEY);
   pts=0; totalPts=0; cpc=1; pps=0; spdMult=1; frac=0;
+  maxStamina=100; stamina=100; drainPerSec=4; cooldownDur=10;
+  onCooldown=false; cooldownLeft=0;
   UPS.forEach(u => u.count=0);
   updatePassiveAnim();
+  renderEquipment();
   renderStats();
+  renderStamina();
   renderShop();
 }
 
@@ -234,12 +277,39 @@ function resetGame() {
 //  Click
 // ─────────────────────────────────────────────
 function handleClick(e) {
+  if (onCooldown) return;
+  stamina = Math.max(0, stamina - clickDrain);
   pts      += cpc;
   totalPts += cpc;
   spawnFloatie(e.clientX, e.clientY, '+' + fmt(cpc));
   triggerClickBurst();
   renderStats();
+  renderStamina();
   save();
+  if (stamina <= 0) startCooldown();
+}
+
+// ─────────────────────────────────────────────
+//  Stamina & cooldown
+// ─────────────────────────────────────────────
+function startCooldown() {
+  onCooldown   = true;
+  cooldownLeft = cooldownDur;
+  stamina      = 0;
+  handEl.classList.remove('passive-on', 'click-burst');
+  _clickBurst = false;
+  document.getElementById('click-hint').textContent = '[ EXHAUSTED ]';
+  document.getElementById('scene-wrap').classList.add('cooldown');
+}
+
+function endCooldown() {
+  onCooldown   = false;
+  cooldownLeft = 0;
+  stamina      = maxStamina;
+  document.getElementById('click-hint').textContent = '[ CLICK TO STROKE ]';
+  document.getElementById('scene-wrap').classList.remove('cooldown');
+  updatePassiveAnim();
+  renderStamina();
 }
 
 // ─────────────────────────────────────────────
@@ -263,11 +333,10 @@ function triggerClickBurst() {
 }
 
 function updatePassiveAnim() {
-  if (_clickBurst) return;
+  if (_clickBurst || onCooldown) return;
   const rate = pps * spdMult;
   handEl.classList.remove('passive-on');
   if (rate > 0) {
-    // Duration: starts slow (6s at 0.5/s) and gets faster (min 0.35s)
     const dur = Math.max(0.35, 5 / Math.sqrt(rate));
     handEl.style.setProperty('--hand-spd', dur + 's');
     void handEl.offsetWidth;
@@ -276,22 +345,35 @@ function updatePassiveAnim() {
 }
 
 // ─────────────────────────────────────────────
-//  Passive income loop
+//  Main tick loop
 // ─────────────────────────────────────────────
 function tick(ts) {
   if (lastTs !== null) {
-    const dt = Math.min((ts - lastTs) / 1000, 0.5); // cap to avoid tab-away spike
-    frac += pps * spdMult * dt;
-    if (frac >= 1) {
-      const whole = Math.floor(frac);
-      pts      += whole;
-      totalPts += whole;
-      frac     -= whole;
-      renderStats();
-      // Floatie from center of scene
-      const sceneEl = document.getElementById('scene');
-      const r = sceneEl.getBoundingClientRect();
-      spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(whole));
+    const dt = Math.min((ts - lastTs) / 1000, 0.5);
+
+    if (onCooldown) {
+      cooldownLeft -= dt;
+      if (cooldownLeft <= 0) endCooldown();
+      else renderStamina();
+    } else {
+      // Drain stamina over time
+      stamina -= drainPerSec * dt;
+      if (stamina <= 0) {
+        startCooldown();
+      } else {
+        // Passive income only while stamina > 0 and not on cooldown
+        frac += pps * spdMult * dt;
+        if (frac >= 1) {
+          const whole = Math.floor(frac);
+          pts      += whole;
+          totalPts += whole;
+          frac     -= whole;
+          renderStats();
+          const r = document.getElementById('scene').getBoundingClientRect();
+          spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(whole));
+        }
+        renderStamina();
+      }
     }
   }
   lastTs = ts;
@@ -333,9 +415,8 @@ function fmtDec(n) {
 //  Render
 // ─────────────────────────────────────────────
 function renderEquipment() {
-  const gripUps = UPS.filter(u => u.cat === 'grip');
-  let current = null;
-  for (const u of gripUps) { if (u.count > 0) current = u; }
+  const owned = UPS.filter(u => u.cat === 'click' && u.count > 0);
+  const current = owned.length ? owned[owned.length - 1] : null;
   document.getElementById('val-equip').textContent = current ? current.name : 'Bare Hand';
 }
 
@@ -346,10 +427,34 @@ function renderStats() {
   document.getElementById('val-total').textContent = fmt(totalPts);
 }
 
+function renderStamina() {
+  const fill   = document.getElementById('stamina-fill');
+  const status = document.getElementById('stamina-status');
+  const cdText = document.getElementById('cooldown-text');
+
+  if (onCooldown) {
+    fill.style.width = '0%';
+    fill.className = 'empty';
+    cdText.textContent = 'EXHAUSTED — ' + Math.ceil(cooldownLeft) + 's';
+    status.textContent = 'COOLDOWN';
+    status.style.color = 'var(--red)';
+  } else {
+    const pct = (stamina / maxStamina) * 100;
+    fill.style.width = pct + '%';
+    fill.className = pct > 50 ? '' : pct > 25 ? 'low' : 'critical';
+    cdText.textContent = '';
+    status.textContent = Math.ceil(stamina) + ' / ' + maxStamina;
+    status.style.color = '#555';
+  }
+}
+
+// Shop divider labels for stamina tab
+const STAMINA_DIVIDERS = { st2:'── TIERS ──', ed1:'── ENERGY DRINKS ──', vi1:'── VIAGRA ──' };
+
 function setTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.shop-tab')[ ['grip','stamina','speed'].indexOf(tab) ]?.classList.add('active');
+  document.querySelectorAll('.shop-tab').forEach((t, i) =>
+    t.classList.toggle('active', ['click','passive','stamina'][i] === tab));
   renderShop();
 }
 
@@ -357,14 +462,22 @@ function renderShop() {
   const list = document.getElementById('shop-items');
   list.innerHTML = '';
   UPS.filter(u => u.cat === activeTab).forEach(u => {
-    const alreadyOwned = u.count >= 1;
-    const c = cost(u);
-    const canBuy = !alreadyOwned && pts >= c;
+    // Section dividers for stamina tab
+    if (activeTab === 'stamina' && STAMINA_DIVIDERS[u.id]) {
+      const div = document.createElement('div');
+      div.className = 'shop-divider';
+      div.textContent = STAMINA_DIVIDERS[u.id];
+      list.appendChild(div);
+    }
+    const owned  = u.count >= 1;
+    const c      = cost(u);
+    const canBuy = !owned && pts >= c;
     const div = document.createElement('div');
-    div.className = 'shop-item' + (alreadyOwned || !canBuy ? ' locked' : '');
+    div.className = 'shop-item' + (owned || !canBuy ? ' locked' : '');
     div.innerHTML =
-      `<div class="si-row1"><span class="si-name">${u.name}</span>` +
-      (alreadyOwned ? `<span class="si-cost" style="color:#00cc66">OWNED</span>` : `<span class="si-cost">${fmt(c)} pts</span>`) +
+      `<div class="si-row1">` +
+      `<span class="si-name">${u.name}</span>` +
+      (owned ? `<span class="si-cost" style="color:var(--green)">OWNED</span>` : `<span class="si-cost">${fmt(c)} pts</span>`) +
       `</div>` +
       `<div class="si-desc">${u.desc}</div>`;
     if (canBuy) div.addEventListener('click', () => buy(u.id));
@@ -374,7 +487,7 @@ function renderShop() {
 
 function buy(id) {
   const u = UPS.find(x => x.id === id);
-  if (u.count >= 1) return;
+  if (!u || u.count >= 1) return;
   const c = cost(u);
   if (pts < c) return;
   pts -= c;
@@ -383,11 +496,11 @@ function buy(id) {
   updatePassiveAnim();
   renderEquipment();
   renderStats();
+  renderStamina();
   renderShop();
   save();
 }
 
-// Auto-save every 15s
 setInterval(save, 15000);
 
 // ─────────────────────────────────────────────
@@ -397,6 +510,7 @@ load();
 updatePassiveAnim();
 renderEquipment();
 renderStats();
+renderStamina();
 renderShop();
 requestAnimationFrame(tick);
 </script>
