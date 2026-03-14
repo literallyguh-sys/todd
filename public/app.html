@@ -2583,17 +2583,28 @@ async function doBucketFill(lx, ly) {
   const activeGroup = _activeLayer; // snapshot — user may change active layer during awaits
   const dw = CANVAS_W, dh = CANVAS_H;
 
-  // Capture full composite at 1:1 canvas coords.
-  // Reset zoom/pan so the export matches canvas coordinates exactly, then immediately
-  // restore with a synchronous draw to prevent any visible flicker.
+  // Capture only the active layer's content for flood fill boundary detection.
+  // Other layers must be hidden so their content doesn't create false boundaries.
   const savedScale = stage.scaleX();
   const savedPos = { x: stage.x(), y: stage.y() };
   transformerLayer.visible(false);
+  // Hide all groups on toddLayer except activeGroup
+  const hiddenGroups = [];
+  toddLayer.getChildren().forEach(child => {
+    if (child !== activeGroup && child.visible()) { child.visible(false); hiddenGroups.push(child); }
+  });
+  // Hide bgLayer and drawLayer
+  bgLayer.visible(false);
+  drawLayer.visible(false);
   stage.scale({ x: 1, y: 1 });
   stage.position({ x: 0, y: 0 });
   const srcDataURL = stage.toDataURL({ x: 0, y: 0, width: dw, height: dh, pixelRatio: 1 });
+  // Restore everything synchronously
   stage.scale({ x: savedScale, y: savedScale });
   stage.position(savedPos);
+  bgLayer.visible(true);
+  drawLayer.visible(true);
+  hiddenGroups.forEach(child => child.visible(true));
   transformerLayer.visible(true);
   stage.draw(); // synchronous — restores all layers before browser paints
 
