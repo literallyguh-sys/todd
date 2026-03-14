@@ -275,7 +275,11 @@ const EVENT_CHANCE  = 0.02; // 2% per click
 let lastTs      = null;
 let activeTab   = 'click';
 let _clickBurst = false;
-let activeEvent = null;
+let activeEvent     = null;
+let _postDismissFn  = null;
+let cokeCount       = 0;     // times coke was accepted
+let cokeDeclined    = false; // declined once → never offered again
+let pillGiven       = false; // pill was offered (accepted or not) → coke gone
 
 // ─────────────────────────────────────────────
 //  Upgrades
