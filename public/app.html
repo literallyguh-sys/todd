@@ -1552,6 +1552,36 @@ function refreshLayerPanel() {
       refreshLayerPanel();
     });
     const wrapper = document.createElement('div');
+    wrapper.draggable = true;
+    wrapper.addEventListener('dragstart', e => {
+      _dragLayerId = g._toddId;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => item.style.opacity = '0.4', 0);
+    });
+    wrapper.addEventListener('dragend', () => {
+      item.style.opacity = '';
+      document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
+    });
+    wrapper.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
+      item.classList.add('layer-drag-over');
+    });
+    wrapper.addEventListener('dragleave', () => item.classList.remove('layer-drag-over'));
+    wrapper.addEventListener('drop', e => {
+      e.preventDefault();
+      item.classList.remove('layer-drag-over');
+      if (!_dragLayerId || _dragLayerId === g._toddId) return;
+      const dragGroup   = toddLayer.getChildren().find(n => n._toddId === _dragLayerId);
+      const targetGroup = toddLayer.getChildren().find(n => n._toddId === g._toddId);
+      if (!dragGroup || !targetGroup) return;
+      dragGroup.zIndex(targetGroup.zIndex());
+      toddLayer.draw();
+      refreshLayerPanel();
+      pushHistory();
+      _dragLayerId = null;
+    });
     wrapper.appendChild(item);
     wrapper.appendChild(opRow);
     list.appendChild(wrapper);
