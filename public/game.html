@@ -429,22 +429,24 @@ function tick(ts) {
       cooldownLeft -= dt;
       if (cooldownLeft <= 0) endCooldown();
       else { renderStamina(); renderSoreOverlay(); }
-    } else {
-      // Passive income — free, no stamina cost
-      frac += pps * dt;
-      if (frac >= 1) {
-        const whole  = Math.floor(frac);
-        const earned = whole * spdMult;
-        pts      += earned;
-        totalPts += earned;
-        frac     -= whole;
-        renderStats();
-        renderShop();
+    }
+
+    // Passive income runs always — even during cooldown, and costs no stamina
+    frac += pps * dt;
+    if (frac >= 1) {
+      const whole  = Math.floor(frac);
+      const earned = whole * spdMult;
+      pts      += earned;
+      totalPts += earned;
+      frac     -= whole;
+      renderStats();
+      renderShop();
+      if (!onCooldown) {
         const r = document.getElementById('scene').getBoundingClientRect();
         spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(earned));
       }
-      renderStamina();
     }
+    if (!onCooldown) renderStamina();
   }
   lastTs = ts;
   requestAnimationFrame(tick);
