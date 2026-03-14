@@ -488,10 +488,7 @@ function fullStamina() {
 }
 
 function renderSoreOverlay() {
-  const mins = Math.floor(cooldownLeft / 60);
-  const secs = Math.floor(cooldownLeft % 60);
-  document.getElementById('sore-timer').textContent =
-    String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+  document.getElementById('sore-timer').textContent = fmtTime(cooldownLeft);
 
   if (cooldownType === 'rift') {
     document.getElementById('sore-title').textContent    = 'SHIT I GOT A RIFT';
