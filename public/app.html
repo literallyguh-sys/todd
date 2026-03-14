@@ -2399,10 +2399,15 @@ stage.on('mouseup touchend', () => {
     containerEl.style.cursor = moveMode ? 'grab' : '';
     pushHistory();
   }
-  if (isErasing) { isErasing = false; pushHistory(); }
+  if (isErasing) {
+    isErasing = false;
+    if (selectedGroup) { _updateLayerThumb(selectedGroup); refreshLayerPanel(); }
+    pushHistory();
+  }
   if (isPenciling) {
     isPenciling = false;
     currentPencilLine = null;
+    if (_activeLayer) { _updateLayerThumb(_activeLayer); refreshLayerPanel(); }
     pushHistory();
   }
   if (lineMode && _previewLine) {
