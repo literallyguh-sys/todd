@@ -2547,7 +2547,8 @@ stage.on('mousedown touchstart', ev => {
 });
 
 // ── Stage background click: fill or deselect ──
-stage.on('click tap', () => {
+stage.on('click tap', ev => {
+  if (ev.evt && ev.evt.button !== 0) return; // ignore middle/right mouse clicks
   if (fillMode) {
     const pos = stage.getRelativePointerPosition();
     doBucketFill(Math.round(pos.x), Math.round(pos.y));
