@@ -429,21 +429,21 @@ function tick(ts) {
       if (cooldownLeft <= 0) endCooldown();
       else { renderStamina(); renderSoreOverlay(); }
     } else {
-      // Passive income — stamina only drains when points are actually earned
-      frac += pps * spdMult * dt;
+      // Passive income — frac ticks at base pps rate; spdMult scales the payout per tick
+      frac += pps * dt;
       if (frac >= 1) {
-        const whole = Math.floor(frac);
-        stamina = Math.max(0, stamina - whole * staminaPerPoint);
-        pts      += whole;
-        totalPts += whole;
+        const whole  = Math.floor(frac);
+        const earned = whole * spdMult; // speed multiplier applied to payout, not tick rate
+        stamina = Math.max(0, stamina - earned * staminaPerPoint);
+        pts      += earned;
+        totalPts += earned;
         frac     -= whole;
         renderStats();
         renderShop();
         const r = document.getElementById('scene').getBoundingClientRect();
-        spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(whole));
+        spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(earned));
         if (stamina <= 0) { startCooldown(); } else { renderStamina(); }
       } else {
-        // Still render stamina bar so regen is visible even when no points tick
         renderStamina();
       }
     }
