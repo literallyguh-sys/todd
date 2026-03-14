@@ -2503,6 +2503,7 @@ stage.on('mousedown touchstart', ev => {
       return;
     }
   }
+  if (!_inCanvas()) return; // drawing tools only work within canvas bounds
   if (lineMode) {
     if (!_activeLayer) { showToast('Select a layer first'); return; }
     const rpos = _activeLayer.getRelativePointerPosition();
