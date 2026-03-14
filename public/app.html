@@ -1511,10 +1511,11 @@ function refreshLayerPanel() {
     if (g._isText) {
       const fill = g.findOne('Text')?.fill() || '#FFD600';
       thumbHtml = `<span class="layer-thumb-icon" style="color:${fill}">T</span>`;
+    } else if (thumbCache[g._toddId]) {
+      thumbHtml = `<img class="layer-thumb" src="${thumbCache[g._toddId]}">`;
     } else {
-      thumbHtml = thumbCache[g._toddId]
-        ? `<img class="layer-thumb" src="${thumbCache[g._toddId]}">`
-        : `<span class="layer-thumb-icon" style="color:#bbb">${g._isEmptyLayer ? '▭' : '🖼'}</span>`;
+      // No content yet — reserve space invisibly (no box, no icon)
+      thumbHtml = `<span class="layer-thumb-empty"></span>`;
     }
 
     // Name
