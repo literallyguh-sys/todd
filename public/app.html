@@ -989,6 +989,8 @@ containerEl.addEventListener('wheel', e => {
     stage.position({ x: pointer.x - anchor.x * newScale, y: pointer.y - anchor.y * newScale });
     updateZoomIndicator();
     if (transformer.nodes().length) _boostAnchorHits();
+    // Re-cache any layers that use destination-out erasing so they stay sharp at the new zoom
+    toddLayer.getChildren().forEach(g => { if (g._isCached) _cacheEmptyLayer(g); });
   } else {
     // Trackpad two-finger scroll = pan
     stage.position({ x: stage.x() - e.deltaX, y: stage.y() - e.deltaY });
