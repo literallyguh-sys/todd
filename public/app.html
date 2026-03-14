@@ -2520,7 +2520,7 @@ stage.on('mousedown touchstart', ev => {
     return;
   }
   if (!pencilMode) return;
-  if (!_activeLayer) { showToast('Select a layer first'); return; }
+  if (!_activeLayer) return;
   isPenciling = true;
   const rpos = _activeLayer.getRelativePointerPosition();
   currentPencilLine = new Konva.Line({
