@@ -632,7 +632,8 @@ function renderStamina() {
   if (onCooldown) {
     fill.style.width = '0%';
     fill.className = 'empty';
-    cdText.textContent = 'EXHAUSTED — ' + Math.ceil(cooldownLeft) + 's';
+    const cdLabel = cooldownType === 'coke' ? 'COKE DICK' : cooldownType === 'rift' ? 'RIFT' : 'EXHAUSTED';
+    cdText.textContent = cdLabel + ' — ' + fmtTime(cooldownLeft);
     status.textContent = 'COOLDOWN';
     status.style.color = 'var(--red)';
   } else {
