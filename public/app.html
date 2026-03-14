@@ -2643,10 +2643,10 @@ async function doBucketFill(lx, ly) {
   cropCanvas.width = cropW; cropCanvas.height = cropH;
   cropCanvas.getContext('2d').drawImage(fillCanvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
 
-  // Replace fill node — store as child of group at local coords
-  if (activeGroup._fillNode) { activeGroup._fillNode.destroy(); activeGroup._fillNode = null; }
+  // Load new fill image first, THEN atomically swap — no gap frame where fill is absent
   const fi = new Image();
   await new Promise(r => { fi.onload = r; fi.src = cropCanvas.toDataURL(); });
+  if (activeGroup._fillNode) { activeGroup._fillNode.destroy(); activeGroup._fillNode = null; }
   const kFill = new Konva.Image({
     image: fi,
     x: minX - activeGroup.x(), y: minY - activeGroup.y(),
