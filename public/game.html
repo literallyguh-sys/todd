@@ -187,9 +187,23 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
       <button class="shop-tab"        onclick="setTab('stamina')">STAMINA</button>
     </div>
     <div id="shop-items"></div>
+    <div id="test-btns">
+      <button class="test-btn" onclick="skipCooldown()">SKIP CD [TEST]</button>
+      <button class="test-btn" onclick="fullStamina()">FULL STAMINA [TEST]</button>
+    </div>
     <button id="reset-btn" onclick="resetGame()">RESET PROGRESS</button>
   </div>
 
+</div>
+
+<!-- SORE overlay -->
+<div id="sore-overlay">
+  <div id="sore-box">
+    <div id="sore-title">FUCK I GOT SORE</div>
+    <div id="sore-timer">15:00</div>
+    <div id="sore-regen-line">STAMINA: <span id="sore-stam">0</span> / <span id="sore-stam-max">100</span></div>
+    <button id="sore-skip" onclick="skipCooldown()">[ SKIP COOLDOWN — TEST ]</button>
+  </div>
 </div>
 <script>
 // ─────────────────────────────────────────────
