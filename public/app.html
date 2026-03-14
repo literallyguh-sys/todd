@@ -2901,7 +2901,7 @@ window.addEventListener('load', () => {
   if (/^#[0-9a-fA-F]{6}$/.test(_toolColor)) [_cpHue,_cpSat,_cpVal] = _hexToHsv(_toolColor);
   _drawColorSquare();
   _drawHueSlider();
-  addEmptyLayer();
+  addEmptyLayer(true);
 });
 
 // ── CHAT (Supabase real-time) ──
