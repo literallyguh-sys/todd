@@ -369,6 +369,7 @@ function tick(ts) {
         totalPts += whole;
         frac     -= whole;
         renderStats();
+        renderShop();
         const r = document.getElementById('scene').getBoundingClientRect();
         spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(whole));
         if (stamina <= 0) { startCooldown(); } else { renderStamina(); }
