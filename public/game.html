@@ -280,7 +280,8 @@ function resetGame() {
 // ─────────────────────────────────────────────
 function handleClick(e) {
   if (onCooldown) return;
-  stamina = Math.max(0, stamina - clickDrain);
+  // Cost = points earned × staminaPerPoint
+  stamina = Math.max(0, stamina - cpc * staminaPerPoint);
   pts      += cpc;
   totalPts += cpc;
   spawnFloatie(e.clientX, e.clientY, '+' + fmt(cpc));
