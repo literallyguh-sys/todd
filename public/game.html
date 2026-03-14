@@ -646,7 +646,7 @@ function tick(ts) {
     frac += pps * dt;
     if (frac >= 1) {
       const whole  = Math.floor(frac);
-      const earned = whole * spdMult;
+      const earned = whole * spdMult * pointMult();
       pts      += earned;
       totalPts += earned;
       frac     -= whole;
