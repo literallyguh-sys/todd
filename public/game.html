@@ -227,7 +227,10 @@ let staminaPerPoint = 0.1;  // stamina cost per point earned (click or passive)
 let cooldownDur     = 1800; // 30 minutes in seconds
 let onCooldown      = false;
 let cooldownLeft    = 0;
+let cooldownType    = 'sore'; // 'sore' | 'rift'
 const STAMINA_REGEN = 100 / 3600; // 100 stamina per hour = ~0.0278/sec
+const RIFT_CD       = 300;  // 5 minutes in seconds
+const RIFT_CHANCE   = 0.03; // 3% per click
 
 let lastTs      = null;
 let activeTab   = 'click';
