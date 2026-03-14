@@ -1405,6 +1405,23 @@ function _invalidateEmptyLayerCache(g) {
   if (g._isCached) _cacheEmptyLayer(g);
 }
 
+// Generate a 36×36 thumbnail for any group and store it in thumbCache
+function _updateLayerThumb(g) {
+  if (!g || !g._toddId) return;
+  try {
+    const THUMB = 36;
+    const w = g._currentW || CANVAS_W, h = g._currentH || CANVAS_H;
+    const wasCached = g._isCached;
+    if (wasCached) g.clearCache();
+    thumbCache[g._toddId] = g.toDataURL({ x: 0, y: 0, width: w, height: h, pixelRatio: THUMB / Math.max(w, h) });
+    if (wasCached) _cacheEmptyLayer(g);
+  } catch(e) { thumbCache[g._toddId] = null; }
+}
+
+function _refreshAllThumbs() {
+  toddLayer.getChildren().filter(n => n._toddId).forEach(g => _updateLayerThumb(g));
+}
+
 function _snapFill(g) {
   if (!g._fillNode) return {};
   const f = g._fillNode;
