@@ -430,12 +430,11 @@ function tick(ts) {
       if (cooldownLeft <= 0) endCooldown();
       else { renderStamina(); renderSoreOverlay(); }
     } else {
-      // Passive income — frac ticks at base pps rate; spdMult scales the payout per tick
+      // Passive income — free, no stamina cost
       frac += pps * dt;
       if (frac >= 1) {
         const whole  = Math.floor(frac);
-        const earned = whole * spdMult; // speed multiplier applied to payout, not tick rate
-        stamina = Math.max(0, stamina - earned * staminaPerPoint);
+        const earned = whole * spdMult;
         pts      += earned;
         totalPts += earned;
         frac     -= whole;
@@ -443,10 +442,8 @@ function tick(ts) {
         renderShop();
         const r = document.getElementById('scene').getBoundingClientRect();
         spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(earned));
-        if (stamina <= 0) { startCooldown(); } else { renderStamina(); }
-      } else {
-        renderStamina();
       }
+      renderStamina();
     }
   }
   lastTs = ts;
