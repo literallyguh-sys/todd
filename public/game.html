@@ -423,7 +423,10 @@ function load() {
     staminaPerPoint = d.staminaPerPoint || 0.1;
     cooldownDur     = d.cooldownDur     || 10;
     if (d.counts) UPS.forEach(u => { u.count = d.counts[u.id] || 0; });
-    stamina = (d.stamina != null) ? d.stamina : maxStamina;
+    stamina      = (d.stamina      != null)  ? d.stamina      : maxStamina;
+    cokeCount    = d.cokeCount    || 0;
+    cokeDeclined = d.cokeDeclined || false;
+    pillGiven    = d.pillGiven    || false;
   } catch(e) {}
 }
 
