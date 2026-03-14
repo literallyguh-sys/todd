@@ -326,6 +326,7 @@ UPS.forEach(u => u.count = 0);
 const EVENTS = [
   {
     id:        'coke',
+    minPts:    1000,
     prompt:    'YOUR BUDDY OFFERS A LINE OF COKE. SNIFF IT?',
     yesResult: "COKE DICK YOU'RE FUCKED. 2 HOUR COOLDOWN",
     yesFn:     () => { cokeCount++; startCooldown('coke'); },
