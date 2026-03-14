@@ -2503,7 +2503,6 @@ stage.on('mousemove touchmove', (ev) => {
   if (isPenciling && currentPencilLine && _inCanvas()) {
     const rpos = _activeLayer.getRelativePointerPosition();
     currentPencilLine.points(currentPencilLine.points().concat([rpos.x, rpos.y]));
-    _invalidateEmptyLayerCache(_activeLayer);
     if (_activeLayer._isBgProxy) bgLayer.batchDraw(); else toddLayer.batchDraw();
   }
   if (lineMode && _previewLine && _lineStart && _activeLayer) {
