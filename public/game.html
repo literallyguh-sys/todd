@@ -403,7 +403,7 @@ function triggerClickBurst() {
 
 function updatePassiveAnim() {
   if (_clickBurst || onCooldown) return;
-  const rate = pps * spdMult;
+  const rate = pps; // animation speed based on base pps only
   handEl.classList.remove('passive-on');
   if (rate > 0) {
     const dur = Math.max(0.35, 5 / Math.sqrt(rate));
