@@ -243,16 +243,17 @@ const UPS = [
   { id:'c4', cat:'click',   name:'Robo-Hand 3000',  desc:'+50 per click',        fn:()=>cpc+=50,              base:4500  },
   { id:'c5', cat:'click',   name:'Quantum Knuckle', desc:'+250 per click',       fn:()=>cpc+=250,             base:40000 },
 
-  // ── PASSIVE ──
-  { id:'p1', cat:'passive', name:'Autopilot Mode',  desc:'+0.5/sec',             fn:()=>pps+=0.5,             base:20    },
-  { id:'p2', cat:'passive', name:'2× Boost',        desc:'Doubles passive rate', fn:()=>spdMult*=2,           base:60    },
-  { id:'p3', cat:'passive', name:'Wrist Training',  desc:'+2/sec',               fn:()=>pps+=2,               base:150   },
-  { id:'p4', cat:'passive', name:'3× Boost',        desc:'Triples passive rate', fn:()=>spdMult*=3,           base:400   },
-  { id:'p5', cat:'passive', name:'Gym Membership',  desc:'+10/sec',              fn:()=>pps+=10,              base:1000  },
-  { id:'p6', cat:'passive', name:'5× Boost',        desc:'5× passive rate',      fn:()=>spdMult*=5,           base:3500  },
-  { id:'p7', cat:'passive', name:'Neural Override', desc:'+50/sec',              fn:()=>pps+=50,              base:8000  },
-  { id:'p8', cat:'passive', name:'10× Boost',       desc:'10× passive rate',     fn:()=>spdMult*=10,          base:35000 },
-  { id:'p9', cat:'passive', name:'Astral Arm',      desc:'+250/sec',             fn:()=>pps+=250,             base:70000 },
+  // ── PASSIVE — income ──
+  { id:'p1', cat:'passive', name:'Autopilot Mode',  desc:'+0.5/sec',   fn:()=>pps+=0.5,    base:20    },
+  { id:'p3', cat:'passive', name:'Wrist Training',  desc:'+2/sec',     fn:()=>pps+=2,      base:150   },
+  { id:'p5', cat:'passive', name:'Gym Membership',  desc:'+10/sec',    fn:()=>pps+=10,     base:1000  },
+  { id:'p7', cat:'passive', name:'Neural Override', desc:'+50/sec',    fn:()=>pps+=50,     base:8000  },
+  { id:'p9', cat:'passive', name:'Astral Arm',      desc:'+250/sec',   fn:()=>pps+=250,    base:70000 },
+  // ── PASSIVE — speed ──
+  { id:'p2', cat:'passive', name:'2× Speed',        desc:'Doubles payout per tick',   fn:()=>spdMult*=2,   base:60    },
+  { id:'p4', cat:'passive', name:'3× Speed',        desc:'Triples payout per tick',   fn:()=>spdMult*=3,   base:400   },
+  { id:'p6', cat:'passive', name:'5× Speed',        desc:'5× payout per tick',        fn:()=>spdMult*=5,   base:3500  },
+  { id:'p8', cat:'passive', name:'10× Speed',       desc:'10× payout per tick',       fn:()=>spdMult*=10,  base:35000 },
 
   // ── STAMINA — tiers ──
   { id:'st2', cat:'stamina', name:'Level 2',         desc:'Max stamina +50',    fn:()=>maxStamina+=50,                              base:30   },
