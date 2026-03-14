@@ -328,7 +328,7 @@ const EVENTS = [
     id:        'coke',
     minPts:    1000,
     prompt:    'YOUR BUDDY OFFERS A LINE OF COKE. SNIFF IT?',
-    yesResult: "COKE DICK YOU'RE FUCKED. 2 HOUR COOLDOWN",
+    yesResult: "YOU'VE CONTRACTED THE COKE DICK SYNDROME. YOU'RE FUCKED.",
     yesFn:     () => { cokeCount++; startCooldown('coke'); },
     yesPost:   () => { if (cokeCount >= 3) showPillEvent(); save(); },
     noResult:  'VIRGIN GO WANK OFF',
