@@ -2392,7 +2392,13 @@ stage.on('mouseup touchend', () => {
     isPenciling = false;
     currentPencilLine = null;
     if (_activeLayer) {
-      _cacheEmptyLayer(_activeLayer); // re-cache with new stroke included
+      // Only re-cache if erase circles exist — cache is only needed for destination-out.
+      // Without erasing, leave the group uncached so it renders sharply at any zoom level.
+      if (_activeLayer.eraseLayer && _activeLayer.eraseLayer.getChildren().length > 0) {
+        _cacheEmptyLayer(_activeLayer);
+      } else {
+        _activeLayer._isCached = false;
+      }
       _updateLayerThumb(_activeLayer);
       refreshLayerPanel();
     }
