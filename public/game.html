@@ -328,6 +328,13 @@ function fmtDec(n) {
 // ─────────────────────────────────────────────
 //  Render
 // ─────────────────────────────────────────────
+function renderEquipment() {
+  const gripUps = UPS.filter(u => u.cat === 'grip');
+  let current = null;
+  for (const u of gripUps) { if (u.count > 0) current = u; }
+  document.getElementById('val-equip').textContent = current ? current.name : 'Bare Hand';
+}
+
 function renderStats() {
   document.getElementById('val-pts').textContent   = fmt(pts);
   document.getElementById('val-cpc').textContent   = fmt(cpc);
