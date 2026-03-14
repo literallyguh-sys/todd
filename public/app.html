@@ -2584,6 +2584,22 @@ function _floodFill(data, sx, sy, fR, fG, fB, w, h, tol) {
     if (cy > 0)   stack.push(p-w);
     if (cy < h-1) stack.push(p+w);
   }
+  // Expand fill by 1px into semi-transparent fringe pixels (anti-aliased line edges).
+  // Any pixel with partial alpha that borders a filled pixel gets filled — closes the halo
+  // gap without risk of leaking through fully-opaque line pixels.
+  for (let p = 0; p < w * h; p++) {
+    if (vis[p]) continue;
+    const i = p * 4;
+    const a = data[i+3];
+    if (a === 0 || a === 255) continue; // skip fully transparent and fully opaque
+    const cx = p % w, cy = (p / w) | 0;
+    if ((cx > 0   && vis[p-1]) ||
+        (cx < w-1 && vis[p+1]) ||
+        (cy > 0   && vis[p-w]) ||
+        (cy < h-1 && vis[p+w])) {
+      data[i]=fR; data[i+1]=fG; data[i+2]=fB; data[i+3]=255;
+    }
+  }
 }
 
 async function doBucketFill(lx, ly) {
