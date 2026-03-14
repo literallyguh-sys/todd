@@ -611,6 +611,8 @@ body.chat-open #chatTab{
 }
 .layer-item:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);}
 .layer-item.layer-drag-over{border-top:2px solid var(--accent);}
+.layer-drag-handle{cursor:grab;color:#555;font-size:15px;padding:0 4px 0 2px;flex-shrink:0;user-select:none;line-height:1;touch-action:none;}
+.layer-drag-handle:active{cursor:grabbing;}
 .layer-item.layer-selected{border-color:var(--accent);background:rgba(255,214,0,0.06);}
 .layer-item.layer-active{background:rgba(255,255,255,0.08)!important;border-color:rgba(255,255,255,0.25)!important;}
 .layer-thumb{width:39px;height:22px;object-fit:contain;flex-shrink:0;image-rendering:pixelated;margin-left:-2px;}
