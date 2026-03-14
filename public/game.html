@@ -202,7 +202,8 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
     <div id="sore-title">FUCK I GOT SORE</div>
     <div id="sore-timer">15:00</div>
     <div id="sore-regen-line">STAMINA: <span id="sore-stam">0</span> / <span id="sore-stam-max">100</span></div>
-    <button id="sore-skip" onclick="skipCooldown()">[ SKIP COOLDOWN — TEST ]</button>
+    <button id="sore-skip" onclick="dismissSoreOverlay()">[ OK, I GOT IT ]</button>
+    <button id="sore-test-skip" onclick="skipCooldown()" style="background:transparent;border:1px solid rgba(255,214,0,0.15);color:#333;font-family:'VT323',monospace;font-size:12px;letter-spacing:2px;padding:4px 12px;cursor:pointer;">SKIP CD [TEST]</button>
   </div>
 </div>
 <script>
