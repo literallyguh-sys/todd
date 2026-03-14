@@ -421,12 +421,11 @@ function eventChoose(choice) {
   _postDismissFn = postFn || null;
 
   document.getElementById('event-choice-btns').style.display = 'none';
-  document.getElementById('event-close').style.display       = 'none';
+  document.getElementById('event-close').style.display       = '';
   document.getElementById('event-result-msg').textContent    = text;
   document.getElementById('event-result-area').style.display = 'flex';
 
   if (fn) fn();
-  setTimeout(dismissEvent, 1000);
 }
 
 function dismissEvent() {
