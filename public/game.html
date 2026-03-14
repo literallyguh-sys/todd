@@ -359,23 +359,19 @@ function tick(ts) {
       if (cooldownLeft <= 0) endCooldown();
       else renderStamina();
     } else {
-      // Drain stamina over time
-      stamina -= drainPerSec * dt;
-      if (stamina <= 0) {
-        startCooldown();
-      } else {
-        // Passive income only while stamina > 0 and not on cooldown
-        frac += pps * spdMult * dt;
-        if (frac >= 1) {
-          const whole = Math.floor(frac);
-          pts      += whole;
-          totalPts += whole;
-          frac     -= whole;
-          renderStats();
-          const r = document.getElementById('scene').getBoundingClientRect();
-          spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(whole));
-        }
-        renderStamina();
+      // Passive income — stamina only drains when points are actually earned
+      frac += pps * spdMult * dt;
+      if (frac >= 1) {
+        const whole = Math.floor(frac);
+        // Cost = points earned × staminaPerPoint (same formula as clicking)
+        stamina = Math.max(0, stamina - whole * staminaPerPoint);
+        pts      += whole;
+        totalPts += whole;
+        frac     -= whole;
+        renderStats();
+        const r = document.getElementById('scene').getBoundingClientRect();
+        spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(whole));
+        if (stamina <= 0) { startCooldown(); } else { renderStamina(); }
       }
     }
   }
