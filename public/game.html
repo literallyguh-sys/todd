@@ -342,6 +342,7 @@ const EVENTS = [
 function rollEvent() {
   if (Math.random() >= EVENT_CHANCE) return;
   const available = EVENTS.filter(ev => {
+    if (ev.minPts && totalPts < ev.minPts) return false;
     if (ev.id === 'coke' && (cokeDeclined || pillGiven)) return false;
     return true;
   });
