@@ -1874,7 +1874,7 @@ function _makeEmptyLayerGroup(id, x, y, w, h) {
   return g;
 }
 
-function addEmptyLayer() {
+function addEmptyLayer(silent) {
   const id = 'layer_' + (++_toddIdCounter);
   const bx = bgBounds ? bgBounds.x : 0, by = bgBounds ? bgBounds.y : 0;
   const bw = bgBounds ? bgBounds.w : CANVAS_W, bh = bgBounds ? bgBounds.h : CANVAS_H;
@@ -1883,7 +1883,7 @@ function addEmptyLayer() {
   refreshLayerPanel();
   toddLayer.draw();
   pushHistory();
-  showToast('Layer added');
+  if (!silent) showToast('Layer added');
 }
 
 function _restoreEmptyLayer(td) {
