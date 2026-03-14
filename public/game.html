@@ -257,7 +257,7 @@ function load() {
     staminaPerPoint = d.staminaPerPoint || 0.1;
     cooldownDur     = d.cooldownDur     || 10;
     if (d.counts) UPS.forEach(u => { u.count = d.counts[u.id] || 0; });
-    stamina = maxStamina; // always start fresh with full stamina
+    stamina = (d.stamina != null) ? d.stamina : maxStamina;
   } catch(e) {}
 }
 
