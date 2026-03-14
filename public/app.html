@@ -2591,6 +2591,8 @@ stage.on('mousedown touchstart', ev => {
   if (!pencilMode) return;
   if (!_activeLayer) return;
   isPenciling = true;
+  // Temporarily uncache so new stroke renders dynamically — re-cache on mouseup
+  if (_activeLayer._isCached) { _activeLayer.clearCache(); }
   const rpos = _activeLayer.getRelativePointerPosition();
   currentPencilLine = new Konva.Line({
     stroke: _toolColor, strokeWidth: _toolSize,
