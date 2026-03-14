@@ -357,18 +357,16 @@ function renderShop() {
   const list = document.getElementById('shop-items');
   list.innerHTML = '';
   UPS.filter(u => u.cat === activeTab).forEach(u => {
-    const isGrip = u.cat === 'grip';
-    const alreadyOwned = isGrip && u.count >= 1;
+    const alreadyOwned = u.count >= 1;
     const c = cost(u);
     const canBuy = !alreadyOwned && pts >= c;
     const div = document.createElement('div');
-    div.className = 'shop-item' + (alreadyOwned ? ' locked' : canBuy ? '' : ' locked');
+    div.className = 'shop-item' + (alreadyOwned || !canBuy ? ' locked' : '');
     div.innerHTML =
       `<div class="si-row1"><span class="si-name">${u.name}</span>` +
       (alreadyOwned ? `<span class="si-cost" style="color:#00cc66">OWNED</span>` : `<span class="si-cost">${fmt(c)} pts</span>`) +
       `</div>` +
-      `<div class="si-desc">${u.desc}</div>` +
-      (!isGrip && u.count > 0 ? `<div class="si-owned">owned: ${u.count}</div>` : '');
+      `<div class="si-desc">${u.desc}</div>`;
     if (canBuy) div.addEventListener('click', () => buy(u.id));
     list.appendChild(div);
   });
