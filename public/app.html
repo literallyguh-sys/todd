@@ -2508,7 +2508,7 @@ stage.on('mousedown touchstart', ev => {
   }
   if (!_inCanvas()) return; // drawing tools only work within canvas bounds
   if (lineMode) {
-    if (!_activeLayer) { showToast('Select a layer first'); return; }
+    if (!_activeLayer) return;
     const rpos = _activeLayer.getRelativePointerPosition();
     _lineStart = { x: rpos.x, y: rpos.y };
     _previewLine = new Konva.Line({
