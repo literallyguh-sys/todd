@@ -223,7 +223,7 @@ let frac     = 0;    // fractional accumulator
 let maxStamina      = 100;
 let stamina         = 100;
 let staminaPerPoint = 0.1;  // stamina cost per point earned (click or passive)
-let cooldownDur     = 900;  // 15 minutes in seconds
+let cooldownDur     = 1800; // 30 minutes in seconds
 let onCooldown      = false;
 let cooldownLeft    = 0;
 const STAMINA_REGEN = 100 / 3600; // 100 stamina per hour = ~0.0278/sec
@@ -307,7 +307,7 @@ function resetGame() {
   if (!confirm('Wipe all progress and start over?')) return;
   localStorage.removeItem(SAVE_KEY);
   pts=0; totalPts=0; cpc=1; pps=0; spdMult=1; frac=0;
-  maxStamina=100; stamina=100; staminaPerPoint=0.1; cooldownDur=900;
+  maxStamina=100; stamina=100; staminaPerPoint=0.1; cooldownDur=1800;
   onCooldown=false; cooldownLeft=0;
   UPS.forEach(u => u.count=0);
   updatePassiveAnim();
