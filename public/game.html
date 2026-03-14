@@ -505,9 +505,10 @@ function handleClick(e) {
   if (onCooldown || activeEvent) return;
   // Cost = points earned × staminaPerPoint
   stamina = Math.max(0, stamina - cpc * staminaPerPoint);
-  pts      += cpc;
-  totalPts += cpc;
-  spawnFloatie(e.clientX, e.clientY, '+' + fmt(cpc));
+  const clickEarned = cpc * pointMult();
+  pts      += clickEarned;
+  totalPts += clickEarned;
+  spawnFloatie(e.clientX, e.clientY, '+' + fmt(clickEarned));
   triggerClickBurst();
   renderStats();
   renderShop();
