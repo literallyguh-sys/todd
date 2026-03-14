@@ -2759,6 +2759,8 @@ async function doBucketFill(lx, ly) {
   kFill.moveToBottom(); // fill is background — stays below strokes and eraseLayer
   _invalidateEmptyLayerCache(activeGroup);
   toddLayer.batchDraw();
+  _updateLayerThumb(activeGroup);
+  refreshLayerPanel();
   pushHistory();
 }
 
