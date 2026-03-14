@@ -477,9 +477,10 @@ function load() {
     cooldownDur     = d.cooldownDur     || 10;
     if (d.counts) UPS.forEach(u => { u.count = d.counts[u.id] || 0; });
     stamina      = (d.stamina      != null)  ? d.stamina      : maxStamina;
-    cokeCount    = d.cokeCount    || 0;
-    cokeDeclined = d.cokeDeclined || false;
-    pillGiven    = d.pillGiven    || false;
+    cokeCount      = d.cokeCount      || 0;
+    cokeDeclined   = d.cokeDeclined   || false;
+    pillGiven      = d.pillGiven      || false;
+    momDebuffUntil = d.momDebuffUntil || 0;
   } catch(e) {}
 }
 
