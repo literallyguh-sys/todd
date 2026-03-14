@@ -1721,7 +1721,7 @@ function restoreState(snap) {
         kFill._fillOwnerId = group._toddId;
         group._fillNode = kFill;
         group.add(kFill);
-        if (group.eraseLayer) kFill.zIndex(group.eraseLayer.zIndex() + 1); else kFill.moveToBottom();
+        kFill.moveToBottom(); // fill is background — stays below strokes and eraseLayer
         toddLayer.batchDraw();
       };
       const cached = imgCache[itemData.fillSrc];
@@ -2672,7 +2672,7 @@ async function doBucketFill(lx, ly) {
   kFill._fillOwnerId = activeGroup._toddId;
   activeGroup._fillNode = kFill;
   activeGroup.add(kFill);
-  if (activeGroup.eraseLayer) kFill.zIndex(activeGroup.eraseLayer.zIndex() + 1); else kFill.moveToBottom();
+  kFill.moveToBottom(); // fill is background — stays below strokes and eraseLayer
   _invalidateEmptyLayerCache(activeGroup);
   toddLayer.batchDraw();
   pushHistory();
