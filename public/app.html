@@ -2450,7 +2450,7 @@ stage.on('mousemove touchmove', (ev) => {
   }
 });
 stage.on('mousedown touchstart', ev => {
-  if (ev.evt && ev.evt.button === 1) return; // ignore middle mouse — don't draw while panning
+  if (ev.evt && (ev.evt.button === 1 || ev.evt.button === 2)) return; // ignore middle/right mouse — don't draw while panning
   // In move mode: clicking canvas drags the active layer (needed for empty layers with no hit area)
   // Note: _inCanvas() is NOT checked here — resize anchors and move handles must work even when
   // the pointer is in the canvas wrapper area outside world bounds (e.g. large images with anchors
