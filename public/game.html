@@ -367,6 +367,8 @@ function showPillEvent() {
 function showEvent(ev) {
   activeEvent = ev;
   document.getElementById('event-msg').textContent           = ev.prompt;
+  document.getElementById('event-yes').textContent           = '[ ' + (ev.yesLabel || 'YES') + ' ]';
+  document.getElementById('event-no').textContent            = '[ ' + (ev.noLabel  || 'NO')  + ' ]';
   document.getElementById('event-choice-btns').style.display = '';
   document.getElementById('event-result-area').style.display = 'none';
   document.getElementById('event-overlay').classList.add('show');
