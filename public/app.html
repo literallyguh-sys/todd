@@ -974,8 +974,10 @@ function resetZoom() {
 
 containerEl.addEventListener('wheel', e => {
   e.preventDefault();
-  if (e.ctrlKey) {
-    // Ctrl+scroll = zoom (also what trackpads send for pinch-to-zoom)
+  // Mouse wheel sends large discrete deltaY (>=50); trackpad sends small smooth values.
+  const isMouseWheel = e.deltaMode === 1 || Math.abs(e.deltaY) >= 50;
+  if (e.ctrlKey || isMouseWheel) {
+    // Mouse wheel or Ctrl+scroll = zoom
     const oldScale = stage.scaleX();
     const pointer  = stage.getPointerPosition();
     const dir      = e.deltaY < 0 ? 1 : -1;
@@ -986,7 +988,7 @@ containerEl.addEventListener('wheel', e => {
     updateZoomIndicator();
     if (transformer.nodes().length) _boostAnchorHits();
   } else {
-    // Two-finger scroll (or plain scroll wheel) = pan
+    // Trackpad two-finger scroll = pan
     stage.position({ x: stage.x() - e.deltaX, y: stage.y() - e.deltaY });
   }
   stage.batchDraw();
