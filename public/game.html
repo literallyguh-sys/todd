@@ -218,10 +218,10 @@ const UPS = [
   { id:'st3', cat:'stamina', name:'Level 3',         desc:'Max stamina +100',   fn:()=>maxStamina+=100,                             base:180  },
   { id:'st4', cat:'stamina', name:'Level 4',         desc:'Max stamina +200',   fn:()=>maxStamina+=200,                             base:1000 },
   { id:'st5', cat:'stamina', name:'Level 5',         desc:'Max stamina +500',   fn:()=>maxStamina+=500,                             base:6000 },
-  // ── STAMINA — energy drinks ──
-  { id:'ed1', cat:'stamina', name:'Energy Drink',    desc:'-1 drain/sec',       fn:()=>drainPerSec=Math.max(0.5,drainPerSec-1),     base:50   },
-  { id:'ed2', cat:'stamina', name:'Monster',         desc:'-1.5 drain/sec',     fn:()=>drainPerSec=Math.max(0.5,drainPerSec-1.5),   base:300  },
-  { id:'ed3', cat:'stamina', name:'Red Bull',        desc:'-1.5 drain/sec',     fn:()=>drainPerSec=Math.max(0.5,drainPerSec-1.5),   base:2000 },
+  // ── STAMINA — energy drinks (reduce stamina cost per point) ──
+  { id:'ed1', cat:'stamina', name:'Energy Drink',    desc:'−25% stamina cost per point',  fn:()=>staminaPerPoint=Math.max(0.01,staminaPerPoint*0.75),  base:50   },
+  { id:'ed2', cat:'stamina', name:'Monster',         desc:'−35% stamina cost per point',  fn:()=>staminaPerPoint=Math.max(0.01,staminaPerPoint*0.65),  base:300  },
+  { id:'ed3', cat:'stamina', name:'Red Bull',        desc:'−50% stamina cost per point',  fn:()=>staminaPerPoint=Math.max(0.01,staminaPerPoint*0.50),  base:2000 },
   // ── STAMINA — viagra ──
   { id:'vi1', cat:'stamina', name:'Viagra',          desc:'-2s cooldown',       fn:()=>cooldownDur=Math.max(2,cooldownDur-2),        base:70   },
   { id:'vi2', cat:'stamina', name:'Cialis',          desc:'-3s cooldown',       fn:()=>cooldownDur=Math.max(2,cooldownDur-3),        base:450  },
