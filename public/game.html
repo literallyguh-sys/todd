@@ -346,10 +346,11 @@ function handleClick(e) {
 // ─────────────────────────────────────────────
 //  Stamina & cooldown
 // ─────────────────────────────────────────────
-function startCooldown() {
+function startCooldown(type = 'sore') {
+  cooldownType = type;
   onCooldown   = true;
-  cooldownLeft = cooldownDur;
-  stamina      = 0;
+  cooldownLeft = type === 'rift' ? RIFT_CD : cooldownDur;
+  if (type === 'sore') stamina = 0;
   handEl.classList.remove('passive-on', 'click-burst');
   _clickBurst = false;
   document.getElementById('click-hint').textContent = '[ EXHAUSTED ]';
