@@ -269,10 +269,13 @@ let cooldownType    = 'sore'; // 'sore' | 'rift'
 const STAMINA_REGEN = 100 / 3600; // 100 stamina per hour = ~0.0278/sec
 const RIFT_CD       = 300;  // 5 minutes in seconds
 const RIFT_CHANCE   = 0.03; // 3% per click
+const COKE_CD       = 7200; // 2 hours in seconds
+const EVENT_CHANCE  = 0.02; // 2% per click
 
 let lastTs      = null;
 let activeTab   = 'click';
 let _clickBurst = false;
+let activeEvent = null;
 
 // ─────────────────────────────────────────────
 //  Upgrades
