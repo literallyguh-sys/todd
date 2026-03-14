@@ -391,8 +391,18 @@ function renderSoreOverlay() {
   const secs = Math.floor(cooldownLeft % 60);
   document.getElementById('sore-timer').textContent =
     String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
-  document.getElementById('sore-stam').textContent     = Math.ceil(stamina);
-  document.getElementById('sore-stam-max').textContent = maxStamina;
+
+  if (cooldownType === 'rift') {
+    document.getElementById('sore-title').textContent    = 'SHIT I GOT A RIFT';
+    document.getElementById('sore-subtitle').textContent = 'GOTTA APPLY SOME LOTION';
+    document.getElementById('sore-regen-line').style.display = 'none';
+  } else {
+    document.getElementById('sore-title').textContent    = 'FUCK I GOT SORE';
+    document.getElementById('sore-subtitle').textContent = '';
+    document.getElementById('sore-regen-line').style.display = '';
+    document.getElementById('sore-stam').textContent     = Math.ceil(stamina);
+    document.getElementById('sore-stam-max').textContent = maxStamina;
+  }
 }
 
 // ─────────────────────────────────────────────
