@@ -2583,20 +2583,27 @@ async function doBucketFill(lx, ly) {
   const activeGroup = _activeLayer; // snapshot — user may change active layer during awaits
   const dw = CANVAS_W, dh = CANVAS_H;
 
-  // Capture full composite at 1:1 canvas coords by reading layer canvases directly.
-  // No stage transform reset — zero extra redraws, zero flicker.
-  // Each layer canvas has content drawn at the current stage scale/position.
-  // drawImage crops the world-canvas region [0,dw]×[0,dh] and rescales it to 1:1.
-  // Edge case: if the world canvas extends beyond the layer canvas buffer (extreme zoom-in),
-  // the out-of-bounds region draws as transparent — acceptable since the click point is
-  // always within the visible viewport.
+  // Capture full composite at 1:1 canvas coords.
+  // Reset zoom/pan so the export matches canvas coordinates exactly, then immediately
+  // restore with a synchronous draw to prevent any visible flicker.
+  const savedScale = stage.scaleX();
+  const savedPos = { x: stage.x(), y: stage.y() };
+  transformerLayer.visible(false);
+  stage.scale({ x: 1, y: 1 });
+  stage.position({ x: 0, y: 0 });
+  const srcDataURL = stage.toDataURL({ x: 0, y: 0, width: dw, height: dh, pixelRatio: 1 });
+  stage.scale({ x: savedScale, y: savedScale });
+  stage.position(savedPos);
+  transformerLayer.visible(true);
+  stage.draw(); // synchronous — restores all layers before browser paints
+
+  const srcImg = new Image();
+  await new Promise(r => { srcImg.onload = r; srcImg.src = srcDataURL; });
+
   const srcCanvas = document.createElement('canvas');
   srcCanvas.width = dw; srcCanvas.height = dh;
   const srcCtx = srcCanvas.getContext('2d');
-  const _s = stage.scaleX(), _sx = stage.x(), _sy = stage.y();
-  for (const _layer of [bgLayer, drawLayer, toddLayer]) {
-    srcCtx.drawImage(_layer.getCanvas()._canvas, _sx, _sy, dw * _s, dh * _s, 0, 0, dw, dh);
-  }
+  srcCtx.drawImage(srcImg, 0, 0);
 
   const compositeId = srcCtx.getImageData(0, 0, dw, dh);
   const beforeData  = compositeId.data.slice();
