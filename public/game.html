@@ -377,7 +377,19 @@ const EVENTS = [
     noFn:      () => { momDebuffUntil = Date.now() + 24 * 60 * 60 * 1000; save(); },
     noPost:    () => showAnnouncement('WHAT AN EMBARRASSMENT.\nPOINT GAINS REDUCED BY 20%\nFOR THE NEXT 24 HOURS.'),
   },
-  // event 3 — TBD
+  {
+    id:        'porn',
+    minPts:    10000,
+    prompt:    "YOU'VE BECOME BORED WITH REGULAR PORN. TIME TO DIVE DEEPER.",
+    yesLabel:  'HENTAI',
+    yesResult: 'Ohayo Toddu-chan. Special deliveru for you sir.',
+    yesFn:     () => { hentaiChosen = true; pornEventDone = true; renderShop(); save(); },
+    yesPost:   null,
+    noLabel:   'BEASTIALITY',
+    noResult:  "You're really fucked up in the brain. Get help.",
+    noFn:      () => { pornEventDone = true; save(); },
+    noPost:    () => showAnnouncement("Your friend picked up a dirty mutt from the streets.\nYou decided to take it in."),
+  },
 ];
 
 function rollEvent() {
