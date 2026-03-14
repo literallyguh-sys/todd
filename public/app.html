@@ -1540,13 +1540,41 @@ function refreshLayerPanel() {
       name = 'Layer ' + g._toddId.replace(/[^0-9]/g,'');
     }
 
-    item.innerHTML = `${thumbHtml}
+    item.innerHTML = `<span class="layer-drag-handle" title="Drag to reorder">≡</span>${thumbHtml}
       <span class="layer-name" ondblclick="event.stopPropagation();renameLayer('${g._toddId}',this)" title="Double-click to rename">${name}</span>
       <button class="layer-act" onclick="event.stopPropagation();renameLayer('${g._toddId}',this.previousElementSibling)" title="Rename">✎</button>
       <button class="layer-act" onclick="event.stopPropagation();layerToggleVisible('${g._toddId}')" title="${g.visible() ? 'Hide layer' : 'Show layer'}" style="opacity:${g.visible() ? '1' : '0.4'}">${g.visible() ? '👁' : '○'}</button>
-      <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','up')"   title="Bring forward">▲</button>
-      <button class="layer-act" onclick="event.stopPropagation();layerMove('${g._toddId}','down')" title="Send backward">▼</button>
       <button class="layer-act del" onclick="event.stopPropagation();layerRemove('${g._toddId}')" title="Delete">×</button>`;
+    // Pointer-based vertical drag (replaces HTML5 drag which can't be constrained)
+    const dragHandle = item.querySelector('.layer-drag-handle');
+    let _ldActive = false;
+    dragHandle.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      _ldActive = true; _dragLayerId = g._toddId;
+      dragHandle.setPointerCapture(e.pointerId);
+      item.style.opacity = '0.5';
+    });
+    dragHandle.addEventListener('pointermove', e => {
+      if (!_ldActive) return;
+      const target = _getDragTarget(e.clientY);
+      document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
+      if (target && target.dataset.layerId !== _dragLayerId) target.querySelector('.layer-item')?.classList.add('layer-drag-over');
+    });
+    function _commitDrag(clientY) {
+      if (!_ldActive) return;
+      _ldActive = false; item.style.opacity = '';
+      document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over'));
+      const target = _getDragTarget(clientY);
+      const targetId = target?.dataset.layerId;
+      if (targetId && targetId !== _dragLayerId) {
+        const dg = toddLayer.getChildren().find(n => n._toddId === _dragLayerId);
+        const tg = toddLayer.getChildren().find(n => n._toddId === targetId);
+        if (dg && tg) { dg.zIndex(tg.zIndex()); toddLayer.draw(); refreshLayerPanel(); pushHistory(); }
+      }
+      _dragLayerId = null;
+    }
+    dragHandle.addEventListener('pointerup', e => _commitDrag(e.clientY));
+    dragHandle.addEventListener('pointercancel', () => { _ldActive = false; item.style.opacity = ''; document.querySelectorAll('.layer-drag-over').forEach(el => el.classList.remove('layer-drag-over')); _dragLayerId = null; });
 
     // Opacity slider row
     const opRow = document.createElement('div');
