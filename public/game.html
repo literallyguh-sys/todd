@@ -316,6 +316,54 @@ const UPS = [
 ];
 UPS.forEach(u => u.count = 0);
 
+// ─────────────────────────────────────────────
+//  Random events
+// ─────────────────────────────────────────────
+const EVENTS = [
+  {
+    id:        'coke',
+    prompt:    'YOUR BUDDY OFFERS A LINE OF COKE. SNIFF IT?',
+    yesResult: "COKE DICK YOU'RE FUCKED. 2 HOUR COOLDOWN",
+    yesFn:     () => startCooldown('coke'),
+    noResult:  'VIRGIN GO WANK OFF',
+    noFn:      null,
+  },
+  // event 2 — TBD
+  // event 3 — TBD
+];
+
+function rollEvent() {
+  if (Math.random() >= EVENT_CHANCE) return;
+  const ev = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+  showEvent(ev);
+}
+
+function showEvent(ev) {
+  activeEvent = ev;
+  document.getElementById('event-msg').textContent          = ev.prompt;
+  document.getElementById('event-choice-btns').style.display = '';
+  document.getElementById('event-result-area').style.display = 'none';
+  document.getElementById('event-overlay').classList.add('show');
+}
+
+function eventChoose(choice) {
+  if (!activeEvent) return;
+  const text = choice === 'yes' ? activeEvent.yesResult : activeEvent.noResult;
+  const fn   = choice === 'yes' ? activeEvent.yesFn     : activeEvent.noFn;
+
+  document.getElementById('event-choice-btns').style.display = 'none';
+  document.getElementById('event-result-msg').textContent    = text;
+  document.getElementById('event-result-area').style.display = 'flex';
+
+  if (fn) fn();
+  if (!fn) setTimeout(dismissEvent, 2000); // auto-dismiss if no consequence
+}
+
+function dismissEvent() {
+  document.getElementById('event-overlay').classList.remove('show');
+  activeEvent = null;
+}
+
 function cost(u) { return u.base; } // buy-once, cost never changes
 
 // ─────────────────────────────────────────────
@@ -366,7 +414,7 @@ function resetGame() {
 //  Click
 // ─────────────────────────────────────────────
 function handleClick(e) {
-  if (onCooldown) return;
+  if (onCooldown || activeEvent) return;
   // Cost = points earned × staminaPerPoint
   stamina = Math.max(0, stamina - cpc * staminaPerPoint);
   pts      += cpc;
