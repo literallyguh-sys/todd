@@ -429,6 +429,8 @@ function handleClick(e) {
     startCooldown('sore');
   } else if (Math.random() < RIFT_CHANCE) {
     startCooldown('rift');
+  } else {
+    rollEvent();
   }
 }
 
