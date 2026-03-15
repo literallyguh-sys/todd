@@ -213,11 +213,11 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 #fade-overlay.fade-in  { opacity:1; pointer-events:all; }
 
 /* ── Door hotspot ── */
-#door-hotspot { position:absolute; bottom:28px; right:18px; width:52px; height:88px;
+#door-hotspot { position:absolute; top:14px; right:14px;
   cursor:pointer; z-index:10;
-  border:2px solid var(--accent); background:rgba(255,214,0,0.08);
-  display:flex; align-items:center; justify-content:center; }
-#door-hotspot::after { content:'SHOP'; font-size:12px; color:var(--accent);
+  border:1px solid rgba(255,255,255,0.12); padding:7px 12px; background:rgba(0,0,0,0.55);
+  min-width:120px; display:flex; align-items:center; justify-content:center; }
+#door-hotspot::after { content:'THE SHOP'; font-size:12px; color:var(--accent);
   letter-spacing:2px; }
 
 /* ── Shop room ── */
