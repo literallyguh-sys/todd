@@ -127,12 +127,13 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 /* ── Sidebar ── */
 #shop-header { padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }
 #shop-label { font-size:13px; letter-spacing:3px; color:#444; }
-#shop-tabs { display:flex; border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }
-.shop-tab { flex:1; background:transparent; border:none; border-bottom:2px solid transparent;
-  color:#555; font-family:'VT323',monospace; font-size:14px; letter-spacing:1px;
-  padding:7px 4px; cursor:pointer; text-align:center; transition:color .1s; }
+#shop-tabs { display:flex; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }
+.shop-tab { flex:1; min-width:33%; background:transparent; border:none; border-bottom:2px solid transparent;
+  color:#555; font-family:'VT323',monospace; font-size:13px; letter-spacing:1px;
+  padding:6px 2px; cursor:pointer; text-align:center; transition:color .1s; }
 .shop-tab:hover { color:#bbb; }
 .shop-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.shop-tab-divider { width:100%; height:1px; background:rgba(255,255,255,0.05); flex-basis:100%; }
 
 #shop-items { flex:1; overflow-y:auto; padding:6px; display:flex; flex-direction:column; gap:3px; }
 #shop-items::-webkit-scrollbar { width:3px; }
