@@ -1048,7 +1048,10 @@ _cvsBg.onload = _cvsTodd.onload = () => renderCanvas();
 function _resizeCanvas() {
   const w = _canvas.offsetWidth;
   const h = _canvas.offsetHeight;
-  if (w && h) { _canvas.width = w; _canvas.height = h; }
+  if (w && h && (_canvas.width !== w || _canvas.height !== h)) {
+    _canvas.width  = w;
+    _canvas.height = h;
+  }
 }
 window.addEventListener('resize', () => { _resizeCanvas(); renderCanvas(); });
 
