@@ -1236,7 +1236,7 @@ _canvas.addEventListener('mousemove', e => {
   const r  = _canvas.getBoundingClientRect();
   const cx = (e.clientX - r.left) / r.width  * _canvas.width;
   const cy = (e.clientY - r.top)  / r.height * _canvas.height;
-  const over = _canvasPtInBox(cx, cy, DOOR_BOX);
+  const over = !_momState && _canvasPtInBox(cx, cy, DOOR_BOX);
   if (over !== _doorHover) {
     _doorHover = over;
     _canvas.style.cursor = over ? 'pointer' : '';
