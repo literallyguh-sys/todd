@@ -876,8 +876,8 @@ const PASSIVE_DIVIDERS = { p2:'── SPEED ──' };
 
 function setTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.shop-tab').forEach((t, i) =>
-    t.classList.toggle('active', ['click','passive','stamina'][i] === tab));
+  document.querySelectorAll('.shop-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === tab));
   renderShop();
 }
 
