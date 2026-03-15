@@ -460,8 +460,8 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
       <button class="test-btn" onclick="showEvent(EVENTS[2])">PORN [TEST]</button>
     </div>
     <div id="test-btns" style="padding-top:0">
-      <button class="test-btn" onclick="cycleStart=Date.now();_wasNight=false;renderClock();save()">DAY [TEST]</button>
-      <button class="test-btn" onclick="cycleStart=Date.now()-DAY_MS;_wasNight=true;renderClock();save()">NIGHT [TEST]</button>
+      <button class="test-btn" onclick="forceDay()">DAY [TEST]</button>
+      <button class="test-btn" onclick="forceNight()">NIGHT [TEST]</button>
     </div>
     <button id="reset-btn" onclick="resetGame()">RESET PROGRESS</button>
   </div>
