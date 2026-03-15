@@ -1117,7 +1117,13 @@ function renderCanvas() {
     const sz  = h * 0.28;
     const amp = h * 0.06;
     const oy  = _strokeOffset(strokePhase, amp);
-    _ctx.drawImage(_cvsItem, w * 0.5 - sz * 0.5, h * 0.55 + oy, sz, sz);
+    const cx  = w * 0.46;
+    const cy  = h * 0.55 + oy + sz * 0.5;
+    _ctx.save();
+    _ctx.translate(cx, cy);
+    _ctx.rotate(-20 * Math.PI / 180);
+    _ctx.drawImage(_cvsItem, -sz * 0.5, -sz * 0.5, sz, sz);
+    _ctx.restore();
   }
   if (_cvsTodd.complete && _cvsTodd.naturalWidth) _drawCover(_cvsTodd, w, h);
   if (onCooldown) _ctx.filter = 'none';
