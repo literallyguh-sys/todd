@@ -898,16 +898,16 @@ function _momTick(dt) {
       break;
     case 'cover_done':
       break; // waiting for OK
-    case 'continue_run':
+    case 'continue_run': {
       _momTimer -= dt;
-      // Earn passive-equivalent points during the forced autopilot window
-      const apRate = Math.max(0.5, pps);
+      const apRate   = Math.max(0.5, pps);
       const apEarned = apRate * dt * spdMult * pointMult() * contentMult();
       pts      += apEarned;
       totalPts += apEarned;
       renderStats();
       if (_momTimer <= 0) { _momState = 'continue_done'; _momShowResult('continue'); }
       break;
+    }
     case 'continue_done':
       break; // waiting for OK
   }
