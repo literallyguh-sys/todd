@@ -1765,13 +1765,42 @@ function updateShopBackground() {
   }
 }
 
-function updateShoutBtn() {
-  const btn    = document.getElementById('sr-shout-btn');
+function updateNightState() {
+  const night    = isNight();
+  const sleeping = night && !shopGrumpy;
+  const grumpy   = night && shopGrumpy;
+
+  // Closed screen (sleeping)
+  const closed = document.getElementById('sr-closed');
+  if (closed) closed.classList.toggle('show', sleeping);
+
+  // Shout button — only while sleeping (not yet shouted)
+  const btn = document.getElementById('sr-shout-btn');
+  if (btn) btn.style.display = (sleeping && shopAngryUntil <= Date.now()) ? '' : 'none';
+
+  // Main shop panel — hidden while sleeping, visible when day or grumpy
+  const panel = document.getElementById('sr-panel');
+  if (panel) panel.style.visibility = sleeping ? 'hidden' : '';
+
+  // Fapbag button — hide while sleeping
+  const fb = document.getElementById('fapbag-btn');
+  if (fb) fb.style.visibility = sleeping ? 'hidden' : '';
+
+  // Night surcharge banner
   const banner = document.getElementById('sr-night-banner');
-  const showShout = isNight() && !shopGrumpy && shopAngryUntil <= Date.now();
-  if (btn)    btn.style.display = showShout ? '' : 'none';
-  if (banner) banner.classList.toggle('show', isNight() && shopGrumpy);
+  if (banner) banner.classList.toggle('show', grumpy);
+
+  // Closed timer
+  const timer = document.getElementById('sr-closed-timer');
+  if (timer && sleeping) {
+    const ms  = phaseTimeLeft();
+    const h   = Math.floor(ms / 3600000);
+    const m   = Math.floor((ms % 3600000) / 60000);
+    timer.textContent = 'OPENS IN ' + h + 'h ' + (m < 10 ? '0' : '') + m + 'm';
+  }
 }
+// Keep old name as alias so existing call sites still work
+function updateShoutBtn() { updateNightState(); }
 
 const SHOUT_ANGRY_LINES = [
   '"I WILL KILL YOU!" he screams. You sprint home.\nShop locked until morning.',
