@@ -861,6 +861,15 @@ function showAnnouncement(msg) {
 // ─────────────────────────────────────────────
 //  Mom event state machine
 // ─────────────────────────────────────────────
+function _positionMomSpeech() {
+  if (!_cvsBg.naturalWidth || !_canvas.width) return;
+  const midX = (DOOR_BOX.x1 + DOOR_BOX.x2) / 2;
+  const [px]  = _bgToCanvas(midX, 0, _canvas.width, _canvas.height);
+  const sp    = document.getElementById('mom-speech');
+  sp.style.left      = px + 'px';
+  sp.style.transform = 'translateX(-50%)';
+}
+
 function startMomEvent() {
   _momState    = 'speech';
   _momTimer    = 1.8;
@@ -868,6 +877,7 @@ function startMomEvent() {
   const sp = document.getElementById('mom-speech');
   sp.textContent = 'Hey Todd? What do you wan-';
   sp.style.display = 'block';
+  _positionMomSpeech();
 }
 
 function _momTick(dt) {
