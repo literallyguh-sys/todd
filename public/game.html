@@ -1037,6 +1037,7 @@ function handleClick(e) {
   const r  = _canvas.getBoundingClientRect();
   const cx = (e.clientX - r.left) / r.width  * _canvas.width;
   const cy = (e.clientY - r.top)  / r.height * _canvas.height;
+  if (_momState) return;
   if (_canvasPtInBox(cx, cy, DOOR_BOX)) { openShopRoom(e); return; }
   if (onCooldown || activeEvent) return;
   const totalCpc = cpc + toolCpc();
