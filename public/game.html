@@ -621,9 +621,9 @@ function resetGame() {
 // ─────────────────────────────────────────────
 function handleClick(e) {
   if (onCooldown || activeEvent) return;
-  // Cost = points earned × staminaPerPoint
-  stamina = Math.max(0, stamina - cpc * staminaPerPoint);
-  const clickEarned = cpc * pointMult();
+  const totalCpc = cpc + toolCpc();
+  stamina = Math.max(0, stamina - totalCpc * staminaPerPoint * lubeMult());
+  const clickEarned = totalCpc * pointMult();
   pts      += clickEarned;
   totalPts += clickEarned;
   spawnFloatie(e.clientX, e.clientY, '+' + fmt(clickEarned));
