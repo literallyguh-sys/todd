@@ -1250,12 +1250,7 @@ function closeShopRoom() {
   fapbagOpen = false;
   document.getElementById('fapbag-panel').classList.remove('show');
   closeHagglePanel();
-  const fade = document.getElementById('fade-overlay');
-  fade.classList.add('fade-in');
-  setTimeout(() => {
-    document.getElementById('shop-room').classList.remove('show');
-    fade.classList.remove('fade-in');
-  }, 450);
+  document.getElementById('shop-room').classList.remove('show');
 }
 
 function setShopTab(tab) {
