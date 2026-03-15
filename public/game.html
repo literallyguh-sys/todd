@@ -835,10 +835,10 @@ function renderEffects() {
     `<div class="effect-entry ${e.cls}">${e.text}</div>`).join('');
 }
 
-function renderEquipment() {
-  const owned = UPS.filter(u => u.cat === 'click' && u.count > 0);
-  const current = owned.length ? owned[owned.length - 1] : null;
-  document.getElementById('val-equip').textContent = current ? current.name : 'Bare Hand';
+function renderEquipPanel() {
+  document.getElementById('eq-tool').textContent    = (GEAR.tool.find(i=>i.id===equippedTool)    || GEAR.tool[0]).name;
+  document.getElementById('eq-lube').textContent    = (GEAR.lube.find(i=>i.id===equippedLube)    || GEAR.lube[0]).name;
+  document.getElementById('eq-content').textContent = (GEAR.content.find(i=>i.id===equippedContent) || GEAR.content[0]).name;
 }
 
 function renderStats() {
