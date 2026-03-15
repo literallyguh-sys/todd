@@ -474,7 +474,14 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 <div id="shop-room">
   <button id="sr-back" onclick="closeShopRoom()">← GO HOME</button>
   <button id="fapbag-btn" onclick="toggleFapbag()">FAPBAG</button>
-  <button id="sr-shout-btn" onclick="shoutAtShopkeeper()">SHOUT AT THE SHOPKEEPER</button>
+
+  <!-- Night / closed screen -->
+  <div id="sr-closed">
+    <div id="sr-closed-title">SHOP CLOSED</div>
+    <div id="sr-closed-sub">COME BACK LATER</div>
+    <div id="sr-closed-timer"></div>
+    <button id="sr-shout-btn" onclick="shoutAtShopkeeper()">SHOUT AT THE SHOPKEEPER</button>
+  </div>
 
   <!-- Shop panel -->
   <div id="sr-panel">
