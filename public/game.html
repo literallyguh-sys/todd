@@ -975,6 +975,7 @@ function renderShop() {
     const canBuy = !owned && pts >= c;
     const div = document.createElement('div');
     div.className = 'shop-item' + (owned || !canBuy ? ' locked' : '');
+    div.dataset.upid = u.id;
     div.innerHTML =
       `<div class="si-row1"><span class="si-name">${u.name}</span>` +
       (owned ? `<span class="si-cost" style="color:var(--green)">OWNED</span>` : `<span class="si-cost">${fmt(c)} pts</span>`) +
