@@ -1388,7 +1388,8 @@ function equipGear(cat, id) {
   if (cat==='tool')    equippedTool    = id;
   if (cat==='lube')    equippedLube    = id;
   if (cat==='content') equippedContent = id;
-  if (cat==='tool') updateHandVisual();
+  if (cat==='tool')    updateHandVisual();
+  if (cat==='content') updateScreenVisual();
   renderEquipPanel(); renderStats(); renderShop(); save();
 }
 
