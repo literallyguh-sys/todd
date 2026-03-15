@@ -1061,11 +1061,15 @@ const _ctx    = _canvas.getContext('2d');
 
 const _cvsBg   = new Image();
 const _cvsDoor = new Image();
+const _cvsMom  = new Image();
 const _cvsTodd = new Image();
 _cvsBg.src   = '/Game/backgroundtodd.png';
 _cvsDoor.src = '/Game/doorway.png';
+_cvsMom.src  = '/Characters/Mom.png';
 _cvsTodd.src = '/Game/toddinchair.png';
-_cvsBg.onload = _cvsDoor.onload = _cvsTodd.onload = () => renderCanvas();
+_cvsBg.onload = _cvsDoor.onload = _cvsMom.onload = _cvsTodd.onload = () => renderCanvas();
+
+let _momProgress = 0; // 0 = off-screen, 1 = fully entered doorway
 
 function _resizeCanvas() {
   const w = _canvas.offsetWidth;
