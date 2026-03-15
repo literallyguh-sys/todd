@@ -1109,6 +1109,8 @@ _cvsTodd.src = '/Game/toddinchair.png';
 _cvsBg.onload = _cvsDoor.onload = _cvsMom.onload = _cvsTodd.onload = () => renderCanvas();
 
 let _momProgress = 0; // 0 = off-screen, 1 = fully entered doorway
+let _momState    = null; // null|'speech'|'sliding'|'standing'|'choice'|'cover_exit'|'cover_done'|'continue_run'|'continue_done'
+let _momTimer    = 0;
 
 function _resizeCanvas() {
   const w = _canvas.offsetWidth;
