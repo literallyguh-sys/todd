@@ -893,6 +893,10 @@ function resetGame() {
 //  Click
 // ─────────────────────────────────────────────
 function handleClick(e) {
+  const r  = _canvas.getBoundingClientRect();
+  const cx = (e.clientX - r.left) / r.width  * _canvas.width;
+  const cy = (e.clientY - r.top)  / r.height * _canvas.height;
+  if (_canvasPtInBox(cx, cy, DOOR_BOX)) { openShopRoom(e); return; }
   if (onCooldown || activeEvent) return;
   const totalCpc = cpc + toolCpc();
   stamina = Math.max(0, stamina - totalCpc * staminaPerPoint * lubeMult());
