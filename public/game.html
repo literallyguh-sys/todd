@@ -1254,8 +1254,10 @@ function buyUpgrade(id) {
 
 function buyGear(cat, id) {
   const item = GEAR[cat].find(i => i.id === id);
-  if (!item || ownedGear.has(id) || pts < item.cost) return;
-  pts -= item.cost;
+  if (!item || ownedGear.has(id)) return;
+  const effectiveCost = (shopGrumpy && isNight()) ? Math.ceil(item.cost * 1.5) : item.cost;
+  if (pts < effectiveCost) return;
+  pts -= effectiveCost;
   ownedGear.add(id);
   if (id === 't4') onaholeOwned = true;
   renderStats(); renderShop(); save();
