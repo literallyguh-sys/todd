@@ -224,9 +224,19 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
         <!-- HAND: replace with <img src="hand.png">, adjust bottom/left -->
         <div id="hand"><span class="hand-placeholder">✋</span></div>
       </div>
-      <div id="equip-box">
-        <div id="equip-label">EQUIPPED</div>
-        <span id="val-equip">Bare Hand</span>
+      <div id="equip-panel">
+        <div class="equip-slot" onclick="openGearSelect('tool')">
+          <span class="equip-slot-label">TOOL</span>
+          <span class="equip-slot-val" id="eq-tool">Bare Hand</span>
+        </div>
+        <div class="equip-slot" onclick="openGearSelect('lube')">
+          <span class="equip-slot-label">LUBE</span>
+          <span class="equip-slot-val" id="eq-lube">None</span>
+        </div>
+        <div class="equip-slot" onclick="openGearSelect('content')">
+          <span class="equip-slot-label">CONTENT</span>
+          <span class="equip-slot-val" id="eq-content">Nothing</span>
+        </div>
       </div>
       <div id="effects-box">
         <div id="effects-label">EFFECTS</div>
