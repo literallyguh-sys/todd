@@ -1022,10 +1022,55 @@ function updatePassiveAnim() {
 function updateHandVisual() {
   const item = GEAR.tool.find(x => x.id === equippedTool);
   if (!item || item.free) {
-    handEl.innerHTML = '<span class="hand-placeholder">✋</span>';
+    _cvsItem = null;
   } else {
-    handEl.innerHTML = `<img src="/${item.img}" alt="${item.name}">`;
+    _cvsItem = new Image();
+    _cvsItem.src = '/' + item.img;
+    _cvsItem.onload = () => renderCanvas();
   }
+}
+
+// ─────────────────────────────────────────────
+//  Canvas scene renderer
+// ─────────────────────────────────────────────
+let strokePhase = 0;
+let _cvsItem    = null;
+
+const _canvas = document.getElementById('game-canvas');
+const _ctx    = _canvas.getContext('2d');
+
+const _cvsBg   = new Image();
+const _cvsTodd = new Image();
+_cvsBg.src   = '/Game/backgroundtodd.png';
+_cvsTodd.src = '/Game/toddinchair.png';
+_cvsBg.onload = _cvsTodd.onload = () => renderCanvas();
+
+function _resizeCanvas() {
+  const w = _canvas.offsetWidth;
+  const h = _canvas.offsetHeight;
+  if (w && h) { _canvas.width = w; _canvas.height = h; }
+}
+window.addEventListener('resize', () => { _resizeCanvas(); renderCanvas(); });
+
+function _strokeOffset(phase, amp) {
+  if (phase < 0.38) return -amp * (phase / 0.38);
+  if (phase < 0.72) return amp * (-1 + 1.24 * (phase - 0.38) / 0.34);
+  return amp * 0.24 * (1 - (phase - 0.72) / 0.28);
+}
+
+function renderCanvas() {
+  const w = _canvas.width;
+  const h = _canvas.height;
+  if (!w || !h) return;
+  _ctx.clearRect(0, 0, w, h);
+  if (_cvsBg.complete  && _cvsBg.naturalWidth)  _ctx.drawImage(_cvsBg,   0, 0, w, h);
+  if (_cvsItem && _cvsItem.complete && _cvsItem.naturalWidth) {
+    const sz  = h * 0.28;
+    const amp = h * 0.06;
+    const oy  = _strokeOffset(strokePhase, amp);
+    _ctx.drawImage(_cvsItem, w * 0.5 - sz * 0.5, h * 0.55 + oy, sz, sz);
+  }
+  if (_cvsTodd.complete && _cvsTodd.naturalWidth) _ctx.drawImage(_cvsTodd, 0, 0, w, h);
 }
 
 // ─────────────────────────────────────────────
