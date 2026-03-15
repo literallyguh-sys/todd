@@ -1330,6 +1330,7 @@ function openShopRoom(e) {
     fapbagOpen = false;
     document.getElementById('fapbag-panel').classList.remove('show');
     closeHagglePanel();
+    shopRoomOpen = true;
     document.getElementById('shop-room').classList.add('show');
     document.querySelectorAll('.sr-tab').forEach(t =>
       t.classList.toggle('active', t.dataset.tab === shopRoomTab));
