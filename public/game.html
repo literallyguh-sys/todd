@@ -1031,6 +1031,17 @@ function updateHandVisual() {
   }
 }
 
+function updateScreenVisual() {
+  const item = GEAR.content.find(x => x.id === equippedContent);
+  if (!item || !item.screen) {
+    _cvsScreen = null;
+  } else {
+    _cvsScreen = new Image();
+    _cvsScreen.src = '/' + item.screen;
+    _cvsScreen.onload = () => renderCanvas();
+  }
+}
+
 // ─────────────────────────────────────────────
 //  Canvas scene renderer
 // ─────────────────────────────────────────────
