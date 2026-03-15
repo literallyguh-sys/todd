@@ -842,7 +842,7 @@ function eventChoose(choice) {
 }
 
 function dismissEvent() {
-  document.getElementById('event-overlay').classList.remove('show', 'horror');
+  document.getElementById('event-overlay').classList.remove('show');
   activeEvent = null;
   const fn = _postDismissFn;
   _postDismissFn = null;
