@@ -181,9 +181,9 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 #event-close:hover { border-color:var(--accent); color:var(--accent); }
 
 /* ── Mom event overlay ── */
-#mom-overlay { display:none; position:fixed; left:0; top:0; right:270px; bottom:0; z-index:9600;
+#mom-overlay { display:none; position:absolute; inset:0; z-index:9600;
   background:transparent; align-items:flex-end; justify-content:center;
-  padding-bottom:48px; pointer-events:none; }
+  padding-bottom:60px; pointer-events:none; }
 #mom-overlay.show { display:flex; pointer-events:auto; }
 #mom-box { background:transparent; display:flex; flex-direction:column; align-items:center; gap:14px;
   text-align:center; max-width:440px; animation:sore-in .25s ease-out; }
