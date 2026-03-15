@@ -434,7 +434,7 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
         <!-- #hand kept invisible — drives click-burst timing via animationend -->
         <div id="hand"><span class="hand-placeholder">✋</span></div>
       </div>
-      <div id="equip-panel">
+      <div id="equip-panel" onclick="event.stopPropagation()">
         <div class="equip-slot" onclick="openGearSelect('tool')">
           <span class="equip-slot-label">TOOL</span>
           <span class="equip-slot-val" id="eq-tool">Bare Hand</span>
