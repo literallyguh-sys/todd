@@ -1060,10 +1060,12 @@ const _canvas = document.getElementById('game-canvas');
 const _ctx    = _canvas.getContext('2d');
 
 const _cvsBg   = new Image();
+const _cvsDoor = new Image();
 const _cvsTodd = new Image();
 _cvsBg.src   = '/Game/backgroundtodd.png';
+_cvsDoor.src = '/Game/doorway.png';
 _cvsTodd.src = '/Game/toddinchair.png';
-_cvsBg.onload = _cvsTodd.onload = () => renderCanvas();
+_cvsBg.onload = _cvsDoor.onload = _cvsTodd.onload = () => renderCanvas();
 
 function _resizeCanvas() {
   const w = _canvas.offsetWidth;
