@@ -1002,8 +1002,7 @@ handEl.addEventListener('animationend', () => {
 });
 
 function triggerClickBurst() {
-  _clickBurst  = true;
-  _clickFlash  = 1;
+  _clickBurst = true;
   handEl.classList.remove('click-burst', 'passive-on');
   void handEl.offsetWidth;
   handEl.classList.add('click-burst');
