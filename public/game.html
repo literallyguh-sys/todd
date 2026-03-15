@@ -1580,6 +1580,7 @@ function acceptHaggle() {
   ownedGear.delete(item.id);
   pts += haggleOffer;
   haggleState = 'done';
+  if (cat==='tool') updateHandVisual();
   document.getElementById('haggle-speech').textContent = rndLine(HAGGLE_LINES.done);
   document.getElementById('haggle-face').textContent   = VENDOR_MOODS.happy;
   renderEquipPanel();
