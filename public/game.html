@@ -1118,7 +1118,7 @@ function sellGear(cat, id) {
 // ─────────────────────────────────────────────
 //  Shop room
 // ─────────────────────────────────────────────
-let shopRoomTab      = 'tool';
+let shopRoomTab      = 'buy';
 let selectedShopItem = null;
 let selectedShopCat  = null;
 
@@ -1127,7 +1127,7 @@ function openShopRoom(e) {
   const fade = document.getElementById('fade-overlay');
   fade.classList.add('fade-in');
   setTimeout(() => {
-    shopRoomTab      = 'tool';
+    shopRoomTab      = 'buy';
     selectedShopItem = null;
     selectedShopCat  = null;
     document.getElementById('shop-room').classList.add('show');
@@ -1158,44 +1158,52 @@ function setShopTab(tab) {
   renderDetailBar();
 }
 
-function renderShopRoomPts() {
-  const el = document.getElementById('sr-inv-pts-val');
-  if (el) el.textContent = fmt(pts);
-}
+function renderShopRoomPts() {} // no-op, pts display removed from shop room
 
 function renderShopRoom() {
-  const grid = document.getElementById('sr-grid');
+  const grid = document.getElementById('sr-item-grid');
   if (!grid) return;
   grid.innerHTML = '';
-  const items      = GEAR[shopRoomTab];
-  const equippedId = shopRoomTab==='tool' ? equippedTool : shopRoomTab==='lube' ? equippedLube : equippedContent;
-  const catLabel   = shopRoomTab.toUpperCase();
+  const equippedIds = { tool:equippedTool, lube:equippedLube, content:equippedContent };
 
-  items.forEach(item => {
-    if (item.locked && item.locked()) return;
-    const owned   = ownedGear.has(item.id);
-    const isEq    = item.id === equippedId;
-    const canBuy  = !owned && pts >= item.cost;
-    const isSel   = selectedShopItem && selectedShopItem.id === item.id;
-    const div     = document.createElement('div');
-    let cls = 'sr-card';
-    if (!owned && !canBuy) cls += ' locked';
-    if (owned) cls += isEq ? ' equipped' : ' owned';
+  const cells = [];
+  ['tool','lube','content'].forEach(cat => {
+    GEAR[cat].forEach(item => {
+      if (item.free) return; // skip starter items — never purchaseable
+      if (shopRoomTab === 'buy') {
+        if (ownedGear.has(item.id)) return;           // skip already owned
+        if (item.locked && item.locked()) return;     // skip locked (e.g. hentai path)
+      } else { // sell
+        if (!ownedGear.has(item.id)) return;          // only owned items
+      }
+      cells.push({ cat, item });
+    });
+  });
+
+  cells.forEach(({ cat, item }) => {
+    const isEq  = item.id === equippedIds[cat];
+    const isSel = selectedShopItem && selectedShopItem.id === item.id;
+    const div   = document.createElement('div');
+    let cls = 'sr-cell';
+    if (isEq)  cls += ' equipped';
     if (isSel) cls += ' selected';
     div.className = cls;
-    const statusLabel = isEq ? 'EQUIPPED' : owned ? 'OWNED' : fmt(item.cost) + ' PTS';
     div.innerHTML =
-      `<img class="sr-card-img" src="/${item.img}" alt="">` +
-      `<div class="sr-card-text">` +
-      `<div class="sr-card-name">${item.name}</div>` +
-      `<div class="sr-card-type">${catLabel} · ${statusLabel}</div>` +
-      `<div class="sr-card-desc">${item.desc}</div>` +
-      `</div>`;
-    div.addEventListener('click', () => selectShopItem(shopRoomTab, item));
+      `<div class="sr-cell-name">${item.name}</div>` +
+      `<div class="sr-cell-icon"><img src="/${item.img}" alt=""></div>`;
+    div.addEventListener('click', () => selectShopItem(cat, item));
     grid.appendChild(div);
   });
 
-  renderInventoryPanel();
+  // Pad to a minimum of 28 slots (4×7), rounded up to full rows of 4
+  const filled = cells.length;
+  const target = Math.max(filled + (4 - filled % 4) % 4, 28);
+  for (let i = filled; i < target; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'sr-cell empty';
+    empty.innerHTML = '<div class="sr-cell-name"></div><div class="sr-cell-icon"></div>';
+    grid.appendChild(empty);
+  }
 }
 
 function selectShopItem(cat, item) {
@@ -1209,8 +1217,8 @@ function renderDetailBar() {
   const bar = document.getElementById('sr-detail-bar');
   if (!bar) return;
   if (!selectedShopItem) {
-    bar.className   = 'empty';
-    bar.innerHTML   = '<div id="sr-db-empty">← SELECT AN ITEM</div>';
+    bar.className = 'empty';
+    bar.innerHTML = '<div id="sr-db-empty">← SELECT AN ITEM</div>';
     return;
   }
   bar.className = '';
@@ -1228,11 +1236,9 @@ function renderDetailBar() {
     } else {
       actionHtml += `<span class="sr-db-btn green" style="opacity:0.55;cursor:default">EQUIPPED</span>`;
     }
-    if (!item.free) {
-      actionHtml += `<button class="sr-db-btn red" onclick="selectedShopItem=null;selectedShopCat=null;sellGear('${cat}','${item.id}');renderShopRoom();renderDetailBar();renderShopRoomPts()">SELL +${fmt(item.sell)}</button>`;
-    }
+    actionHtml += `<button class="sr-db-btn red" onclick="selectedShopItem=null;selectedShopCat=null;sellGear('${cat}','${item.id}');renderShopRoom();renderDetailBar()">SELL +${fmt(item.sell)}</button>`;
   } else if (canBuy) {
-    actionHtml = `<button class="sr-db-btn" onclick="buyGear('${cat}','${item.id}');renderShopRoom();renderDetailBar();renderShopRoomPts()">BUY — ${fmt(item.cost)} PTS</button>`;
+    actionHtml = `<button class="sr-db-btn" onclick="buyGear('${cat}','${item.id}');renderShopRoom();renderDetailBar()">BUY — ${fmt(item.cost)} PTS</button>`;
   } else {
     actionHtml = `<span class="sr-db-btn" style="opacity:0.3;cursor:default">${fmt(item.cost)} PTS</span>`;
   }
@@ -1245,46 +1251,6 @@ function renderDetailBar() {
     `<div id="sr-db-lore">${item.lore || ''}</div>` +
     `</div>` +
     `<div id="sr-db-action">${actionHtml}</div>`;
-}
-
-function renderInventoryPanel() {
-  const grid = document.getElementById('sr-inv-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  const cats        = ['tool', 'lube', 'content'];
-  const equippedIds = { tool:equippedTool, lube:equippedLube, content:equippedContent };
-
-  cats.forEach(cat => {
-    GEAR[cat].filter(i => ownedGear.has(i.id)).forEach(item => {
-      const isEq = item.id === equippedIds[cat];
-      const div  = document.createElement('div');
-      div.className = 'sr-inv-slot has-item' + (isEq ? ' equipped-slot' : '');
-      div.innerHTML = `<img src="/${item.img}" alt=""><div class="sr-inv-slot-cat">${cat.toUpperCase()}</div>`;
-      div.title = item.name + ' — ' + item.desc;
-      div.addEventListener('click', () => {
-        shopRoomTab = cat;
-        document.querySelectorAll('.sr-tab').forEach(t =>
-          t.classList.toggle('active', t.dataset.tab === cat));
-        selectedShopItem = item;
-        selectedShopCat  = cat;
-        renderShopRoom();
-        renderDetailBar();
-      });
-      grid.appendChild(div);
-    });
-  });
-
-  // Pad with empty slots
-  const filled = grid.children.length;
-  const total  = Math.max(filled + 4, 12);
-  for (let i = filled; i < total; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'sr-inv-slot';
-    grid.appendChild(empty);
-  }
-
-  const ptsEl = document.getElementById('sr-inv-pts-val');
-  if (ptsEl) ptsEl.textContent = fmt(pts);
 }
 
 function openGearSelect(cat) {
