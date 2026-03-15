@@ -962,8 +962,6 @@ function renderStats() {
   document.getElementById('val-cpc').textContent   = fmt(cpc + toolCpc());
   document.getElementById('val-pps').textContent   = fmtDec(pps * spdMult * contentMult()) + '/s';
   document.getElementById('val-total').textContent = fmt(totalPts);
-  const srPts = document.getElementById('sr-inv-pts-val');
-  if (srPts) srPts.textContent = fmt(pts);
 }
 
 function renderStamina() {
