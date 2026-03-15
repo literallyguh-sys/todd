@@ -1572,12 +1572,25 @@ function startHaggle(cat, item) {
   haggleCat   = cat;
   haggleAnnoy = 0;
   haggleState = 'offer';
-  // Initial offer: 55–80% of item.sell
-  haggleOffer = Math.round(item.sell * (0.55 + Math.random() * 0.25));
-  // Phase out shop, show haggle panel
   document.getElementById('sr-panel').classList.add('phased-out');
   document.getElementById('haggle-panel').classList.add('show');
-  // Set opening speech
+
+  if (shopGrumpy && isNight()) {
+    const catLabels = { tool:'TOOL', lube:'LUBE', content:'CONTENT' };
+    document.getElementById('haggle-img').src              = '/' + item.img;
+    document.getElementById('haggle-item-cat').textContent  = catLabels[cat] || cat.toUpperCase();
+    document.getElementById('haggle-item-name').textContent = item.name;
+    document.getElementById('haggle-worth-val').textContent = fmt(item.sell);
+    document.getElementById('haggle-offer-label').textContent = '';
+    document.getElementById('haggle-offer-val').textContent   = '';
+    document.getElementById('haggle-face').textContent        = VENDOR_MOODS.annoyed;
+    document.getElementById('haggle-speech').textContent      = 'Not in the mood..';
+    document.getElementById('haggle-btns').innerHTML =
+      `<button class="haggle-btn red" onclick="closeHagglePanel()">LEAVE</button>`;
+    return;
+  }
+
+  haggleOffer = Math.round(item.sell * (0.55 + Math.random() * 0.25));
   const speech = rndLine(HAGGLE_LINES.open).replace('{x}', fmt(haggleOffer));
   document.getElementById('haggle-speech').textContent = speech;
   document.getElementById('haggle-face').textContent   = VENDOR_MOODS.neutral;
