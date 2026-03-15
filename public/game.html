@@ -1774,6 +1774,25 @@ const SHOUT_GRUMPY_LINES = [
   '"You owe me for this." He cracks his knuckles.\nSurcharge applied. No selling.',
 ];
 
+function forceDay() {
+  cycleStart = Date.now();
+  shopGrumpy = false; shopAngryUntil = 0;
+  _wasNight = false;
+  renderClock();
+  const sr = document.getElementById('shop-room');
+  if (sr && sr.classList.contains('show')) { updateShopBackground(); updateShoutBtn(); renderDetailBar(); }
+  save();
+}
+
+function forceNight() {
+  cycleStart = Date.now() - DAY_MS;
+  _wasNight = true;
+  renderClock();
+  const sr = document.getElementById('shop-room');
+  if (sr && sr.classList.contains('show')) { updateShopBackground(); updateShoutBtn(); }
+  save();
+}
+
 function shoutAtShopkeeper() {
   if (Math.random() < 0.75) {
     const pos  = (Date.now() - cycleStart) % CYCLE_MS;
