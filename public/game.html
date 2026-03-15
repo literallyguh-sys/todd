@@ -1725,17 +1725,17 @@ function checkDayNightTransition() {
   const night = isNight();
   if (night === _wasNight) return;
   _wasNight = night;
+  const sr       = document.getElementById('shop-room');
+  const shopOpen = sr && sr.classList.contains('show');
   if (!night) {
     // Night → Day: forgive the shopkeeper
     shopGrumpy     = false;
     shopAngryUntil = 0;
-    const sr = document.getElementById('shop-room');
-    if (sr && sr.classList.contains('show')) {
-      updateShopBackground();
-      updateShoutBtn();
-      renderDetailBar();
-    }
+    if (shopOpen) { updateShopBackground(); updateShoutBtn(); renderDetailBar(); }
     save();
+  } else {
+    // Day → Night: shopkeeper goes to sleep
+    if (shopOpen) { updateShopBackground(); updateShoutBtn(); }
   }
 }
 
