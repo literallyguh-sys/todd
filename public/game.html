@@ -882,18 +882,16 @@ function setTab(tab) {
 }
 
 function renderShop() {
+  if (['tool','lube','content'].includes(activeTab)) { renderGearShop(activeTab); return; }
   const list = document.getElementById('shop-items');
   list.innerHTML = '';
-  UPS.filter(u => u.cat === activeTab && !(u.hidden && !(u.id === 'uo1' && hentaiChosen))).forEach(u => {
-    // Section dividers
+  UPS.filter(u => u.cat === activeTab).forEach(u => {
     const dividerLabel =
       (activeTab === 'stamina' && STAMINA_DIVIDERS[u.id]) ||
       (activeTab === 'passive' && PASSIVE_DIVIDERS[u.id]);
     if (dividerLabel) {
-      const div = document.createElement('div');
-      div.className = 'shop-divider';
-      div.textContent = dividerLabel;
-      list.appendChild(div);
+      const d = document.createElement('div');
+      d.className = 'shop-divider'; d.textContent = dividerLabel; list.appendChild(d);
     }
     const owned  = u.count >= 1;
     const c      = cost(u);
@@ -901,31 +899,115 @@ function renderShop() {
     const div = document.createElement('div');
     div.className = 'shop-item' + (owned || !canBuy ? ' locked' : '');
     div.innerHTML =
-      `<div class="si-row1">` +
-      `<span class="si-name">${u.name}</span>` +
+      `<div class="si-row1"><span class="si-name">${u.name}</span>` +
       (owned ? `<span class="si-cost" style="color:var(--green)">OWNED</span>` : `<span class="si-cost">${fmt(c)} pts</span>`) +
-      `</div>` +
-      `<div class="si-desc">${u.desc}</div>`;
-    if (canBuy) div.addEventListener('click', () => buy(u.id));
+      `</div><div class="si-desc">${u.desc}</div>`;
+    if (canBuy) div.addEventListener('click', () => buyUpgrade(u.id));
     list.appendChild(div);
   });
 }
 
-function buy(id) {
+function renderGearShop(cat) {
+  const list = document.getElementById('shop-items');
+  list.innerHTML = '';
+  const items     = GEAR[cat];
+  const equippedId = cat==='tool' ? equippedTool : cat==='lube' ? equippedLube : equippedContent;
+
+  const ownedItems = items.filter(i => ownedGear.has(i.id));
+  if (ownedItems.length) {
+    const dh = document.createElement('div'); dh.className='shop-divider'; dh.textContent='── INVENTORY ──'; list.appendChild(dh);
+    ownedItems.forEach(item => {
+      const isEq = item.id === equippedId;
+      const div = document.createElement('div');
+      div.className = 'shop-item' + (isEq ? ' gear-active' : '');
+      div.innerHTML =
+        `<div class="si-row1"><span class="si-name">${item.name}</span>` +
+        `<div style="display:flex;gap:5px">` +
+        (isEq ? `<span class="si-cost" style="color:var(--green)">EQUIPPED</span>`
+               : `<button class="gear-btn gear-equip-btn" onclick="equipGear('${cat}','${item.id}')">EQUIP</button>`) +
+        (!item.free ? `<button class="gear-btn gear-sell-btn" onclick="sellGear('${cat}','${item.id}')">SELL +${fmt(item.sell)}</button>` : '') +
+        `</div></div><div class="si-desc">${item.desc}</div>`;
+      list.appendChild(div);
+    });
+  }
+
+  const shopItems = items.filter(i => !ownedGear.has(i.id) && !(i.locked && i.locked()));
+  if (shopItems.length) {
+    const ds = document.createElement('div'); ds.className='shop-divider'; ds.textContent='── SHOP ──'; list.appendChild(ds);
+    shopItems.forEach(item => {
+      const canBuy = pts >= item.cost;
+      const div = document.createElement('div');
+      div.className = 'shop-item' + (!canBuy ? ' locked' : '');
+      div.innerHTML =
+        `<div class="si-row1"><span class="si-name">${item.name}</span>` +
+        `<span class="si-cost">${fmt(item.cost)} pts</span></div>` +
+        `<div class="si-desc">${item.desc}</div>`;
+      if (canBuy) div.addEventListener('click', () => buyGear(cat, item.id));
+      list.appendChild(div);
+    });
+  }
+}
+
+function buyUpgrade(id) {
   const u = UPS.find(x => x.id === id);
   if (!u || u.count >= 1) return;
   const c = cost(u);
   if (pts < c) return;
-  pts -= c;
-  u.fn();
-  u.count++;
-  updatePassiveAnim();
-  renderEquipment();
-  renderStats();
-  renderStamina();
-  renderShop();
-  save();
+  pts -= c; u.fn(); u.count++;
+  updatePassiveAnim(); renderEquipPanel(); renderStats(); renderStamina(); renderShop(); save();
 }
+
+function buyGear(cat, id) {
+  const item = GEAR[cat].find(i => i.id === id);
+  if (!item || ownedGear.has(id) || pts < item.cost) return;
+  pts -= item.cost;
+  ownedGear.add(id);
+  if (id === 't4') onaholeOwned = true;
+  renderStats(); renderShop(); save();
+}
+
+function equipGear(cat, id) {
+  if (!ownedGear.has(id)) return;
+  if (cat==='tool')    equippedTool    = id;
+  if (cat==='lube')    equippedLube    = id;
+  if (cat==='content') equippedContent = id;
+  renderEquipPanel(); renderStats(); renderShop(); save();
+}
+
+function sellGear(cat, id) {
+  const item = GEAR[cat].find(i => i.id === id);
+  if (!item || item.free || !ownedGear.has(id)) return;
+  const freeDefault = GEAR[cat].find(i => i.free);
+  if (cat==='tool'    && equippedTool    === id) { equippedTool    = freeDefault.id; }
+  if (cat==='lube'    && equippedLube    === id) { equippedLube    = freeDefault.id; }
+  if (cat==='content' && equippedContent === id) { equippedContent = freeDefault.id; }
+  ownedGear.delete(id);
+  pts += item.sell;
+  renderEquipPanel(); renderStats(); renderShop(); save();
+}
+
+function openGearSelect(cat) {
+  const labels = { tool:'SELECT TOOL', lube:'SELECT LUBE', content:'SELECT CONTENT' };
+  const equippedId = cat==='tool' ? equippedTool : cat==='lube' ? equippedLube : equippedContent;
+  document.getElementById('gear-select-title').textContent = labels[cat];
+  const list = document.getElementById('gear-select-list');
+  list.innerHTML = '';
+  GEAR[cat].filter(i => ownedGear.has(i.id)).forEach(item => {
+    const isEq = item.id === equippedId;
+    const div = document.createElement('div');
+    div.className = 'gear-sel-item' + (isEq ? ' selected' : '');
+    div.innerHTML = `<span class="gear-sel-name">${item.name}</span><span class="gear-sel-desc">${item.desc}</span>`;
+    if (!isEq) div.addEventListener('click', () => { equipGear(cat, item.id); closeGearSelect(); });
+    list.appendChild(div);
+  });
+  document.getElementById('gear-select-overlay').classList.add('show');
+}
+
+function closeGearSelect() {
+  document.getElementById('gear-select-overlay').classList.remove('show');
+}
+
+function buy(id) { buyUpgrade(id); } // legacy alias
 
 setInterval(save, 15000);
 
