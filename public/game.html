@@ -1160,20 +1160,23 @@ function sellGear(cat, id) {
 // ─────────────────────────────────────────────
 //  Shop room
 // ─────────────────────────────────────────────
-let shopRoomTab = 'tool';
+let shopRoomTab      = 'tool';
+let selectedShopItem = null;
+let selectedShopCat  = null;
 
 function openShopRoom(e) {
   e.stopPropagation();
   const fade = document.getElementById('fade-overlay');
   fade.classList.add('fade-in');
   setTimeout(() => {
-    shopRoomTab = 'tool';
+    shopRoomTab      = 'tool';
+    selectedShopItem = null;
+    selectedShopCat  = null;
     document.getElementById('shop-room').classList.add('show');
     document.querySelectorAll('.sr-tab').forEach(t =>
       t.classList.toggle('active', t.dataset.tab === shopRoomTab));
-    hideItemDetail();
     renderShopRoom();
-    renderShopRoomPts();
+    renderDetailBar();
     fade.classList.remove('fade-in');
   }, 450);
 }
@@ -1188,79 +1191,142 @@ function closeShopRoom() {
 }
 
 function setShopTab(tab) {
-  shopRoomTab = tab;
+  shopRoomTab      = tab;
+  selectedShopItem = null;
+  selectedShopCat  = null;
   document.querySelectorAll('.sr-tab').forEach(t =>
     t.classList.toggle('active', t.dataset.tab === tab));
-  hideItemDetail();
   renderShopRoom();
+  renderDetailBar();
 }
 
 function renderShopRoomPts() {
-  document.getElementById('sr-val-pts').textContent = fmt(pts);
+  const el = document.getElementById('sr-inv-pts-val');
+  if (el) el.textContent = fmt(pts);
 }
 
 function renderShopRoom() {
-  const list = document.getElementById('sr-items');
-  list.innerHTML = '';
+  const grid = document.getElementById('sr-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
   const items      = GEAR[shopRoomTab];
   const equippedId = shopRoomTab==='tool' ? equippedTool : shopRoomTab==='lube' ? equippedLube : equippedContent;
+  const catLabel   = shopRoomTab.toUpperCase();
 
-  const ownedItems = items.filter(i => ownedGear.has(i.id));
-  if (ownedItems.length) {
-    const dh = document.createElement('div'); dh.className='sr-divider'; dh.textContent='── INVENTORY ──'; list.appendChild(dh);
-    ownedItems.forEach(item => {
-      const isEq = item.id === equippedId;
+  items.forEach(item => {
+    if (item.locked && item.locked()) return;
+    const owned   = ownedGear.has(item.id);
+    const isEq    = item.id === equippedId;
+    const canBuy  = !owned && pts >= item.cost;
+    const isSel   = selectedShopItem && selectedShopItem.id === item.id;
+    const div     = document.createElement('div');
+    let cls = 'sr-card';
+    if (!owned && !canBuy) cls += ' locked';
+    if (owned) cls += isEq ? ' equipped' : ' owned';
+    if (isSel) cls += ' selected';
+    div.className = cls;
+    const statusLabel = isEq ? 'EQUIPPED' : owned ? 'OWNED' : fmt(item.cost) + ' PTS';
+    div.innerHTML =
+      `<img class="sr-card-img" src="/${item.img}" alt="">` +
+      `<div class="sr-card-text">` +
+      `<div class="sr-card-name">${item.name}</div>` +
+      `<div class="sr-card-type">${catLabel} · ${statusLabel}</div>` +
+      `<div class="sr-card-desc">${item.desc}</div>` +
+      `</div>`;
+    div.addEventListener('click', () => selectShopItem(shopRoomTab, item));
+    grid.appendChild(div);
+  });
+
+  renderInventoryPanel();
+}
+
+function selectShopItem(cat, item) {
+  selectedShopCat  = cat;
+  selectedShopItem = item;
+  renderShopRoom();
+  renderDetailBar();
+}
+
+function renderDetailBar() {
+  const bar = document.getElementById('sr-detail-bar');
+  if (!bar) return;
+  if (!selectedShopItem) {
+    bar.className   = 'empty';
+    bar.innerHTML   = '<div id="sr-db-empty">← SELECT AN ITEM</div>';
+    return;
+  }
+  bar.className = '';
+  const item       = selectedShopItem;
+  const cat        = selectedShopCat;
+  const equippedId = cat==='tool' ? equippedTool : cat==='lube' ? equippedLube : equippedContent;
+  const owned      = ownedGear.has(item.id);
+  const isEq       = item.id === equippedId;
+  const canBuy     = !owned && pts >= item.cost;
+
+  let actionHtml = '';
+  if (owned) {
+    if (!isEq) {
+      actionHtml += `<button class="sr-db-btn green" onclick="equipGear('${cat}','${item.id}');renderShopRoom();renderDetailBar()">EQUIP</button>`;
+    } else {
+      actionHtml += `<span class="sr-db-btn green" style="opacity:0.55;cursor:default">EQUIPPED</span>`;
+    }
+    if (!item.free) {
+      actionHtml += `<button class="sr-db-btn red" onclick="selectedShopItem=null;selectedShopCat=null;sellGear('${cat}','${item.id}');renderShopRoom();renderDetailBar();renderShopRoomPts()">SELL +${fmt(item.sell)}</button>`;
+    }
+  } else if (canBuy) {
+    actionHtml = `<button class="sr-db-btn" onclick="buyGear('${cat}','${item.id}');renderShopRoom();renderDetailBar();renderShopRoomPts()">BUY — ${fmt(item.cost)} PTS</button>`;
+  } else {
+    actionHtml = `<span class="sr-db-btn" style="opacity:0.3;cursor:default">${fmt(item.cost)} PTS</span>`;
+  }
+
+  bar.innerHTML =
+    `<img id="sr-db-img" src="/${item.img}" alt="">` +
+    `<div id="sr-db-info">` +
+    `<div id="sr-db-name">${item.name}</div>` +
+    `<div id="sr-db-stat">${item.desc}</div>` +
+    `<div id="sr-db-lore">${item.lore || ''}</div>` +
+    `</div>` +
+    `<div id="sr-db-action">${actionHtml}</div>`;
+}
+
+function renderInventoryPanel() {
+  const grid = document.getElementById('sr-inv-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const cats        = ['tool', 'lube', 'content'];
+  const equippedIds = { tool:equippedTool, lube:equippedLube, content:equippedContent };
+
+  cats.forEach(cat => {
+    GEAR[cat].filter(i => ownedGear.has(i.id)).forEach(item => {
+      const isEq = item.id === equippedIds[cat];
       const div  = document.createElement('div');
-      div.className = 'sr-item' + (isEq ? ' gear-active' : '');
-      div.innerHTML =
-        `<div class="sr-item-body">` +
-        `<img class="sr-item-thumb" src="/${item.img}" alt="">` +
-        `<div class="sr-item-text">` +
-        `<div class="sr-row1"><span class="sr-name">${item.name}</span><div class="sr-btns">` +
-        (isEq ? `<span class="sr-cost" style="color:var(--green)">EQUIPPED</span>`
-               : `<button class="gear-btn gear-equip-btn" onclick="event.stopPropagation();equipGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">EQUIP</button>`) +
-        (!item.free ? `<button class="gear-btn gear-sell-btn" onclick="event.stopPropagation();sellGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">SELL +${fmt(item.sell)}</button>` : '') +
-        `</div></div><div class="sr-desc">${item.desc}</div>` +
-        `</div></div>`;
-      div.addEventListener('click', () => showItemDetail(shopRoomTab, item));
-      list.appendChild(div);
+      div.className = 'sr-inv-slot has-item' + (isEq ? ' equipped-slot' : '');
+      div.innerHTML = `<img src="/${item.img}" alt=""><div class="sr-inv-slot-cat">${cat.toUpperCase()}</div>`;
+      div.title = item.name + ' — ' + item.desc;
+      div.addEventListener('click', () => {
+        shopRoomTab = cat;
+        document.querySelectorAll('.sr-tab').forEach(t =>
+          t.classList.toggle('active', t.dataset.tab === cat));
+        selectedShopItem = item;
+        selectedShopCat  = cat;
+        renderShopRoom();
+        renderDetailBar();
+      });
+      grid.appendChild(div);
     });
+  });
+
+  // Pad with empty slots
+  const filled = grid.children.length;
+  const total  = Math.max(filled + 4, 12);
+  for (let i = filled; i < total; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'sr-inv-slot';
+    grid.appendChild(empty);
   }
 
-  const shopItems = items.filter(i => !ownedGear.has(i.id) && !(i.locked && i.locked()));
-  if (shopItems.length) {
-    const ds = document.createElement('div'); ds.className='sr-divider'; ds.textContent='── FOR SALE ──'; list.appendChild(ds);
-    shopItems.forEach(item => {
-      const canBuy = pts >= item.cost;
-      const div    = document.createElement('div');
-      div.className = 'sr-item' + (!canBuy ? ' locked' : '');
-      div.innerHTML =
-        `<div class="sr-item-body">` +
-        `<img class="sr-item-thumb" src="/${item.img}" alt="">` +
-        `<div class="sr-item-text">` +
-        `<div class="sr-row1"><span class="sr-name">${item.name}</span>` +
-        `<span class="sr-cost">${fmt(item.cost)} pts</span></div>` +
-        `<div class="sr-desc">${item.desc}</div>` +
-        (canBuy ? `<div class="sr-btns"><button class="gear-btn gear-equip-btn" onclick="event.stopPropagation();buyGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">BUY</button></div>` : '') +
-        `</div></div>`;
-      div.addEventListener('click', () => showItemDetail(shopRoomTab, item));
-      list.appendChild(div);
-    });
-  }
-}
-
-function showItemDetail(cat, item) {
-  const catLabels = { tool:'TOOL', lube:'LUBE', content:'CONTENT' };
-  document.getElementById('sr-detail-img').src         = '/' + item.img;
-  document.getElementById('sr-detail-cat').textContent  = catLabels[cat] || cat.toUpperCase();
-  document.getElementById('sr-detail-name').textContent = item.name;
-  document.getElementById('sr-detail-stat').textContent = item.desc;
-  document.getElementById('sr-detail-lore').textContent = item.lore || '';
-  document.getElementById('sr-detail').classList.add('show');
-}
-
-function hideItemDetail() {
-  document.getElementById('sr-detail').classList.remove('show');
+  const ptsEl = document.getElementById('sr-inv-pts-val');
+  if (ptsEl) ptsEl.textContent = fmt(pts);
 }
 
 function openGearSelect(cat) {
