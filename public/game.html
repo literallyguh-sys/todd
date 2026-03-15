@@ -569,7 +569,9 @@ const SAVE_KEY = 'wristgame_v2';
 function save() {
   const d = { pts, totalPts, cpc, pps, spdMult, frac, maxStamina, stamina, staminaPerPoint, cooldownDur,
               cokeCount, cokeDeclined, pillGiven, momDebuffUntil,
-              pornEventDone, hentaiChosen, onaholeOwned, counts:{} };
+              pornEventDone, hentaiChosen, onaholeOwned,
+              equippedTool, equippedLube, equippedContent,
+              ownedGear: [...ownedGear], counts:{} };
   UPS.forEach(u => d.counts[u.id] = u.count);
   localStorage.setItem(SAVE_KEY, JSON.stringify(d));
 }
