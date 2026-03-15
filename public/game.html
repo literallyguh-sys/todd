@@ -1058,19 +1058,28 @@ function _strokeOffset(phase, amp) {
   return amp * 0.24 * (1 - (phase - 0.72) / 0.28);
 }
 
+function _drawCover(img, w, h) {
+  const ia = img.naturalWidth / img.naturalHeight;
+  const ca = w / h;
+  let sx, sy, sw, sh;
+  if (ia > ca) { sh = img.naturalHeight; sw = sh * ca; sx = (img.naturalWidth  - sw) / 2; sy = 0; }
+  else         { sw = img.naturalWidth;  sh = sw / ca; sy = (img.naturalHeight - sh) / 2; sx = 0; }
+  _ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+}
+
 function renderCanvas() {
   const w = _canvas.width;
   const h = _canvas.height;
   if (!w || !h) return;
   _ctx.clearRect(0, 0, w, h);
-  if (_cvsBg.complete  && _cvsBg.naturalWidth)  _ctx.drawImage(_cvsBg,   0, 0, w, h);
+  if (_cvsBg.complete  && _cvsBg.naturalWidth)  _drawCover(_cvsBg,   w, h);
   if (_cvsItem && _cvsItem.complete && _cvsItem.naturalWidth) {
     const sz  = h * 0.28;
     const amp = h * 0.06;
     const oy  = _strokeOffset(strokePhase, amp);
     _ctx.drawImage(_cvsItem, w * 0.5 - sz * 0.5, h * 0.55 + oy, sz, sz);
   }
-  if (_cvsTodd.complete && _cvsTodd.naturalWidth) _ctx.drawImage(_cvsTodd, 0, 0, w, h);
+  if (_cvsTodd.complete && _cvsTodd.naturalWidth) _drawCover(_cvsTodd, w, h);
 }
 
 // ─────────────────────────────────────────────
