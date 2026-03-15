@@ -726,11 +726,11 @@ const EVENTS = [
     prompt:    'YOUR MOM WALKS IN ON YOU. WHAT THE FUCK.',
     yesLabel:  'COVER YOURSELF WITH A BLANKET',
     yesResult: 'YOUR MOM FEELS AWKWARD ABOUT IT AND PRETENDS NOT TO NOTICE.',
-    yesFn:     null,
+    yesFn:     () => { momEventDone = true; save(); },
     yesPost:   null,
     noLabel:   'CONTINUE',
     noResult:  'YOUR MOM IS DISGUSTED AND CURSES YOU OUT.',
-    noFn:      () => { momDebuffUntil = Date.now() + 24 * 60 * 60 * 1000; milfUnlocked = true; renderShop(); renderShopRoom(); save(); },
+    noFn:      () => { momEventDone = true; momDebuffUntil = Date.now() + 24 * 60 * 60 * 1000; milfUnlocked = true; renderShop(); renderShopRoom(); save(); },
     noPost:    () => showAnnouncement('WHAT AN EMBARRASSMENT.\nPOINT GAINS REDUCED BY 20%\nFOR THE NEXT 24 HOURS.\n\nYou\'ve acquired a taste for milf-porn.\nNew purchaseable items added to the store.'),
   },
   {
