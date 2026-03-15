@@ -104,7 +104,8 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 .effect-debuff { color:var(--red); }
 .effect-buff   { color:var(--green); }
 
-#click-hint { font-size:16px; color:#333; letter-spacing:3px; pointer-events:none; }
+#click-hint { position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+  font-size:16px; color:#333; letter-spacing:3px; pointer-events:none; white-space:nowrap; z-index:10; }
 #scene-wrap.cooldown #click-hint { color:var(--red); }
 
 /* ── Stamina bar ── */
