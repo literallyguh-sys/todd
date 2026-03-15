@@ -834,7 +834,7 @@ function tick(ts) {
       totalPts += earned;
       frac     -= whole;
       renderStats();
-      renderShop();
+      updateShopAffordability();
       if (!onCooldown) {
         const r = document.getElementById('scene').getBoundingClientRect();
         spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(earned));
