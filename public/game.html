@@ -1110,7 +1110,18 @@ function tick(ts) {
     if (!onCooldown) renderStamina();
     if (ts - lastEffectsTs > 1000) { renderEffects(); lastEffectsTs = ts; }
     if (ts - lastClockTs   > 1000) { renderClock(); checkDayNightTransition(); updateNightState(); lastClockTs = ts; }
+
+    // Advance canvas stroke phase
+    if (!onCooldown) {
+      if (_clickBurst) {
+        strokePhase = (strokePhase + dt / 0.22) % 1;
+      } else if (pps > 0) {
+        const dur = Math.max(0.35, 5 / Math.sqrt(pps));
+        strokePhase = (strokePhase + dt / dur) % 1;
+      }
+    }
   }
+  renderCanvas();
   lastTs = ts;
   requestAnimationFrame(tick);
 }
