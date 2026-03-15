@@ -1166,17 +1166,10 @@ function renderShopRoom() {
   const equippedIds = { tool:equippedTool, lube:equippedLube, content:equippedContent };
 
   const cells = [];
-  ['tool','lube','content'].forEach(cat => {
-    GEAR[cat].forEach(item => {
-      if (item.free) return; // skip starter items — never purchaseable
-      if (shopRoomTab === 'buy') {
-        if (ownedGear.has(item.id)) return;           // skip already owned
-        if (item.locked && item.locked()) return;     // skip locked (e.g. hentai path)
-      } else { // sell
-        if (!ownedGear.has(item.id)) return;          // only owned items
-      }
-      cells.push({ cat, item });
-    });
+  GEAR[shopRoomTab].forEach(item => {
+    if (item.free) return;                        // skip starter items
+    if (item.locked && item.locked()) return;     // skip locked (e.g. hentai path)
+    cells.push({ cat: shopRoomTab, item });
   });
 
   cells.forEach(({ cat, item }) => {
