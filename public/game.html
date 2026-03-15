@@ -448,6 +448,9 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 <!-- SHOP ROOM -->
 <div id="shop-room">
   <button id="sr-back" onclick="closeShopRoom()">← GO HOME</button>
+  <button id="fapbag-btn" onclick="toggleFapbag()">FAPBAG</button>
+
+  <!-- Shop panel -->
   <div id="sr-panel">
     <div id="sr-header">
       <span id="sr-title">SHOP</span>
@@ -462,6 +465,39 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
       <div id="sr-db-empty">← SELECT AN ITEM</div>
     </div>
   </div>
+
+  <!-- FAPBAG panel -->
+  <div id="fapbag-panel">
+    <div id="fapbag-hdr">
+      <span id="fapbag-title">FAPBAG</span>
+    </div>
+    <div id="fapbag-grid"></div>
+  </div>
+
+  <!-- Haggle panel (overlays shop panel) -->
+  <div id="haggle-panel">
+    <div id="haggle-hdr">
+      <span id="haggle-hdr-title">SELL TO VENDOR</span>
+    </div>
+    <div id="haggle-item-sec">
+      <img id="haggle-img" src="" alt="">
+      <div id="haggle-item-info">
+        <div id="haggle-item-cat"></div>
+        <div id="haggle-item-name"></div>
+        <div id="haggle-item-worth">STREET VALUE: <span id="haggle-worth-val">0</span> PTS</div>
+      </div>
+    </div>
+    <div id="haggle-vendor-sec">
+      <div id="haggle-face"></div>
+      <div id="haggle-speech"></div>
+      <div id="haggle-offer-wrap">
+        <div id="haggle-offer-label">CURRENT OFFER</div>
+        <div id="haggle-offer-val"></div>
+      </div>
+    </div>
+    <div id="haggle-btns"></div>
+  </div>
+
 </div>
 
 <!-- GEAR SELECT overlay -->
