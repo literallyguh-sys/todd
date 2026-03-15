@@ -180,6 +180,16 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   padding:6px 20px; cursor:pointer; transition:border-color .1s, color .1s; }
 #event-close:hover { border-color:var(--accent); color:var(--accent); }
 
+/* ── Horror (mom) event variant ── */
+#event-overlay.horror { background:rgba(4,2,8,0.96); }
+#event-overlay.horror #event-box { border-color:rgba(120,100,200,0.55); background:rgba(6,4,10,0.97); }
+#event-overlay.horror #event-msg { color:rgba(200,180,255,0.95); }
+#event-overlay.horror #event-result-msg { color:rgba(200,180,255,0.85); }
+#event-overlay.horror .event-btn { border-color:rgba(120,100,200,0.45); color:rgba(140,120,200,0.6); }
+#event-overlay.horror .event-btn:hover { border-color:rgba(180,160,240,0.9); color:rgba(200,180,255,0.95); }
+#event-overlay.horror #event-close { border-color:rgba(120,100,200,0.35); color:rgba(120,100,200,0.6); }
+#event-overlay.horror #event-close:hover { border-color:rgba(180,160,240,0.9); color:rgba(200,180,255,0.95); }
+
 /* ── Day/Night clock ── */
 #day-clock { font-family:'VT323',monospace; font-size:15px; letter-spacing:2px; flex-shrink:0;
   padding:2px 10px; border:1px solid transparent; }
