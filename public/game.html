@@ -948,6 +948,16 @@ function setTab(tab) {
   renderShop();
 }
 
+// Lightweight: just toggle locked class on existing shop items without rebuilding DOM
+function updateShopAffordability() {
+  document.querySelectorAll('#shop-items .shop-item[data-upid]').forEach(el => {
+    const u = UPS.find(x => x.id === el.dataset.upid);
+    if (!u || u.count >= 1) return;
+    const canBuy = pts >= cost(u);
+    el.classList.toggle('locked', !canBuy);
+  });
+}
+
 function renderShop() {
   if (['tool','lube','content'].includes(activeTab)) { renderGearShop(activeTab); return; }
   const list = document.getElementById('shop-items');
