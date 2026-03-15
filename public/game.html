@@ -964,6 +964,15 @@ function updatePassiveAnim() {
   }
 }
 
+function updateHandVisual() {
+  const item = GEAR.tool.find(x => x.id === equippedTool);
+  if (!item || item.free) {
+    handEl.innerHTML = '<span class="hand-placeholder">✋</span>';
+  } else {
+    handEl.innerHTML = `<img src="/${item.img}" alt="${item.name}">`;
+  }
+}
+
 // ─────────────────────────────────────────────
 //  Main tick loop
 // ─────────────────────────────────────────────
