@@ -204,10 +204,11 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   display:flex; flex-direction:column; overflow:hidden; }
 #sr-header { display:flex; align-items:center; gap:10px; padding:8px 12px;
   border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }
-#sr-back { background:#c0c0c0; border-top:2px solid #dfdfdf; border-left:2px solid #dfdfdf;
+#sr-back { position:absolute; top:8px; left:14px;
+  background:#c0c0c0; border-top:2px solid #dfdfdf; border-left:2px solid #dfdfdf;
   border-right:2px solid #808080; border-bottom:2px solid #808080; color:#000;
-  font-family:'VT323',monospace; font-size:15px; letter-spacing:2px;
-  padding:2px 8px; cursor:pointer; flex-shrink:0; }
+  font-family:'VT323',monospace; font-size:17px; letter-spacing:2px;
+  padding:3px 10px; cursor:pointer; z-index:1; }
 #sr-back:hover { border-top:2px solid #808080; border-left:2px solid #808080;
   border-right:2px solid #dfdfdf; border-bottom:2px solid #dfdfdf; }
 #sr-title { font-size:20px; letter-spacing:4px; color:var(--accent); flex:1; }
