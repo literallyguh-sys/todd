@@ -1082,17 +1082,27 @@ function sellGear(cat, id) {
 let shopRoomTab = 'tool';
 
 function openShopRoom(e) {
-  e.stopPropagation(); // don't fire handleClick
-  shopRoomTab = 'tool';
-  document.getElementById('shop-room').classList.add('show');
-  document.querySelectorAll('.sr-tab').forEach(t =>
-    t.classList.toggle('active', t.dataset.tab === shopRoomTab));
-  renderShopRoom();
-  renderShopRoomPts();
+  e.stopPropagation();
+  const fade = document.getElementById('fade-overlay');
+  fade.classList.add('fade-in');
+  setTimeout(() => {
+    shopRoomTab = 'tool';
+    document.getElementById('shop-room').classList.add('show');
+    document.querySelectorAll('.sr-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.tab === shopRoomTab));
+    renderShopRoom();
+    renderShopRoomPts();
+    fade.classList.remove('fade-in');
+  }, 450);
 }
 
 function closeShopRoom() {
-  document.getElementById('shop-room').classList.remove('show');
+  const fade = document.getElementById('fade-overlay');
+  fade.classList.add('fade-in');
+  setTimeout(() => {
+    document.getElementById('shop-room').classList.remove('show');
+    fade.classList.remove('fade-in');
+  }, 450);
 }
 
 function setShopTab(tab) {
