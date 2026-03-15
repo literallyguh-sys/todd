@@ -1049,6 +1049,7 @@ function tick(ts) {
     }
     if (!onCooldown) renderStamina();
     if (ts - lastEffectsTs > 1000) { renderEffects(); lastEffectsTs = ts; }
+    if (ts - lastClockTs   > 1000) { renderClock(); checkDayNightTransition(); lastClockTs = ts; }
   }
   lastTs = ts;
   requestAnimationFrame(tick);
