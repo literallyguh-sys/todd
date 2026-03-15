@@ -1335,7 +1335,7 @@ function renderCanvas() {
     _ctx.restore();
   }
   if (_cvsTodd.complete && _cvsTodd.naturalWidth) _drawCover(_cvsTodd, w, h);
-  if (_isMomGray || onCooldown) _ctx.filter = 'none';
+  if (_isMomGray || activeEvent || onCooldown) _ctx.filter = 'none';
   // Doorway hover overlay (drawn after filter reset so it's always bright)
   if (_doorHover && _cvsBg.naturalWidth) {
     const [x1, y1] = _bgToCanvas(DOOR_BOX.x1, DOOR_BOX.y1, w, h);
