@@ -1072,10 +1072,12 @@ function _drawCover(img, w, h) {
 }
 
 function renderCanvas() {
+  _resizeCanvas();
   const w = _canvas.width;
   const h = _canvas.height;
   if (!w || !h) return;
   _ctx.clearRect(0, 0, w, h);
+  if (onCooldown) _ctx.filter = 'brightness(0.45) saturate(0.3)';
   if (_cvsBg.complete  && _cvsBg.naturalWidth)  _drawCover(_cvsBg,   w, h);
   if (_cvsItem && _cvsItem.complete && _cvsItem.naturalWidth) {
     const sz  = h * 0.28;
@@ -1084,12 +1086,7 @@ function renderCanvas() {
     _ctx.drawImage(_cvsItem, w * 0.5 - sz * 0.5, h * 0.55 + oy, sz, sz);
   }
   if (_cvsTodd.complete && _cvsTodd.naturalWidth) _drawCover(_cvsTodd, w, h);
-  if (_clickFlash > 0) {
-    _ctx.globalAlpha = _clickFlash * 0.18;
-    _ctx.fillStyle = '#ffffff';
-    _ctx.fillRect(0, 0, w, h);
-    _ctx.globalAlpha = 1;
-  }
+  if (onCooldown) _ctx.filter = 'none';
 }
 
 // ─────────────────────────────────────────────
