@@ -781,6 +781,7 @@ function showPillEvent() {
 
 function showEvent(ev) {
   activeEvent = ev;
+  document.getElementById('event-overlay').classList.toggle('horror', ev.id === 'mom');
   document.getElementById('event-msg').textContent           = ev.prompt;
   document.getElementById('event-yes').textContent           = ev.yesLabel || 'YES';
   document.getElementById('event-no').textContent            = ev.noLabel  || 'NO';
