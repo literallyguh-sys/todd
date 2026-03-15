@@ -599,6 +599,11 @@ let pornEventDone   = false; // porn specialisation event completed
 let hentaiChosen    = false; // chose hentai path → USAGI ONAHOLE unlocked in shop
 let onaholeOwned    = false; // bought USAGI ONAHOLE (for future hit streak mechanic)
 let milfUnlocked    = false; // chose CONTINUE on mom event → milf items unlocked in shop
+let cycleStart      = 0;     // epoch ms, start of current 22h day/night cycle
+let shopGrumpy      = false; // shopkeeper awake but grumpy (night shout, 25%)
+let shopAngryUntil  = 0;     // shop locked until this timestamp (night shout, 75%)
+let _wasNight       = false; // last tick's night state, for transition detection
+let lastClockTs     = 0;     // throttle for clock render
 let lastEffectsTs   = 0;
 
 function pointMult() {
