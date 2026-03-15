@@ -625,25 +625,25 @@ UPS.forEach(u => u.count = 0);
 // ─────────────────────────────────────────────
 const GEAR = {
   tool: [
-    { id:'t0', name:'Bare Hand',     img:'todd1.png', desc:'+0 per click',   lore:"What God gave you. Nothing more, nothing less. A timeless classic.",                                               cpcB:0,   cost:0,     sell:0,    free:true  },
-    { id:'t1', name:'Sock',          img:'todd1.png', desc:'+3 per click',   lore:"Found between the bed and the wall. Don't ask whose it is.",                                                       cpcB:3,   cost:150,   sell:75    },
-    { id:'t2', name:'Fleshlight',    img:'todd1.png', desc:'+15 per click',  lore:"Discretely delivered in a plain brown box. The neighbours don't know.",                                            cpcB:15,  cost:1200,  sell:600   },
-    { id:'t3', name:'Vibrator',      img:'todd1.png', desc:'+50 per click',  lore:"Originally purchased as a 'back massager'. Still listed that way on the receipt.",                                 cpcB:50,  cost:5000,  sell:2500  },
+    { id:'t0', name:'Bare Hand',     img:'Icons/Game/default.png', desc:'+0 per click',   lore:"What God gave you. Nothing more, nothing less. A timeless classic.",                                               cpcB:0,   cost:0,     sell:0,    free:true  },
+    { id:'t1', name:'Sock',          img:'Icons/Game/default.png', desc:'+3 per click',   lore:"Found between the bed and the wall. Don't ask whose it is.",                                                       cpcB:3,   cost:150,   sell:75    },
+    { id:'t2', name:'Fleshlight',    img:'Icons/Game/default.png', desc:'+15 per click',  lore:"Discretely delivered in a plain brown box. The neighbours don't know.",                                            cpcB:15,  cost:1200,  sell:600   },
+    { id:'t3', name:'Vibrator',      img:'Icons/Game/default.png', desc:'+50 per click',  lore:"Originally purchased as a 'back massager'. Still listed that way on the receipt.",                                 cpcB:50,  cost:5000,  sell:2500  },
     { id:'t4', name:'USAGI ONAHOLE', img:'Icons/Game/usagionahole.png', desc:'+100 per click', lore:"Shipped from Akihabara in a box labelled 'anime figures'. Customs didn't question it.",                            cpcB:100, cost:15000, sell:7500, locked:()=>!hentaiChosen },
   ],
   lube: [
-    { id:'l0', name:'None',          img:'todd1.png', desc:'No stamina reduction',      lore:"The raw, unlubricated grind. Respect.",                                                                  lubeM:1.0,  cost:0,     sell:0,    free:true  },
-    { id:'l1', name:'Saliva',        img:'todd1.png', desc:'-10% stamina per click',    lore:"Free, always available, and only slightly questionable.",                                                lubeM:0.9,  cost:200,   sell:100   },
-    { id:'l2', name:'Basic Lotion',  img:'todd1.png', desc:'-20% stamina per click',    lore:"From the hotel bathroom. You've been saving it for a special occasion.",                                 lubeM:0.8,  cost:800,   sell:400   },
-    { id:'l3', name:'Coconut Oil',   img:'todd1.png', desc:'-35% stamina per click',    lore:"Also great for cooking. You will never use it for cooking again.",                                       lubeM:0.65, cost:3000,  sell:1500  },
-    { id:'l4', name:'Premium Lube',  img:'todd1.png', desc:'-50% stamina per click',    lore:"Water-based. pH balanced. You read the label like a responsible adult.",                                 lubeM:0.5,  cost:10000, sell:5000  },
+    { id:'l0', name:'None',          img:'Icons/Game/default.png', desc:'No stamina reduction',      lore:"The raw, unlubricated grind. Respect.",                                                                  lubeM:1.0,  cost:0,     sell:0,    free:true  },
+    { id:'l1', name:'Saliva',        img:'Icons/Game/default.png', desc:'-10% stamina per click',    lore:"Free, always available, and only slightly questionable.",                                                lubeM:0.9,  cost:200,   sell:100   },
+    { id:'l2', name:'Basic Lotion',  img:'Icons/Game/default.png', desc:'-20% stamina per click',    lore:"From the hotel bathroom. You've been saving it for a special occasion.",                                 lubeM:0.8,  cost:800,   sell:400   },
+    { id:'l3', name:'Coconut Oil',   img:'Icons/Game/default.png', desc:'-35% stamina per click',    lore:"Also great for cooking. You will never use it for cooking again.",                                       lubeM:0.65, cost:3000,  sell:1500  },
+    { id:'l4', name:'Premium Lube',  img:'Icons/Game/default.png', desc:'-50% stamina per click',    lore:"Water-based. pH balanced. You read the label like a responsible adult.",                                 lubeM:0.5,  cost:10000, sell:5000  },
   ],
   content: [
-    { id:'co0', name:'Nothing',       img:'todd1.png', desc:'No passive bonus',          lore:"Just you and your thoughts. Truly terrifying.",                                                          contentM:1.0,  cost:0,     sell:0,    free:true  },
-    { id:'co1', name:'Amateur Video', img:'todd1.png', desc:'+15% passive income',       lore:"Shot in a bedroom with a ring light and too much confidence.",                                           contentM:1.15, cost:300,   sell:150   },
-    { id:'co2', name:'OnlyFans',      img:'todd1.png', desc:'+30% passive income',       lore:"You tell yourself it's supporting independent creators. It is not.",                                     contentM:1.3,  cost:1500,  sell:750   },
-    { id:'co3', name:'Premium Site',  img:'todd1.png', desc:'+50% passive income',       lore:"The 4K subscription. Your internet bill has never been higher.",                                         contentM:1.5,  cost:5000,  sell:2500  },
-    { id:'co4', name:'HENTAI',        img:'todd1.png', desc:'+80% passive income',       lore:"Two-dimensional. Zero regrets.",                                                                         contentM:1.8,  cost:12000, sell:6000, locked:()=>!hentaiChosen },
+    { id:'co0', name:'Nothing',       img:'Icons/Game/default.png', desc:'No passive bonus',          lore:"Just you and your thoughts. Truly terrifying.",                                                          contentM:1.0,  cost:0,     sell:0,    free:true  },
+    { id:'co1', name:'Amateur Video', img:'Icons/Game/default.png', desc:'+15% passive income',       lore:"Shot in a bedroom with a ring light and too much confidence.",                                           contentM:1.15, cost:300,   sell:150   },
+    { id:'co2', name:'OnlyFans',      img:'Icons/Game/default.png', desc:'+30% passive income',       lore:"You tell yourself it's supporting independent creators. It is not.",                                     contentM:1.3,  cost:1500,  sell:750   },
+    { id:'co3', name:'Premium Site',  img:'Icons/Game/default.png', desc:'+50% passive income',       lore:"The 4K subscription. Your internet bill has never been higher.",                                         contentM:1.5,  cost:5000,  sell:2500  },
+    { id:'co4', name:'HENTAI',        img:'Icons/Game/default.png', desc:'+80% passive income',       lore:"Two-dimensional. Zero regrets.",                                                                         contentM:1.8,  cost:12000, sell:6000, locked:()=>!hentaiChosen },
   ],
 };
 
