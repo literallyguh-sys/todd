@@ -1776,7 +1776,7 @@ function updateNightState() {
 
   // Shout button — only while sleeping (not yet shouted)
   const btn = document.getElementById('sr-shout-btn');
-  if (btn) btn.style.display = (sleeping && shopAngryUntil <= Date.now()) ? '' : 'none';
+  if (btn) btn.style.display = (sleeping && shopAngryUntil <= Date.now()) ? 'block' : 'none';
 
   // Main shop panel — hidden while sleeping, visible when day or grumpy
   const panel = document.getElementById('sr-panel');
