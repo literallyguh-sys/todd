@@ -1394,12 +1394,14 @@ function renderDetailBar() {
     return;
   }
   bar.className = '';
-  const item       = selectedShopItem;
-  const cat        = selectedShopCat;
-  const equippedId = cat==='tool' ? equippedTool : cat==='lube' ? equippedLube : equippedContent;
-  const owned      = ownedGear.has(item.id);
-  const isEq       = item.id === equippedId;
-  const canBuy     = !owned && pts >= item.cost;
+  const item         = selectedShopItem;
+  const cat          = selectedShopCat;
+  const equippedId   = cat==='tool' ? equippedTool : cat==='lube' ? equippedLube : equippedContent;
+  const owned        = ownedGear.has(item.id);
+  const isEq         = item.id === equippedId;
+  const nightSurge   = shopGrumpy && isNight();
+  const effectiveCost = nightSurge ? Math.ceil(item.cost * 1.5) : item.cost;
+  const canBuy       = !owned && pts >= effectiveCost;
 
   let actionHtml = '';
   if (owned) {
@@ -1408,11 +1410,15 @@ function renderDetailBar() {
     } else {
       actionHtml += `<span class="sr-db-btn green" style="opacity:0.55;cursor:default">EQUIPPED</span>`;
     }
-    actionHtml += `<button class="sr-db-btn red" onclick="selectedShopItem=null;selectedShopCat=null;sellGear('${cat}','${item.id}');renderShopRoom();renderDetailBar()">SELL +${fmt(item.sell)}</button>`;
+    if (nightSurge) {
+      actionHtml += `<span class="sr-db-btn red" style="opacity:0.3;cursor:default">SELL — REFUSED</span>`;
+    } else {
+      actionHtml += `<button class="sr-db-btn red" onclick="selectedShopItem=null;selectedShopCat=null;sellGear('${cat}','${item.id}');renderShopRoom();renderDetailBar()">SELL +${fmt(item.sell)}</button>`;
+    }
   } else if (canBuy) {
-    actionHtml = `<button class="sr-db-btn" onclick="buyGear('${cat}','${item.id}');renderShopRoom();renderDetailBar()">BUY — ${fmt(item.cost)} PTS</button>`;
+    actionHtml = `<button class="sr-db-btn" onclick="buyGear('${cat}','${item.id}');renderShopRoom();renderDetailBar()">BUY — ${fmt(effectiveCost)} PTS${nightSurge ? ' (+50%)' : ''}</button>`;
   } else {
-    actionHtml = `<span class="sr-db-btn" style="opacity:0.3;cursor:default">${fmt(item.cost)} PTS</span>`;
+    actionHtml = `<span class="sr-db-btn" style="opacity:0.3;cursor:default">${fmt(effectiveCost)} PTS${nightSurge ? ' (+50%)' : ''}</span>`;
   }
 
   bar.innerHTML =
