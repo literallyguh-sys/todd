@@ -52,8 +52,9 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 
 /* ── Equipment panel ── */
 #equip-panel { position:absolute; bottom:14px; left:14px; pointer-events:auto;
-  border:1px solid rgba(255,255,255,0.12); background:rgba(0,0,0,0.55); }
-.equip-slot { padding:5px 10px; cursor:pointer; display:flex; align-items:baseline; gap:8px;
+  border:1px solid rgba(255,255,255,0.12); padding:7px 12px; background:rgba(0,0,0,0.55);
+  min-width:120px; }
+.equip-slot { padding:3px 0; cursor:pointer; display:flex; align-items:baseline; gap:8px;
   border-bottom:1px solid rgba(255,255,255,0.05); transition:background .1s; }
 .equip-slot:last-child { border-bottom:none; }
 .equip-slot:hover { background:rgba(255,255,255,0.04); }
