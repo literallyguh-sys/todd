@@ -191,41 +191,43 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   letter-spacing:2px; }
 
 /* ── Shop room ── */
-#shop-room { display:none; position:fixed; inset:0; z-index:8000; background:#07060a;
-  flex-direction:column; overflow:hidden; }
+#shop-room { display:none; position:fixed; right:0; top:0; width:33.333%; height:100%;
+  z-index:8000; flex-direction:column; overflow:hidden;
+  background:url('/app.jpg') center/cover no-repeat; }
+#shop-room::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.72); pointer-events:none; }
 #shop-room.show { display:flex; }
-#sr-header { display:flex; align-items:center; gap:14px; padding:8px 16px;
-  border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }
+#sr-header { display:flex; align-items:center; gap:10px; padding:8px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; position:relative; }
 #sr-back { background:#c0c0c0; border-top:2px solid #dfdfdf; border-left:2px solid #dfdfdf;
   border-right:2px solid #808080; border-bottom:2px solid #808080; color:#000;
-  font-family:'VT323',monospace; font-size:17px; letter-spacing:2px;
-  padding:3px 10px; cursor:pointer; flex-shrink:0; }
+  font-family:'VT323',monospace; font-size:15px; letter-spacing:2px;
+  padding:2px 8px; cursor:pointer; flex-shrink:0; }
 #sr-back:hover { border-top:2px solid #808080; border-left:2px solid #808080;
   border-right:2px solid #dfdfdf; border-bottom:2px solid #dfdfdf; }
-#sr-title { font-size:24px; letter-spacing:4px; color:var(--accent); flex:1; }
-#sr-pts { font-size:17px; letter-spacing:1px; }
+#sr-title { font-size:20px; letter-spacing:4px; color:var(--accent); flex:1; position:relative; }
+#sr-pts { font-size:14px; letter-spacing:1px; position:relative; }
 #sr-pts span { color:var(--accent); }
-#sr-tabs { display:flex; border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }
+#sr-tabs { display:flex; border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; position:relative; }
 .sr-tab { flex:1; background:transparent; border:none; border-bottom:2px solid transparent;
-  color:#555; font-family:'VT323',monospace; font-size:16px; letter-spacing:2px;
-  padding:8px 4px; cursor:pointer; text-align:center; transition:color .1s; }
+  color:#555; font-family:'VT323',monospace; font-size:13px; letter-spacing:1px;
+  padding:6px 2px; cursor:pointer; text-align:center; transition:color .1s; }
 .sr-tab:hover { color:#bbb; }
 .sr-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
-#sr-items { flex:1; overflow-y:auto; padding:10px 20px; display:flex; flex-direction:column;
-  gap:5px; max-width:700px; width:100%; align-self:center; }
+#sr-items { flex:1; overflow-y:auto; padding:8px 10px; display:flex; flex-direction:column;
+  gap:4px; position:relative; }
 #sr-items::-webkit-scrollbar { width:3px; }
 #sr-items::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.12); }
-.sr-divider { font-size:13px; color:#333; letter-spacing:3px; padding:8px 0 3px; }
-.sr-item { padding:10px 14px; border:1px solid rgba(255,255,255,0.08);
+.sr-divider { font-size:12px; color:#444; letter-spacing:3px; padding:6px 2px 2px; }
+.sr-item { padding:8px 10px; border:1px solid rgba(255,255,255,0.08); background:rgba(0,0,0,0.35);
   cursor:pointer; transition:border-color .1s, background .1s; }
-.sr-item:hover:not(.locked) { border-color:rgba(255,214,0,0.4); background:rgba(255,214,0,0.04); }
+.sr-item:hover:not(.locked) { border-color:rgba(255,214,0,0.4); background:rgba(255,214,0,0.06); }
 .sr-item.locked { opacity:0.38; cursor:default; }
-.sr-item.gear-active { border-color:rgba(0,204,102,0.3); background:rgba(0,204,102,0.03); }
-.sr-row1 { display:flex; justify-content:space-between; align-items:center; gap:8px; }
-.sr-name { font-size:20px; color:#ddd; letter-spacing:1px; }
-.sr-cost { font-size:16px; color:var(--accent); white-space:nowrap; }
-.sr-desc { font-size:14px; color:#555; letter-spacing:1px; margin-top:2px; }
-.sr-btns { display:flex; gap:6px; align-items:center; }
+.sr-item.gear-active { border-color:rgba(0,204,102,0.3); background:rgba(0,204,102,0.06); }
+.sr-row1 { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+.sr-name { font-size:17px; color:#ddd; letter-spacing:1px; }
+.sr-cost { font-size:14px; color:var(--accent); white-space:nowrap; }
+.sr-desc { font-size:12px; color:#555; letter-spacing:1px; margin-top:2px; }
+.sr-btns { display:flex; gap:4px; align-items:center; }
 
 /* ── SORE overlay ── */
 #sore-overlay { display:none; position:fixed; inset:0; z-index:9500;
