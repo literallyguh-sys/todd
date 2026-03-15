@@ -1402,7 +1402,8 @@ function sellGear(cat, id) {
   if (cat==='content' && equippedContent === id) { equippedContent = freeDefault.id; }
   ownedGear.delete(id);
   pts += item.sell;
-  if (cat==='tool') updateHandVisual();
+  if (cat==='tool')    updateHandVisual();
+  if (cat==='content') updateScreenVisual();
   renderEquipPanel(); renderStats(); renderShop(); save();
 }
 
