@@ -1034,8 +1034,13 @@ function updateHandVisual() {
 // ─────────────────────────────────────────────
 //  Canvas scene renderer
 // ─────────────────────────────────────────────
+
+// Monitor screen position as fractions of backgroundtodd.png dimensions — adjust here to reposition
+const SCREEN_BOX = { x1: 0.089, y1: 0.245, x2: 0.464, y2: 0.623 };
+
 let strokePhase = 0;
-let _cvsItem    = null;
+let _cvsItem   = null;
+let _cvsScreen = null;
 
 const _canvas = document.getElementById('game-canvas');
 const _ctx    = _canvas.getContext('2d');
