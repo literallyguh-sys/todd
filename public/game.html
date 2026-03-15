@@ -682,8 +682,8 @@ const EVENTS = [
     yesPost:   null,
     noLabel:   'CONTINUE',
     noResult:  'YOUR MOM IS DISGUSTED AND CURSES YOU OUT.',
-    noFn:      () => { momDebuffUntil = Date.now() + 24 * 60 * 60 * 1000; save(); },
-    noPost:    () => showAnnouncement('WHAT AN EMBARRASSMENT.\nPOINT GAINS REDUCED BY 20%\nFOR THE NEXT 24 HOURS.'),
+    noFn:      () => { momDebuffUntil = Date.now() + 24 * 60 * 60 * 1000; milfUnlocked = true; renderShop(); renderShopRoom(); save(); },
+    noPost:    () => showAnnouncement('WHAT AN EMBARRASSMENT.\nPOINT GAINS REDUCED BY 20%\nFOR THE NEXT 24 HOURS.\n\nYou\'ve acquired a taste for milf-porn.\nNew purchaseable items added to the store.'),
   },
   {
     id:        'porn',
