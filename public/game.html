@@ -1692,6 +1692,102 @@ function buy(id) { buyUpgrade(id); } // legacy alias
 setInterval(save, 15000);
 
 // ─────────────────────────────────────────────
+//  Day / Night cycle
+// ─────────────────────────────────────────────
+function isNight() {
+  return (Date.now() - cycleStart) % CYCLE_MS >= DAY_MS;
+}
+
+function phaseTimeLeft() {
+  const p = (Date.now() - cycleStart) % CYCLE_MS;
+  return p < DAY_MS ? DAY_MS - p : CYCLE_MS - p;
+}
+
+function renderClock() {
+  const el = document.getElementById('day-clock');
+  if (!el) return;
+  const night = isNight();
+  const ms    = phaseTimeLeft();
+  const h     = Math.floor(ms / 3600000);
+  const m     = Math.floor((ms % 3600000) / 60000);
+  const pad   = n => (n < 10 ? '0' : '') + n;
+  el.textContent = night
+    ? '[ NIGHT  ' + h + 'h ' + pad(m) + 'm ]'
+    : '[ DAY    ' + h + 'h ' + pad(m) + 'm ]';
+  el.className = night ? 'clock-night' : 'clock-day';
+}
+
+function checkDayNightTransition() {
+  const night = isNight();
+  if (night === _wasNight) return;
+  _wasNight = night;
+  if (!night) {
+    // Night → Day: forgive the shopkeeper
+    shopGrumpy     = false;
+    shopAngryUntil = 0;
+    const sr = document.getElementById('shop-room');
+    if (sr && sr.classList.contains('show')) {
+      updateShopBackground();
+      updateShoutBtn();
+      renderDetailBar();
+    }
+    save();
+  }
+}
+
+function updateShopBackground() {
+  const sr = document.getElementById('shop-room');
+  if (!sr) return;
+  if (!isNight()) {
+    sr.style.backgroundImage = "url('/shop.jpg')";
+  } else if (shopGrumpy) {
+    sr.style.backgroundImage = "url('/shopnightawake.jpg')";
+  } else {
+    sr.style.backgroundImage = "url('/shopnight.jpg')";
+  }
+}
+
+function updateShoutBtn() {
+  const btn    = document.getElementById('sr-shout-btn');
+  const banner = document.getElementById('sr-night-banner');
+  const showShout = isNight() && !shopGrumpy && shopAngryUntil <= Date.now();
+  if (btn)    btn.style.display = showShout ? '' : 'none';
+  if (banner) banner.classList.toggle('show', isNight() && shopGrumpy);
+}
+
+const SHOUT_ANGRY_LINES = [
+  '"I WILL KILL YOU!" he screams. You sprint home.\nShop locked until morning.',
+  'He lunges at you with a candlestick. You barely escape.\nShop locked until morning.',
+  '"GET OUT! I KNOW WHERE YOU SLEEP!" You believe him entirely.\nShop locked until morning.',
+  'He hurls something heavy at the door behind you.\nShop locked until morning.',
+  '"If I see you before dawn — God help you." He means it.\nShop locked until morning.',
+];
+
+const SHOUT_GRUMPY_LINES = [
+  '"...You\'re paying extra for this." He points at everything.\nSurcharge applied. No selling.',
+  'He opens one eye. "Fine. But prices just went up 50%."\nSurcharge applied. No selling.',
+  'He groans and sits up. "My shop, my rules. Everything costs more when I\'m tired."\nSurcharge applied. No selling.',
+  '"You owe me for this." He cracks his knuckles.\nSurcharge applied. No selling.',
+];
+
+function shoutAtShopkeeper() {
+  if (Math.random() < 0.75) {
+    const pos  = (Date.now() - cycleStart) % CYCLE_MS;
+    shopAngryUntil = Date.now() + (CYCLE_MS - pos); // until end of night
+    save();
+    closeShopRoom();
+    showAnnouncement(SHOUT_ANGRY_LINES[Math.floor(Math.random() * SHOUT_ANGRY_LINES.length)]);
+  } else {
+    shopGrumpy = true;
+    save();
+    updateShopBackground();
+    updateShoutBtn();
+    renderDetailBar();
+    showAnnouncement(SHOUT_GRUMPY_LINES[Math.floor(Math.random() * SHOUT_GRUMPY_LINES.length)]);
+  }
+}
+
+// ─────────────────────────────────────────────
 //  Init
 // ─────────────────────────────────────────────
 load();
