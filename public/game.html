@@ -1356,6 +1356,238 @@ function renderDetailBar() {
     `<div id="sr-db-action">${actionHtml}</div>`;
 }
 
+// ─────────────────────────────────────────────
+//  FAPBAG & Haggle
+// ─────────────────────────────────────────────
+let fapbagOpen  = false;
+let haggleItem  = null;
+let haggleCat   = null;
+let haggleOffer = 0;
+let haggleAnnoy = 0;
+let haggleState = 'offer'; // 'offer' | 'counter' | 'done' | 'refused'
+
+const HAGGLE_LINES = {
+  open: [
+    "Smells like regret. {x} pts. Take it or leave it.",
+    "I've seen better from dumpsters. {x} pts, top offer.",
+    "My last customer had one of these. Ended badly for him. {x} pts.",
+    "You look desperate. {x} pts. Am I wrong?",
+    "I'll do you a favour. {x} pts. Don't tell anyone.",
+    "Used condition, clearly. {x} pts is already generous.",
+    "I'd normally throw this out. Feeling charitable today. {x} pts.",
+    "You walked a long way to get insulted. {x} pts.",
+  ],
+  raise: [
+    "...Fine. You drive a hard bargain. {x} pts. That's it.",
+    "I respect the audacity. {x} pts. Don't push your luck.",
+    "You remind me of my ex-wife. Annoying, but effective. {x} pts.",
+    "I must be losing my mind. {x} pts. Not a coin more.",
+    "Ugh. {x} pts. I hate you.",
+  ],
+  lower: [
+    "Wasting my time costs extra. Now it's {x} pts. Happy?",
+    "That attitude just cost you. {x} pts. Take it.",
+    "Every time you open your mouth the price drops. {x} pts.",
+    "I don't appreciate being haggled. {x} pts. Fair warning.",
+    "You're testing my patience. {x} pts. Last chance.",
+  ],
+  angry: [
+    "You've got NERVE. {x} pts. That is ALL you're getting.",
+    "FINAL OFFER. {x} pts. Say one more word. I dare you.",
+    "I should charge YOU to take this. {x} pts. Walk away.",
+    "That's it. {x} pts. I'm doing this out of pure PITY.",
+  ],
+  refuse: [
+    "Get out of my shop. We're done here.",
+    "Deal's off. Come back when you have manners. Or don't.",
+    "I've changed my mind completely. The door is that way.",
+    "You've wasted enough of my time. Goodbye.",
+    "I'm closing early today. Specifically because of you.",
+    "No. Sale. Not today. Not ever. OUT.",
+    "I would rather pay you to take it away than deal with this.",
+  ],
+  done: [
+    "Pleasure doing business. Now get out.",
+    "Finally. Come back when you have more garbage to offload.",
+    "Sold. Don't spend it all in one place. Actually, I don't care.",
+    "Good. Leave. I need to air out the shop.",
+    "Transaction complete. My day is ruined. Goodbye.",
+  ],
+};
+
+const VENDOR_MOODS = {
+  neutral: '(¬_¬)',
+  smug:    '(¬‿¬)',
+  annoyed: '(-_-)',
+  angry:   '(ò_ó)',
+  furious: '(╯°□°）',
+  happy:   '(^‿^)',
+};
+
+function rndLine(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function toggleFapbag() {
+  fapbagOpen = !fapbagOpen;
+  const panel = document.getElementById('fapbag-panel');
+  if (fapbagOpen) {
+    renderFapbag();
+    panel.classList.add('show');
+  } else {
+    panel.classList.remove('show');
+    closeHagglePanel();
+  }
+}
+
+function renderFapbag() {
+  const grid = document.getElementById('fapbag-grid');
+  grid.innerHTML = '';
+  const equippedIds = { tool:equippedTool, lube:equippedLube, content:equippedContent };
+  const items = [];
+  ['tool','lube','content'].forEach(cat => {
+    GEAR[cat].filter(i => ownedGear.has(i.id) && !i.free).forEach(item => {
+      items.push({ cat, item });
+    });
+  });
+  items.forEach(({ cat, item }) => {
+    const isEq = item.id === equippedIds[cat];
+    const div  = document.createElement('div');
+    div.className = 'sr-cell' + (isEq ? ' equipped' : '');
+    div.innerHTML =
+      `<div class="sr-cell-name">${item.name}</div>` +
+      `<div class="sr-cell-icon"><img src="/${item.img}" alt=""></div>`;
+    div.addEventListener('click', () => startHaggle(cat, item));
+    grid.appendChild(div);
+  });
+  const filled = items.length;
+  const target = Math.max(filled + (4 - filled % 4) % 4, 28);
+  for (let i = filled; i < target; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'sr-cell empty';
+    empty.innerHTML = '<div class="sr-cell-name"></div><div class="sr-cell-icon"></div>';
+    grid.appendChild(empty);
+  }
+}
+
+function startHaggle(cat, item) {
+  haggleItem  = item;
+  haggleCat   = cat;
+  haggleAnnoy = 0;
+  haggleState = 'offer';
+  // Initial offer: 55–80% of item.sell
+  haggleOffer = Math.round(item.sell * (0.55 + Math.random() * 0.25));
+  // Phase out shop, show haggle panel
+  document.getElementById('sr-panel').classList.add('phased-out');
+  document.getElementById('haggle-panel').classList.add('show');
+  // Set opening speech
+  const speech = rndLine(HAGGLE_LINES.open).replace('{x}', fmt(haggleOffer));
+  document.getElementById('haggle-speech').textContent = speech;
+  document.getElementById('haggle-face').textContent   = VENDOR_MOODS.neutral;
+  renderHagglePanel();
+}
+
+function closeHagglePanel() {
+  document.getElementById('sr-panel').classList.remove('phased-out');
+  document.getElementById('haggle-panel').classList.remove('show');
+  haggleItem = null;
+  haggleCat  = null;
+}
+
+function renderHagglePanel() {
+  const item = haggleItem;
+  const cat  = haggleCat;
+  if (!item) return;
+  const catLabels = { tool:'TOOL', lube:'LUBE', content:'CONTENT' };
+  document.getElementById('haggle-img').src              = '/' + item.img;
+  document.getElementById('haggle-item-cat').textContent  = catLabels[cat] || cat.toUpperCase();
+  document.getElementById('haggle-item-name').textContent = item.name;
+  document.getElementById('haggle-worth-val').textContent = fmt(item.sell);
+  const btns = document.getElementById('haggle-btns');
+  if (haggleState === 'done') {
+    document.getElementById('haggle-offer-label').textContent = 'SOLD FOR';
+    document.getElementById('haggle-offer-val').textContent   = fmt(haggleOffer) + ' PTS';
+    btns.innerHTML = `<button class="haggle-btn green" onclick="finishHaggle()">NICE</button>`;
+  } else if (haggleState === 'refused') {
+    document.getElementById('haggle-offer-label').textContent = 'VENDOR REFUSES';
+    document.getElementById('haggle-offer-val').textContent   = '— NO DEAL —';
+    btns.innerHTML = `<button class="haggle-btn red" onclick="finishHaggle()">LEAVE</button>`;
+  } else {
+    document.getElementById('haggle-offer-label').textContent = 'CURRENT OFFER';
+    document.getElementById('haggle-offer-val').textContent   = fmt(haggleOffer) + ' PTS';
+    btns.innerHTML =
+      `<button class="haggle-btn green" onclick="acceptHaggle()">ACCEPT</button>` +
+      `<button class="haggle-btn"       onclick="doHaggle()">HAGGLE</button>` +
+      `<button class="haggle-btn red"   onclick="finishHaggle()">LEAVE</button>`;
+  }
+}
+
+function doHaggle() {
+  haggleAnnoy++;
+  const maxOffer = Math.round(haggleItem.sell * 1.4); // vendor won't go above 140%
+  // Annoyance-weighted probability table
+  const wRaise  = Math.max(4,  44 - haggleAnnoy * 14);
+  const wLower  = Math.min(36, 30 + haggleAnnoy * 4);
+  const wAngry  = Math.min(32, 12 + haggleAnnoy * 8);
+  const wRefuse = Math.min(55, haggleAnnoy * haggleAnnoy * 5);
+  const total   = wRaise + wLower + wAngry + wRefuse;
+  const roll    = Math.random() * total;
+
+  let speech, mood;
+  if (roll < wRaise) {
+    const bump = Math.round(haggleOffer * (0.1 + Math.random() * 0.18));
+    haggleOffer = Math.min(maxOffer, haggleOffer + bump);
+    speech = rndLine(HAGGLE_LINES.raise).replace('{x}', fmt(haggleOffer));
+    mood   = VENDOR_MOODS.smug;
+    haggleState = 'counter';
+  } else if (roll < wRaise + wLower) {
+    const cut = Math.round(haggleOffer * (0.1 + Math.random() * 0.14));
+    haggleOffer = Math.max(1, haggleOffer - cut);
+    speech = rndLine(HAGGLE_LINES.lower).replace('{x}', fmt(haggleOffer));
+    mood   = VENDOR_MOODS.annoyed;
+    haggleState = 'counter';
+  } else if (roll < wRaise + wLower + wAngry) {
+    const cut = Math.round(haggleOffer * (0.22 + Math.random() * 0.18));
+    haggleOffer = Math.max(1, haggleOffer - cut);
+    speech = rndLine(HAGGLE_LINES.angry).replace('{x}', fmt(haggleOffer));
+    mood   = VENDOR_MOODS.angry;
+    haggleState = 'counter';
+  } else {
+    speech = rndLine(HAGGLE_LINES.refuse);
+    mood   = VENDOR_MOODS.furious;
+    haggleState = 'refused';
+  }
+
+  document.getElementById('haggle-speech').textContent = speech;
+  document.getElementById('haggle-face').textContent   = mood;
+  renderHagglePanel();
+}
+
+function acceptHaggle() {
+  const item = haggleItem;
+  const cat  = haggleCat;
+  if (!item || !ownedGear.has(item.id)) return;
+  // Unequip if currently equipped
+  const freeDefault = GEAR[cat].find(i => i.free);
+  if (cat==='tool'    && equippedTool    === item.id) equippedTool    = freeDefault.id;
+  if (cat==='lube'    && equippedLube    === item.id) equippedLube    = freeDefault.id;
+  if (cat==='content' && equippedContent === item.id) equippedContent = freeDefault.id;
+  ownedGear.delete(item.id);
+  pts += haggleOffer;
+  haggleState = 'done';
+  document.getElementById('haggle-speech').textContent = rndLine(HAGGLE_LINES.done);
+  document.getElementById('haggle-face').textContent   = VENDOR_MOODS.happy;
+  renderEquipPanel();
+  renderStats();
+  renderShop();
+  renderShopRoom();
+  save();
+  renderHagglePanel();
+}
+
+function finishHaggle() {
+  closeHagglePanel();
+  renderFapbag(); // refresh so sold items disappear
+}
+
 function openGearSelect(cat) {
   const labels = { tool:'SELECT TOOL', lube:'SELECT LUBE', content:'SELECT CONTENT' };
   const equippedId = cat==='tool' ? equippedTool : cat==='lube' ? equippedLube : equippedContent;
