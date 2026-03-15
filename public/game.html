@@ -328,6 +328,21 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 
 </div>
 
+<!-- SHOP ROOM -->
+<div id="shop-room">
+  <div id="sr-header">
+    <button id="sr-back" onclick="closeShopRoom()">← LEAVE</button>
+    <span id="sr-title">THE SHOP</span>
+    <div id="sr-pts">POINTS: <span id="sr-val-pts">0</span></div>
+  </div>
+  <div id="sr-tabs">
+    <button class="sr-tab active" data-tab="tool"    onclick="setShopTab('tool')">TOOL</button>
+    <button class="sr-tab"        data-tab="lube"    onclick="setShopTab('lube')">LUBE</button>
+    <button class="sr-tab"        data-tab="content" onclick="setShopTab('content')">CONTENT</button>
+  </div>
+  <div id="sr-items"></div>
+</div>
+
 <!-- GEAR SELECT overlay -->
 <div id="gear-select-overlay">
   <div id="gear-select-box">
