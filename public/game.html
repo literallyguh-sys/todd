@@ -1105,6 +1105,12 @@ function renderCanvas() {
   if (!w || !h) return;
   _ctx.clearRect(0, 0, w, h);
   if (onCooldown) _ctx.filter = 'brightness(0.45) saturate(0.3)';
+  // Draw content screen image before background so it shows through the transparent monitor hole
+  if (_cvsScreen && _cvsScreen.complete && _cvsScreen.naturalWidth && _cvsBg.naturalWidth) {
+    const [x1, y1] = _bgToCanvas(SCREEN_BOX.x1, SCREEN_BOX.y1, w, h);
+    const [x2, y2] = _bgToCanvas(SCREEN_BOX.x2, SCREEN_BOX.y2, w, h);
+    _ctx.drawImage(_cvsScreen, x1, y1, x2 - x1, y2 - y1);
+  }
   if (_cvsBg.complete  && _cvsBg.naturalWidth)  _drawCover(_cvsBg,   w, h);
   if (_cvsItem && _cvsItem.complete && _cvsItem.naturalWidth) {
     const sz  = h * 0.28;
