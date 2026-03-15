@@ -1050,6 +1050,9 @@ function tick(ts) {
       else { renderStamina(); renderSoreOverlay(); }
     }
 
+    // Passive income pauses while in the shop
+    if (shopRoomOpen) { lastTs = ts; requestAnimationFrame(tick); return; }
+
     // Passive income runs always — even during cooldown, and costs no stamina
     frac += pps * dt * 0.25;
     if (frac >= 1) {
