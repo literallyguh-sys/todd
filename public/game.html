@@ -855,6 +855,107 @@ function showAnnouncement(msg) {
   document.getElementById('event-overlay').classList.add('show');
 }
 
+// ─────────────────────────────────────────────
+//  Mom event state machine
+// ─────────────────────────────────────────────
+function startMomEvent() {
+  _momState    = 'speech';
+  _momTimer    = 1.8;
+  _momProgress = 0;
+  const sp = document.getElementById('mom-speech');
+  sp.textContent = 'Hey Todd,\nI was planning\nto come in and—';
+  sp.style.display = 'block';
+}
+
+function _momTick(dt) {
+  if (!_momState) return;
+  switch (_momState) {
+    case 'speech':
+      _momTimer -= dt;
+      if (_momTimer <= 0) _momState = 'sliding';
+      break;
+    case 'sliding':
+      _momProgress = Math.min(1, _momProgress + dt * 0.35);
+      if (_momProgress >= 1) { _momState = 'standing'; _momTimer = 3.0; }
+      break;
+    case 'standing':
+      _momTimer -= dt;
+      if (_momTimer <= 0) {
+        _momState = 'choice';
+        document.getElementById('mom-speech').style.display = 'none';
+        const overlay = document.getElementById('mom-overlay');
+        document.getElementById('mom-text').textContent = 'Mom?? What the fuck do I do?';
+        document.getElementById('mom-choices').style.display = 'flex';
+        document.getElementById('mom-ok').style.display = 'none';
+        overlay.classList.add('show');
+      }
+      break;
+    case 'choice':
+      break; // waiting for user input
+    case 'cover_exit':
+      _momProgress = Math.max(0, _momProgress - dt * 0.5);
+      if (_momProgress <= 0) { _momState = 'cover_done'; _momShowResult('cover'); }
+      break;
+    case 'cover_done':
+      break; // waiting for OK
+    case 'continue_run':
+      _momTimer -= dt;
+      // Earn passive-equivalent points during the forced autopilot window
+      const apRate = Math.max(0.5, pps);
+      const apEarned = apRate * dt * spdMult * pointMult() * contentMult();
+      pts      += apEarned;
+      totalPts += apEarned;
+      renderStats();
+      if (_momTimer <= 0) { _momState = 'continue_done'; _momShowResult('continue'); }
+      break;
+    case 'continue_done':
+      break; // waiting for OK
+  }
+}
+
+function momChoose(choice) {
+  if (_momState !== 'choice') return;
+  document.getElementById('mom-overlay').classList.remove('show');
+  document.getElementById('mom-choices').style.display = 'none';
+  if (choice === 'cover') {
+    _momState = 'cover_exit';
+  } else {
+    _momState    = 'continue_run';
+    _momTimer    = 2.0;
+    _momProgress = 0; // mom vanishes instantly
+    momEventDone   = true;
+    momDebuffUntil = Date.now() + 24 * 60 * 60 * 1000;
+    milfUnlocked   = true;
+    renderShop(); renderShopRoom(); save();
+    const sp = document.getElementById('mom-speech');
+    sp.textContent = 'WHAT THE FUCK\nTODD.\nYOU\'RE DISGUSTING!';
+    sp.style.display = 'block';
+  }
+}
+
+function _momShowResult(path) {
+  document.getElementById('mom-speech').style.display = 'none';
+  const overlay = document.getElementById('mom-overlay');
+  if (path === 'cover') {
+    document.getElementById('mom-text').textContent = 'Fuck, that was embarrassing.';
+    momEventDone = true; save();
+  } else {
+    document.getElementById('mom-text').textContent =
+      'You\'re embarrassed by your actions.\n\n' +
+      'You\'ve received a -20% points penalty for the next 24 hours.\n\n' +
+      'You\'ve acquired a taste for milf porn.\nNew purchasable items have been added to the shop.';
+  }
+  document.getElementById('mom-ok').style.display = '';
+  overlay.classList.add('show');
+}
+
+function momDismiss() {
+  _momState    = null;
+  _momProgress = 0;
+  document.getElementById('mom-overlay').classList.remove('show');
+  document.getElementById('mom-speech').style.display = 'none';
+}
+
 function cost(u) { return u.base; } // buy-once, cost never changes
 
 // ─────────────────────────────────────────────
