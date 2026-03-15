@@ -1406,7 +1406,7 @@ function tick(ts) {
     _momTick(dt);
 
     // Advance canvas stroke phase (frozen during mom event, runs during continue_run)
-    const _strokeFrozen = _momState && _momState !== 'continue_run';
+    const _strokeFrozen = (!!activeEvent) || (_momState && _momState !== 'continue_run');
     if (!onCooldown && !_strokeFrozen) {
       if (_clickBurst) {
         strokePhase = (strokePhase + dt / 0.22) % 1;
