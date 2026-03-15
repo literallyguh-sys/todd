@@ -1136,6 +1136,7 @@ function setShopTab(tab) {
   shopRoomTab = tab;
   document.querySelectorAll('.sr-tab').forEach(t =>
     t.classList.toggle('active', t.dataset.tab === tab));
+  hideItemDetail();
   renderShopRoom();
 }
 
