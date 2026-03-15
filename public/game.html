@@ -1160,7 +1160,7 @@ function tick(ts) {
       updateShopAffordability();
       if (!onCooldown) {
         const r = document.getElementById('scene').getBoundingClientRect();
-        spawnFloatie(r.left + r.width / 2, r.top + r.height / 3, '+' + fmt(earned));
+        spawnFloatie(r.right - 60, r.top + 24, '+' + fmt(earned));
       }
     }
     if (!onCooldown) renderStamina();
