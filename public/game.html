@@ -1234,7 +1234,7 @@ function _resizeCanvas() {
     _canvas.height = h;
   }
 }
-window.addEventListener('resize', () => { _resizeCanvas(); renderCanvas(); });
+window.addEventListener('resize', () => { _resizeCanvas(); renderCanvas(); _positionMomSpeech(); });
 
 function _canvasPtInBox(cx, cy, box) {
   if (!_cvsBg.naturalWidth) return false;
