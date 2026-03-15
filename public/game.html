@@ -261,9 +261,13 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   <div id="sidebar">
     <div id="shop-header"><div id="shop-label">UPGRADE SHOP</div></div>
     <div id="shop-tabs">
-      <button class="shop-tab active" onclick="setTab('click')">CLICK</button>
-      <button class="shop-tab"        onclick="setTab('passive')">PASSIVE</button>
-      <button class="shop-tab"        onclick="setTab('stamina')">STAMINA</button>
+      <button class="shop-tab active" data-tab="click"   onclick="setTab('click')">CLICK</button>
+      <button class="shop-tab"        data-tab="passive" onclick="setTab('passive')">PASSIVE</button>
+      <button class="shop-tab"        data-tab="stamina" onclick="setTab('stamina')">STAMINA</button>
+      <div class="shop-tab-divider"></div>
+      <button class="shop-tab"        data-tab="tool"    onclick="setTab('tool')">TOOL</button>
+      <button class="shop-tab"        data-tab="lube"    onclick="setTab('lube')">LUBE</button>
+      <button class="shop-tab"        data-tab="content" onclick="setTab('content')">CONTENT</button>
     </div>
     <div id="shop-items"></div>
     <div id="test-btns">
