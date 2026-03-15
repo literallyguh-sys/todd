@@ -1275,9 +1275,9 @@ function renderCanvas() {
   const h = _canvas.height;
   if (!w || !h) return;
   _ctx.clearRect(0, 0, w, h);
-  const _isMomEvent = activeEvent && activeEvent.id === 'mom';
-  if (_isMomEvent)  _ctx.filter = 'grayscale(1) brightness(0.55)';
-  else if (onCooldown) _ctx.filter = 'brightness(0.45) saturate(0.3)';
+  const _isMomGray = _momState === 'choice' || _momState === 'cover_exit' || _momState === 'cover_done' || _momState === 'continue_run' || _momState === 'continue_done';
+  if (_isMomGray)       _ctx.filter = 'grayscale(1) brightness(0.55)';
+  else if (onCooldown)  _ctx.filter = 'brightness(0.45) saturate(0.3)';
   // Draw doorway behind background (fills left transparent area)
   if (_cvsDoor.complete && _cvsDoor.naturalWidth) _drawCover(_cvsDoor, w, h);
   // Mom slides in between doorway and background during mom event
