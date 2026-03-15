@@ -1292,6 +1292,14 @@ let selectedShopCat  = null;
 
 function openShopRoom(e) {
   e.stopPropagation();
+  if (shopAngryUntil > Date.now()) {
+    const msLeft  = shopAngryUntil - Date.now();
+    const hLeft   = Math.floor(msLeft / 3600000);
+    const mLeft   = Math.floor((msLeft % 3600000) / 60000);
+    const timeStr = hLeft > 0 ? hLeft + 'h ' + mLeft + 'm' : mLeft + 'm';
+    showAnnouncement('The door is locked.\n"I WILL KILL YOU!"\nHe meant it. Come back in ' + timeStr + '.');
+    return;
+  }
   const fade = document.getElementById('fade-overlay');
   fade.classList.add('fade-in');
   setTimeout(() => {
@@ -1304,6 +1312,8 @@ function openShopRoom(e) {
     document.getElementById('shop-room').classList.add('show');
     document.querySelectorAll('.sr-tab').forEach(t =>
       t.classList.toggle('active', t.dataset.tab === shopRoomTab));
+    updateShopBackground();
+    updateShoutBtn();
     renderShopRoom();
     renderDetailBar();
     fade.classList.remove('fade-in');
