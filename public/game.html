@@ -1247,6 +1247,9 @@ function openShopRoom(e) {
 }
 
 function closeShopRoom() {
+  fapbagOpen = false;
+  document.getElementById('fapbag-panel').classList.remove('show');
+  closeHagglePanel();
   const fade = document.getElementById('fade-overlay');
   fade.classList.add('fade-in');
   setTimeout(() => {
