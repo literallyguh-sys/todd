@@ -1283,7 +1283,7 @@ function renderCanvas() {
   // Mom slides in between doorway and background during mom event
   if (_momProgress > 0 && _cvsMom.complete && _cvsMom.naturalWidth && _cvsBg.naturalWidth) {
     const [doorRight] = _bgToCanvas(DOOR_BOX.x2, 0, w, h);
-    const momH  = h * 0.75;
+    const momH  = h * 0.40;
     const momW  = momH * (_cvsMom.naturalWidth / _cvsMom.naturalHeight);
     const eased = 1 - Math.pow(1 - _momProgress, 3);
     const startCX = doorRight + momW * 0.7;
