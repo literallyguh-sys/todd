@@ -614,6 +614,8 @@ function resetGame() {
   onCooldown=false; cooldownLeft=0;
   cokeCount=0; cokeDeclined=false; pillGiven=false; momDebuffUntil=0;
   pornEventDone=false; hentaiChosen=false; onaholeOwned=false;
+  equippedTool='t0'; equippedLube='l0'; equippedContent='co0';
+  ownedGear = new Set(['t0','l0','co0']);
   UPS.forEach(u => u.count=0);
   updatePassiveAnim();
   renderEquipment();
