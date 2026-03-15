@@ -808,6 +808,7 @@ function showPillEvent() {
 }
 
 function showEvent(ev) {
+  if (ev.id === 'mom') { startMomEvent(); return; }
   activeEvent = ev;
   document.getElementById('event-overlay').classList.toggle('horror', ev.id === 'mom');
   document.getElementById('event-msg').textContent           = ev.prompt;
