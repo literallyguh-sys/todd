@@ -405,26 +405,34 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 <!-- SHOP ROOM -->
 <div id="shop-room">
   <button id="sr-back" onclick="closeShopRoom()">← GO HOME</button>
-  <div id="sr-detail">
-    <div id="sr-detail-box">
-      <img id="sr-detail-img" src="">
-      <div id="sr-detail-cat"></div>
-      <div id="sr-detail-name"></div>
-      <div id="sr-detail-stat"></div>
-      <div id="sr-detail-lore"></div>
+  <div id="sr-layout">
+
+    <div id="sr-shop-panel" class="rpg-panel">
+      <div class="rpg-panel-header">
+        <span class="rpg-panel-title">SHOP</span>
+      </div>
+      <div id="sr-tabs">
+        <button class="sr-tab active" data-tab="tool"    onclick="setShopTab('tool')">TOOL</button>
+        <button class="sr-tab"        data-tab="lube"    onclick="setShopTab('lube')">LUBE</button>
+        <button class="sr-tab"        data-tab="content" onclick="setShopTab('content')">CONTENT</button>
+      </div>
+      <div id="sr-grid"></div>
+      <div id="sr-detail-bar" class="empty">
+        <div id="sr-db-empty">← SELECT AN ITEM</div>
+      </div>
     </div>
-  </div>
-  <div id="sr-panel">
-    <div id="sr-header">
-      <span id="sr-title">THE SHOP</span>
-      <div id="sr-pts">POINTS: <span id="sr-val-pts">0</span></div>
+
+    <div id="sr-inv-panel" class="rpg-panel">
+      <div class="rpg-panel-header">
+        <span class="rpg-panel-title">INVENTORY</span>
+      </div>
+      <div id="sr-inv-grid"></div>
+      <div id="sr-inv-footer">
+        <span id="sr-inv-pts-label">POINTS</span>
+        <span id="sr-inv-pts-val">0</span>
+      </div>
     </div>
-    <div id="sr-tabs">
-      <button class="sr-tab active" data-tab="tool"    onclick="setShopTab('tool')">TOOL</button>
-      <button class="sr-tab"        data-tab="lube"    onclick="setShopTab('lube')">LUBE</button>
-      <button class="sr-tab"        data-tab="content" onclick="setShopTab('content')">CONTENT</button>
-    </div>
-    <div id="sr-items"></div>
+
   </div>
 </div>
 
