@@ -1365,8 +1365,9 @@ function tick(ts) {
     }
 
     // Passive income runs always — even during cooldown, and costs no stamina
-    // (paused while in the shop room)
-    if (!shopRoomOpen) frac += pps * dt * 0.25;
+    // (paused while in the shop room or during mom event)
+    const _momPaused = _momState && _momState !== 'continue_run';
+    if (!shopRoomOpen && !_momPaused) frac += pps * dt * 0.25;
     if (frac >= 1) {
       const whole  = Math.floor(frac);
       const earned = whole * spdMult * pointMult() * contentMult();
