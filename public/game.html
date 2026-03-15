@@ -1143,9 +1143,27 @@ function renderCanvas() {
   const h = _canvas.height;
   if (!w || !h) return;
   _ctx.clearRect(0, 0, w, h);
-  if (onCooldown) _ctx.filter = 'brightness(0.45) saturate(0.3)';
+  const _isMomEvent = activeEvent && activeEvent.id === 'mom';
+  if (_isMomEvent)  _ctx.filter = 'grayscale(1) brightness(0.55)';
+  else if (onCooldown) _ctx.filter = 'brightness(0.45) saturate(0.3)';
   // Draw doorway behind background (fills left transparent area)
   if (_cvsDoor.complete && _cvsDoor.naturalWidth) _drawCover(_cvsDoor, w, h);
+  // Mom slides in between doorway and background during mom event
+  if (_momProgress > 0 && _cvsMom.complete && _cvsMom.naturalWidth && _cvsBg.naturalWidth) {
+    const [doorRight] = _bgToCanvas(DOOR_BOX.x2, 0, w, h);
+    const momH  = h * 0.75;
+    const momW  = momH * (_cvsMom.naturalWidth / _cvsMom.naturalHeight);
+    const eased = 1 - Math.pow(1 - _momProgress, 3);
+    const startCX = doorRight + momW * 0.7;
+    const endCX   = doorRight - momW * 0.18;
+    const momCX   = startCX + (endCX - startCX) * eased;
+    const momCY   = h * 0.42;
+    _ctx.save();
+    _ctx.translate(momCX, momCY);
+    _ctx.rotate(-45 * Math.PI / 180);
+    _ctx.drawImage(_cvsMom, -momW / 2, -momH / 2, momW, momH);
+    _ctx.restore();
+  }
   // Draw content screen image before background so it shows through the transparent monitor hole
   if (_cvsScreen && _cvsScreen.complete && _cvsScreen.naturalWidth && _cvsBg.naturalWidth) {
     const [x1, y1] = _bgToCanvas(SCREEN_BOX.x1, SCREEN_BOX.y1, w, h);
