@@ -1152,6 +1152,31 @@ function renderCanvas() {
   }
   if (_cvsTodd.complete && _cvsTodd.naturalWidth) _drawCover(_cvsTodd, w, h);
   if (onCooldown) _ctx.filter = 'none';
+  // Doorway hover overlay (drawn after filter reset so it's always bright)
+  if (_doorHover && _cvsBg.naturalWidth) {
+    const [x1, y1] = _bgToCanvas(DOOR_BOX.x1, DOOR_BOX.y1, w, h);
+    const [x2, y2] = _bgToCanvas(DOOR_BOX.x2, DOOR_BOX.y2, w, h);
+    const dw = x2 - x1;
+    _ctx.fillStyle = 'rgba(255,214,0,0.12)';
+    _ctx.fillRect(x1, 0, dw, h);
+    const label = 'VISIT THE SHOP';
+    const fs = Math.max(14, h * 0.028);
+    _ctx.font = `${fs}px VT323, monospace`;
+    _ctx.textAlign = 'center';
+    _ctx.textBaseline = 'middle';
+    const lx = x1 + dw / 2;
+    const ly = h * 0.5;
+    const tw = _ctx.measureText(label).width;
+    _ctx.fillStyle = 'rgba(0,0,0,0.72)';
+    _ctx.fillRect(lx - tw / 2 - 8, ly - fs * 0.7, tw + 16, fs * 1.4);
+    _ctx.strokeStyle = 'rgba(255,214,0,0.55)';
+    _ctx.lineWidth = 1;
+    _ctx.strokeRect(lx - tw / 2 - 8, ly - fs * 0.7, tw + 16, fs * 1.4);
+    _ctx.fillStyle = '#FFD600';
+    _ctx.fillText(label, lx, ly);
+    _ctx.textAlign = 'left';
+    _ctx.textBaseline = 'alphabetic';
+  }
 }
 
 // ─────────────────────────────────────────────
