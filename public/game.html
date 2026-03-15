@@ -832,7 +832,7 @@ const SAVE_KEY = 'wristgame_v2';
 
 function save() {
   const d = { pts, totalPts, cpc, pps, spdMult, frac, maxStamina, stamina, staminaPerPoint, cooldownDur,
-              cokeCount, cokeDeclined, pillGiven, momDebuffUntil,
+              cokeCount, cokeDeclined, pillGiven, momEventDone, momDebuffUntil,
               pornEventDone, hentaiChosen, onaholeOwned, milfUnlocked,
               cycleStart, shopGrumpy, shopAngryUntil,
               equippedTool, equippedLube, equippedContent,
@@ -860,6 +860,7 @@ function load() {
     cokeCount      = d.cokeCount      || 0;
     cokeDeclined   = d.cokeDeclined   || false;
     pillGiven      = d.pillGiven      || false;
+    momEventDone   = d.momEventDone   || false;
     momDebuffUntil = d.momDebuffUntil || 0;
     pornEventDone  = d.pornEventDone  || false;
     hentaiChosen   = d.hentaiChosen   || false;
@@ -881,7 +882,7 @@ function resetGame() {
   pts=0; totalPts=0; cpc=1; pps=0; spdMult=1; frac=0;
   maxStamina=100; stamina=100; staminaPerPoint=0.1; cooldownDur=1800;
   onCooldown=false; cooldownLeft=0;
-  cokeCount=0; cokeDeclined=false; pillGiven=false; momDebuffUntil=0;
+  cokeCount=0; cokeDeclined=false; pillGiven=false; momEventDone=false; momDebuffUntil=0;
   pornEventDone=false; hentaiChosen=false; onaholeOwned=false; milfUnlocked=false;
   cycleStart=Date.now(); shopGrumpy=false; shopAngryUntil=0;
   equippedTool='t0'; equippedLube='l0'; equippedContent='co0';
