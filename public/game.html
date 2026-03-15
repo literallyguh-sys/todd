@@ -188,11 +188,18 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 #day-clock.clock-day   { color:#FFD600; border-color:rgba(255,214,0,0.3); }
 #day-clock.clock-night { color:#7aaddd; border-color:rgba(100,160,220,0.35); }
 
-/* ── Shout button (shop room night) ── */
-#sr-shout-btn { display:none; position:absolute; left:50%; transform:translateX(-50%);
-  bottom:60px; z-index:10;
+/* ── Night / closed screen ── */
+#sr-closed { display:none; position:absolute; inset:0; z-index:5;
+  align-items:center; justify-content:center; flex-direction:column; gap:18px; }
+#sr-closed.show { display:flex; }
+#sr-closed-title { font-size:52px; color:rgba(180,160,240,0.9); letter-spacing:10px; }
+#sr-closed-sub   { font-size:22px; color:rgba(140,120,200,0.6); letter-spacing:5px; }
+#sr-closed-timer { font-size:17px; color:rgba(120,100,180,0.55); letter-spacing:3px; }
+
+/* ── Shout button ── */
+#sr-shout-btn { display:none;
   background:rgba(6,4,10,0.95); border:2px solid rgba(120,100,200,0.55);
-  color:rgba(180,160,240,0.9); font-family:'VT323',monospace; font-size:22px;
+  color:rgba(180,160,240,0.9); font-family:'VT323',monospace; font-size:20px;
   letter-spacing:4px; padding:10px 36px; cursor:pointer;
   box-shadow:0 4px 28px rgba(0,0,0,0.8); transition:border-color .12s, color .12s; }
 #sr-shout-btn:hover { border-color:rgba(180,160,240,0.9); color:#fff; }
