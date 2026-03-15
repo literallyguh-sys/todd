@@ -1087,6 +1087,12 @@ function renderCanvas() {
     _ctx.drawImage(_cvsItem, w * 0.5 - sz * 0.5, h * 0.55 + oy, sz, sz);
   }
   if (_cvsTodd.complete && _cvsTodd.naturalWidth) _drawCover(_cvsTodd, w, h);
+  if (_clickFlash > 0) {
+    _ctx.globalAlpha = _clickFlash * 0.18;
+    _ctx.fillStyle = '#ffffff';
+    _ctx.fillRect(0, 0, w, h);
+    _ctx.globalAlpha = 1;
+  }
 }
 
 // ─────────────────────────────────────────────
