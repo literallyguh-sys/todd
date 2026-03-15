@@ -1127,6 +1127,9 @@ function tick(ts) {
     if (ts - lastEffectsTs > 1000) { renderEffects(); lastEffectsTs = ts; }
     if (ts - lastClockTs   > 1000) { renderClock(); checkDayNightTransition(); updateNightState(); lastClockTs = ts; }
 
+    // Decay click flash
+    if (_clickFlash > 0) _clickFlash = Math.max(0, _clickFlash - dt / 0.12);
+
     // Advance canvas stroke phase
     if (!onCooldown) {
       if (_clickBurst) {
