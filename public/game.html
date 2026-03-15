@@ -1157,11 +1157,16 @@ function renderShopRoom() {
       const div  = document.createElement('div');
       div.className = 'sr-item' + (isEq ? ' gear-active' : '');
       div.innerHTML =
+        `<div class="sr-item-body">` +
+        `<img class="sr-item-thumb" src="/${item.img}" alt="">` +
+        `<div class="sr-item-text">` +
         `<div class="sr-row1"><span class="sr-name">${item.name}</span><div class="sr-btns">` +
         (isEq ? `<span class="sr-cost" style="color:var(--green)">EQUIPPED</span>`
-               : `<button class="gear-btn gear-equip-btn" onclick="equipGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">EQUIP</button>`) +
-        (!item.free ? `<button class="gear-btn gear-sell-btn" onclick="sellGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">SELL +${fmt(item.sell)}</button>` : '') +
-        `</div></div><div class="sr-desc">${item.desc}</div>`;
+               : `<button class="gear-btn gear-equip-btn" onclick="event.stopPropagation();equipGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">EQUIP</button>`) +
+        (!item.free ? `<button class="gear-btn gear-sell-btn" onclick="event.stopPropagation();sellGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">SELL +${fmt(item.sell)}</button>` : '') +
+        `</div></div><div class="sr-desc">${item.desc}</div>` +
+        `</div></div>`;
+      div.addEventListener('click', () => showItemDetail(shopRoomTab, item));
       list.appendChild(div);
     });
   }
@@ -1174,13 +1179,32 @@ function renderShopRoom() {
       const div    = document.createElement('div');
       div.className = 'sr-item' + (!canBuy ? ' locked' : '');
       div.innerHTML =
+        `<div class="sr-item-body">` +
+        `<img class="sr-item-thumb" src="/${item.img}" alt="">` +
+        `<div class="sr-item-text">` +
         `<div class="sr-row1"><span class="sr-name">${item.name}</span>` +
         `<span class="sr-cost">${fmt(item.cost)} pts</span></div>` +
-        `<div class="sr-desc">${item.desc}</div>`;
-      if (canBuy) div.addEventListener('click', () => { buyGear(shopRoomTab, item.id); renderShopRoom(); renderShopRoomPts(); });
+        `<div class="sr-desc">${item.desc}</div>` +
+        (canBuy ? `<div class="sr-btns"><button class="gear-btn gear-equip-btn" onclick="event.stopPropagation();buyGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">BUY</button></div>` : '') +
+        `</div></div>`;
+      div.addEventListener('click', () => showItemDetail(shopRoomTab, item));
       list.appendChild(div);
     });
   }
+}
+
+function showItemDetail(cat, item) {
+  const catLabels = { tool:'TOOL', lube:'LUBE', content:'CONTENT' };
+  document.getElementById('sr-detail-img').src         = '/' + item.img;
+  document.getElementById('sr-detail-cat').textContent  = catLabels[cat] || cat.toUpperCase();
+  document.getElementById('sr-detail-name').textContent = item.name;
+  document.getElementById('sr-detail-stat').textContent = item.desc;
+  document.getElementById('sr-detail-lore').textContent = item.lore || '';
+  document.getElementById('sr-detail').classList.add('show');
+}
+
+function hideItemDetail() {
+  document.getElementById('sr-detail').classList.remove('show');
 }
 
 function openGearSelect(cat) {
