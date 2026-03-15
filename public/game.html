@@ -409,10 +409,9 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 
     <div id="scene-wrap" onclick="handleClick(event)">
       <div id="scene">
-        <div id="char-img"><img src="/Game/toddinchair.png" alt=""></div>
-        <!-- HAND: replace with <img src="hand.png">, adjust bottom/left -->
+        <canvas id="game-canvas"></canvas>
+        <!-- #hand kept invisible — drives click-burst timing via animationend -->
         <div id="hand"><span class="hand-placeholder">✋</span></div>
-        <!-- DOOR: position/size matches drawn door in background image -->
         <div id="door-hotspot" onclick="openShopRoom(event)" title="THE SHOP"></div>
       </div>
       <div id="equip-panel">
