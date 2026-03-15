@@ -1234,6 +1234,9 @@ function openShopRoom(e) {
     shopRoomTab      = 'tool';
     selectedShopItem = null;
     selectedShopCat  = null;
+    fapbagOpen = false;
+    document.getElementById('fapbag-panel').classList.remove('show');
+    closeHagglePanel();
     document.getElementById('shop-room').classList.add('show');
     document.querySelectorAll('.sr-tab').forEach(t =>
       t.classList.toggle('active', t.dataset.tab === shopRoomTab));
