@@ -578,6 +578,19 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
   </div>
 </div>
 
+<!-- MOM event -->
+<div id="mom-overlay">
+  <div id="mom-box">
+    <div id="mom-text"></div>
+    <div id="mom-choices">
+      <button class="mom-btn" onclick="momChoose('cover')">COVER YOURSELF WITH A BLANKET AND PRETEND LIKE NOTHING HAPPENED</button>
+      <button class="mom-btn" onclick="momChoose('continue')">CONTINUE</button>
+    </div>
+    <button id="mom-ok" style="display:none" onclick="momDismiss()">[ OK ]</button>
+  </div>
+</div>
+<div id="mom-speech"></div>
+
 <!-- SORE overlay -->
 <div id="sore-overlay">
   <div id="sore-box">
