@@ -2055,6 +2055,7 @@ function finishHaggle() {
 }
 
 function openGearSelect(cat) {
+  if (activeEvent || _momState) return;
   const labels = { tool:'SELECT TOOL', lube:'SELECT LUBE', content:'SELECT CONTENT' };
   const equippedId = cat==='tool' ? equippedTool : cat==='lube' ? equippedLube : equippedContent;
   document.getElementById('gear-select-title').textContent = labels[cat];
