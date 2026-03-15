@@ -267,6 +267,8 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
         <div id="char-img"><span class="char-placeholder">🧍</span></div>
         <!-- HAND: replace with <img src="hand.png">, adjust bottom/left -->
         <div id="hand"><span class="hand-placeholder">✋</span></div>
+        <!-- DOOR: position/size matches drawn door in background image -->
+        <div id="door-hotspot" onclick="openShopRoom(event)" title="THE SHOP"></div>
       </div>
       <div id="equip-panel">
         <div class="equip-slot" onclick="openGearSelect('tool')">
