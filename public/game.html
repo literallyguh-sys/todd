@@ -1078,6 +1078,17 @@ function _strokeOffset(phase, amp) {
   return amp * 0.24 * (1 - (phase - 0.72) / 0.28);
 }
 
+// Convert a normalised background-image coordinate (0–1) to canvas pixel coordinate
+function _bgToCanvas(nx, ny, w, h) {
+  const ia = _cvsBg.naturalWidth / _cvsBg.naturalHeight;
+  const ca = w / h;
+  let sx, sy, sw, sh;
+  if (ia > ca) { sh = _cvsBg.naturalHeight; sw = sh * ca; sx = (_cvsBg.naturalWidth  - sw) / 2; sy = 0; }
+  else         { sw = _cvsBg.naturalWidth;  sh = sw / ca; sy = (_cvsBg.naturalHeight - sh) / 2; sx = 0; }
+  return [(nx * _cvsBg.naturalWidth  - sx) / sw * w,
+          (ny * _cvsBg.naturalHeight - sy) / sh * h];
+}
+
 function _drawCover(img, w, h) {
   const ia = img.naturalWidth / img.naturalHeight;
   const ca = w / h;
