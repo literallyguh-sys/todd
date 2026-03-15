@@ -863,11 +863,15 @@ function showAnnouncement(msg) {
 // ─────────────────────────────────────────────
 function _positionMomSpeech() {
   if (!_cvsBg.naturalWidth || !_canvas.width) return;
-  const midX = (DOOR_BOX.x1 + DOOR_BOX.x2) / 2;
-  const [px]  = _bgToCanvas(midX, 0, _canvas.width, _canvas.height);
-  const sp    = document.getElementById('mom-speech');
+  const midX        = (DOOR_BOX.x1 + DOOR_BOX.x2) / 2;
+  const [px]        = _bgToCanvas(midX, 0, _canvas.width, _canvas.height);
+  const [x1]        = _bgToCanvas(DOOR_BOX.x1, 0, _canvas.width, _canvas.height);
+  const [x2]        = _bgToCanvas(DOOR_BOX.x2, 0, _canvas.width, _canvas.height);
+  const doorW       = x2 - x1;
+  const sp          = document.getElementById('mom-speech');
   sp.style.left      = px + 'px';
   sp.style.transform = 'translateX(-50%)';
+  sp.style.width     = Math.floor(doorW * 0.78) + 'px';
 }
 
 function startMomEvent() {
