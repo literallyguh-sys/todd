@@ -826,7 +826,7 @@ function tick(ts) {
     }
 
     // Passive income runs always — even during cooldown, and costs no stamina
-    frac += pps * dt;
+    frac += pps * dt * 0.25;
     if (frac >= 1) {
       const whole  = Math.floor(frac);
       const earned = whole * spdMult * pointMult() * contentMult();
