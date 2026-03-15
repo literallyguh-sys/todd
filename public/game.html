@@ -1110,6 +1110,8 @@ function renderCanvas() {
   if (!w || !h) return;
   _ctx.clearRect(0, 0, w, h);
   if (onCooldown) _ctx.filter = 'brightness(0.45) saturate(0.3)';
+  // Draw doorway behind background (fills left transparent area)
+  if (_cvsDoor.complete && _cvsDoor.naturalWidth) _drawCover(_cvsDoor, w, h);
   // Draw content screen image before background so it shows through the transparent monitor hole
   if (_cvsScreen && _cvsScreen.complete && _cvsScreen.naturalWidth && _cvsBg.naturalWidth) {
     const [x1, y1] = _bgToCanvas(SCREEN_BOX.x1, SCREEN_BOX.y1, w, h);
