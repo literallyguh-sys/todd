@@ -1102,6 +1102,17 @@ function renderEffects() {
     effects.push({ cls:'effect-debuff', text:'-20% POINTS (' + timeStr + ')' });
   }
 
+  if (shopAngryUntil > Date.now()) {
+    const msLeft  = shopAngryUntil - Date.now();
+    const hLeft   = Math.floor(msLeft / 3600000);
+    const mLeft   = Math.floor((msLeft % 3600000) / 60000);
+    const timeStr = hLeft > 0 ? hLeft + 'h ' + mLeft + 'm' : mLeft + 'm';
+    effects.push({ cls:'effect-debuff', text:'SHOP LOCKED — ' + timeStr });
+  }
+  if (shopGrumpy && isNight()) {
+    effects.push({ cls:'effect-debuff', text:'SHOP SURCHARGE +50%' });
+  }
+
   if (!effects.length) { box.classList.remove('visible'); return; }
   box.classList.add('visible');
   list.innerHTML = effects.map(e =>
