@@ -832,6 +832,7 @@ function resetGame() {
   ownedGear = new Set(['t0','l0','co0']);
   UPS.forEach(u => u.count=0);
   updatePassiveAnim();
+  updateHandVisual();
   renderEquipPanel();
   renderStats();
   renderStamina();
@@ -1624,6 +1625,7 @@ setInterval(save, 15000);
 // ─────────────────────────────────────────────
 load();
 updatePassiveAnim();
+updateHandVisual();
 renderEquipPanel();
 renderEffects();
 renderStats();
