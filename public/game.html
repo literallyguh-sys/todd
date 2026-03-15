@@ -1051,6 +1051,76 @@ function sellGear(cat, id) {
   renderEquipPanel(); renderStats(); renderShop(); save();
 }
 
+// ─────────────────────────────────────────────
+//  Shop room
+// ─────────────────────────────────────────────
+let shopRoomTab = 'tool';
+
+function openShopRoom(e) {
+  e.stopPropagation(); // don't fire handleClick
+  shopRoomTab = 'tool';
+  document.getElementById('shop-room').classList.add('show');
+  document.querySelectorAll('.sr-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === shopRoomTab));
+  renderShopRoom();
+  renderShopRoomPts();
+}
+
+function closeShopRoom() {
+  document.getElementById('shop-room').classList.remove('show');
+}
+
+function setShopTab(tab) {
+  shopRoomTab = tab;
+  document.querySelectorAll('.sr-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === tab));
+  renderShopRoom();
+}
+
+function renderShopRoomPts() {
+  document.getElementById('sr-val-pts').textContent = fmt(pts);
+}
+
+function renderShopRoom() {
+  const list = document.getElementById('sr-items');
+  list.innerHTML = '';
+  const items      = GEAR[shopRoomTab];
+  const equippedId = shopRoomTab==='tool' ? equippedTool : shopRoomTab==='lube' ? equippedLube : equippedContent;
+
+  const ownedItems = items.filter(i => ownedGear.has(i.id));
+  if (ownedItems.length) {
+    const dh = document.createElement('div'); dh.className='sr-divider'; dh.textContent='── INVENTORY ──'; list.appendChild(dh);
+    ownedItems.forEach(item => {
+      const isEq = item.id === equippedId;
+      const div  = document.createElement('div');
+      div.className = 'sr-item' + (isEq ? ' gear-active' : '');
+      div.innerHTML =
+        `<div class="sr-row1"><span class="sr-name">${item.name}</span><div class="sr-btns">` +
+        (isEq ? `<span class="sr-cost" style="color:var(--green)">EQUIPPED</span>`
+               : `<button class="gear-btn gear-equip-btn" onclick="equipGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">EQUIP</button>`) +
+        (!item.free ? `<button class="gear-btn gear-sell-btn" onclick="sellGear('${shopRoomTab}','${item.id}');renderShopRoom();renderShopRoomPts()">SELL +${fmt(item.sell)}</button>` : '') +
+        `</div></div><div class="sr-desc">${item.desc}</div>`;
+      list.appendChild(div);
+    });
+  }
+
+  const shopItems = items.filter(i => !ownedGear.has(i.id) && !(i.locked && i.locked()));
+  if (shopItems.length) {
+    const ds = document.createElement('div'); ds.className='sr-divider'; ds.textContent='── FOR SALE ──'; list.appendChild(ds);
+    shopItems.forEach(item => {
+      const canBuy = pts >= item.cost;
+      const div    = document.createElement('div');
+      div.className = 'sr-item' + (!canBuy ? ' locked' : '');
+      div.innerHTML =
+        `<div class="sr-row1"><span class="sr-name">${item.name}</span>` +
+        `<span class="sr-cost">${fmt(item.cost)} pts</span></div>` +
+        `<div class="sr-desc">${item.desc}</div>`;
+      if (canBuy) div.addEventListener('click', () => { buyGear(shopRoomTab, item.id); renderShopRoom(); renderShopRoomPts(); });
+      list.appendChild(div);
+    });
+  }
+}
+
 function openGearSelect(cat) {
   const labels = { tool:'SELECT TOOL', lube:'SELECT LUBE', content:'SELECT CONTENT' };
   const equippedId = cat==='tool' ? equippedTool : cat==='lube' ? equippedLube : equippedContent;
