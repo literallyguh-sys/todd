@@ -1791,6 +1791,8 @@ function shoutAtShopkeeper() {
 //  Init
 // ─────────────────────────────────────────────
 load();
+if (!cycleStart) cycleStart = Date.now();
+_wasNight = isNight();
 updatePassiveAnim();
 updateHandVisual();
 renderEquipPanel();
