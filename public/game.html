@@ -407,6 +407,42 @@ const UPS = [
 UPS.forEach(u => u.count = 0);
 
 // ─────────────────────────────────────────────
+//  Gear
+// ─────────────────────────────────────────────
+const GEAR = {
+  tool: [
+    { id:'t0', name:'Bare Hand',     desc:'The classic.',              cpcB:0,   cost:0,     sell:0,    free:true  },
+    { id:'t1', name:'Sock',          desc:'+3 per click',              cpcB:3,   cost:150,   sell:75    },
+    { id:'t2', name:'Fleshlight',    desc:'+15 per click',             cpcB:15,  cost:1200,  sell:600   },
+    { id:'t3', name:'Vibrator',      desc:'+50 per click',             cpcB:50,  cost:5000,  sell:2500  },
+    { id:'t4', name:'USAGI ONAHOLE', desc:'+100 per click',            cpcB:100, cost:15000, sell:7500, locked:()=>!hentaiChosen },
+  ],
+  lube: [
+    { id:'l0', name:'None',          desc:'Dry. Ouch.',                lubeM:1.0,  cost:0,     sell:0,    free:true  },
+    { id:'l1', name:'Saliva',        desc:'-10% stamina per click',    lubeM:0.9,  cost:200,   sell:100   },
+    { id:'l2', name:'Basic Lotion',  desc:'-20% stamina per click',    lubeM:0.8,  cost:800,   sell:400   },
+    { id:'l3', name:'Coconut Oil',   desc:'-35% stamina per click',    lubeM:0.65, cost:3000,  sell:1500  },
+    { id:'l4', name:'Premium Lube',  desc:'-50% stamina per click',    lubeM:0.5,  cost:10000, sell:5000  },
+  ],
+  content: [
+    { id:'co0', name:'Nothing',       desc:'Pure imagination.',         contentM:1.0,  cost:0,     sell:0,    free:true  },
+    { id:'co1', name:'Amateur Video', desc:'+15% passive income',       contentM:1.15, cost:300,   sell:150   },
+    { id:'co2', name:'OnlyFans',      desc:'+30% passive income',       contentM:1.3,  cost:1500,  sell:750   },
+    { id:'co3', name:'Premium Site',  desc:'+50% passive income',       contentM:1.5,  cost:5000,  sell:2500  },
+    { id:'co4', name:'HENTAI',        desc:'+80% passive income',       contentM:1.8,  cost:12000, sell:6000, locked:()=>!hentaiChosen },
+  ],
+};
+
+let equippedTool    = 't0';
+let equippedLube    = 'l0';
+let equippedContent = 'co0';
+let ownedGear       = new Set(['t0','l0','co0']);
+
+function toolCpc()     { const i = GEAR.tool.find(x=>x.id===equippedTool);    return i ? (i.cpcB    || 0) : 0;   }
+function lubeMult()    { const i = GEAR.lube.find(x=>x.id===equippedLube);    return i ? (i.lubeM   ?? 1) : 1;   }
+function contentMult() { const i = GEAR.content.find(x=>x.id===equippedContent); return i ? (i.contentM ?? 1) : 1; }
+
+// ─────────────────────────────────────────────
 //  Random events
 // ─────────────────────────────────────────────
 const EVENTS = [
